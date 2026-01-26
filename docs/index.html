@@ -5,34 +5,16 @@
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>PA Airport Status (FAA NAS)</title>
 
+  <!-- Leaflet (map) -->
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+
   <style>
     body { font-family: system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif; margin: 16px; }
 
     header { display:flex; flex-wrap:wrap; align-items:baseline; gap: 10px; margin-bottom: 6px; }
     h1 { font-size: 1.25rem; margin: 0; }
-
     .meta { font-size: 0.9rem; }
-
-    .grid { display:grid; grid-template-columns: repeat(auto-fit, minmax(360px, 1fr)); gap: 12px; }
-
-    .card {
-      border:1px solid #333;
-      border-radius: 12px;
-      padding: 10px;
-    }
-
-    .card h2 { margin: 0 0 8px 0; font-size: 1.05rem; }
-
-    table { width:100%; border-collapse: collapse; }
-
-    th, td {
-      text-align:left;
-      vertical-align: top;
-      padding: 6px;
-      border-top: 1px solid #ddd;
-    }
-
-    th { font-weight: 700; }
 
     .btn {
       padding: 6px 10px;
@@ -42,15 +24,59 @@
       cursor:pointer;
     }
 
-    .rowTitle { white-space: nowrap; font-weight: 700; }
-
-    .small { font-size: 0.9rem; color:#444; margin-top: 2px; }
-
-    .detailsBox {
-      border-left: 3px solid #ddd;
-      padding-left: 8px;
-      margin-top: 6px;
+    .banner {
+      border: 1px solid #333;
+      border-radius: 12px;
+      padding: 8px 12px;
+      margin: 10px 0 14px 0;
+      font-weight: 700;
     }
+    .banner-ok { background: #e6e6e6; color:#000; }
+    .banner-impact { background: #fff3cd; color:#000; }
+    .banner-closed { background: #f8d7da; color:#000; }
+
+    /* Map */
+    #mapWrap { margin: 0 0 14px 0; }
+    #map {
+      height: 320px;
+      border: 1px solid #333;
+      border-radius: 12px;
+      overflow: hidden;
+    }
+    .mapLegend {
+      display:flex;
+      gap: 10px;
+      align-items:center;
+      margin-top: 6px;
+      font-size: 0.9rem;
+      color:#222;
+    }
+    .dot { width: 10px; height: 10px; border-radius: 999px; display:inline-block; border:1px solid #333; }
+    .dot-ok { background:#dff4e5; }
+    .dot-impact { background:#fff3cd; }
+    .dot-closed { background:#f8d7da; }
+
+    .grid { display:grid; grid-template-columns: repeat(auto-fit, minmax(360px, 1fr)); gap: 12px; }
+
+    .card {
+      border:1px solid #333;
+      border-radius: 12px;
+      padding: 10px;
+    }
+    .card h2 { margin: 0 0 8px 0; font-size: 1.05rem; }
+
+    table { width:100%; border-collapse: collapse; }
+    th, td {
+      text-align:left;
+      vertical-align: top;
+      padding: 6px;
+      border-top: 1px solid #ddd;
+    }
+    th { font-weight: 700; }
+
+    .rowTitle { white-space: nowrap; font-weight: 700; }
+    .small { font-size: 0.9rem; color:#444; margin-top: 2px; }
+    .detailsBox { border-left: 3px solid #ddd; padding-left: 8px; margin-top: 6px; }
 
     /* Pills */
     .pill {
@@ -62,231 +88,5 @@
       font-weight: 800;
       line-height: 1.4;
     }
-
-    .pill-ok { background: #e6e6e6; }
-    .pill-impact { background: #fff3cd; }
-    .pill-closed { background: #f8d7da; }
-
-    /* Top banner */
-    .banner {
-      border: 1px solid #333;
-      border-radius: 12px;
-      padding: 8px 12px;
-      margin: 10px 0 14px 0;
-      font-weight: 700;
-    }
-
-    .banner-ok {
-      background: #e6e6e6;
-      color: #000;
-    }
-
-    .banner-impact {
-      background: #fff3cd;
-      color: #000;
-    }
-
-    .banner-closed {
-      background: #f8d7da;
-      color: #000;
-    }
-  </style>
-</head>
-
-<body>
-
-<header>
-  <h1>PA Airport Status (FAA NAS Status)</h1>
-  <button class="btn" onclick="loadData(true)">Refresh</button>
-  <div class="meta" id="meta">Loading…</div>
-</header>
-
-<div class="banner banner-ok" id="banner"></div>
-
-<div class="grid" id="grid"></div>
-
-<script>
-const REFRESH_MS = 5 * 60 * 1000;
-
-function esc(s){
-  return (s ?? "").toString().replace(/[&<>"']/g, c => ({
-    '&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'
-  }[c]));
-}
-
-function computeStatus(st){
-  const s = (st.status || "").toUpperCase();
-  if (s === "CLOSED") return "CLOSED";
-  if (s === "IMPACT") return "IMPACT";
-  if (st.closed === true) return "CLOSED";
-  return "OK";
-}
-
-function pill(status){
-  if(status === "CLOSED") return `<span class="pill pill-closed">CLOSED</span>`;
-  if(status === "IMPACT") return `<span class="pill pill-impact">IMPACT</span>`;
-  return `<span class="pill pill-ok">OK</span>`;
-}
-
-/* Parse NOTAM time window: YYMMDDhhmm-YYMMDDhhmm (UTC) */
-function parseNotamWindow(line){
-  if(!line) return null;
-  const m = line.match(/(\d{10})-(\d{10})\s*$/);
-  if(!m) return null;
-
-  function toDate(s){
-    const year = 2000 + parseInt(s.slice(0,2),10);
-    const month = parseInt(s.slice(2,4),10)-1;
-    const day = parseInt(s.slice(4,6),10);
-    const hour = parseInt(s.slice(6,8),10);
-    const min = parseInt(s.slice(8,10),10);
-    return new Date(Date.UTC(year,month,day,hour,min));
-  }
-
-  return {
-    start: toDate(m[1]),
-    end: toDate(m[2])
-  };
-}
-
-function formatLocal(d){
-  const pad = n => String(n).padStart(2,'0');
-  return `${pad(d.getMonth()+1)}/${pad(d.getDate())}/${String(d.getFullYear()).slice(-2)} ${pad(d.getHours())}:${pad(d.getMinutes())}`;
-}
-
-function renderEvents(events, status){
-  if(status === "CLOSED") return "";
-  if(!events || events.length === 0) return `<div class="small">No active NAS events.</div>`;
-
-  let html = `<div class="detailsBox">`;
-  for(const e of events){
-    const t = esc(e.type || "");
-    const r = esc(e.reason || "");
-    const a = esc(e.avg_delay || "");
-    const extra = a ? ` (avg ${a} min)` : "";
-    html += `<div class="small"><span class="rowTitle">${t}:</span> ${r}${extra}</div>`;
-  }
-  html += `</div>`;
-  return html;
-}
-
-function renderRegion(regionName, airports, data){
-  let rows = "";
-
-  for(const a of airports){
-    const st = data.airports[a.code];
-    if(!st) continue;
-
-    const status = computeStatus(st);
-    const statusPill = pill(status);
-
-    let closureBlock = "";
-    if(status === "CLOSED" && st.closure_reason){
-      const parsed = parseNotamWindow(st.closure_reason);
-      if(parsed){
-        closureBlock =
-          `<div class="small"><span class="rowTitle">Closed:</span>
-            ${formatLocal(parsed.start)} → ${formatLocal(parsed.end)} (local)
-           </div>`;
-      } else {
-        closureBlock =
-          `<div class="small"><span class="rowTitle">Closure:</span> ${esc(st.closure_reason)}</div>`;
-      }
-    }
-
-    const evBlock = renderEvents(st.events, status);
-
-    rows += `
-      <tr>
-        <td class="rowTitle">${esc(a.code)}</td>
-        <td>${esc(a.name || "")}</td>
-        <td>${statusPill}</td>
-      </tr>
-      <tr>
-        <td colspan="3">
-          ${closureBlock}
-          ${evBlock}
-        </td>
-      </tr>
-    `;
-  }
-
-  return `
-    <div class="card">
-      <h2>${esc(regionName)}</h2>
-      <table>
-        <thead>
-          <tr><th>Code</th><th>Airport</th><th>Status</th></tr>
-        </thead>
-        <tbody>${rows}</tbody>
-      </table>
-    </div>
-  `;
-}
-
-function buildBanner(data){
-  const regions = ["Western","Central","Eastern"];
-  let totalClosed = 0;
-  let totalImpact = 0;
-  let totalOk = 0;
-
-  for(const r of regions){
-    for(const a of data.regions[r]){
-      const st = data.airports[a.code];
-      if(!st) continue;
-      const s = computeStatus(st);
-      if(s === "CLOSED") totalClosed++;
-      else if(s === "IMPACT") totalImpact++;
-      else totalOk++;
-    }
-  }
-
-  const banner = document.getElementById("banner");
-
-  if(totalClosed > 0){
-    banner.className = "banner banner-closed";
-    banner.innerHTML = `🔴 <strong>${totalClosed} PA airport(s) CLOSED</strong> • ${totalImpact} impacted • ${totalOk} OK`;
-  }
-  else if(totalImpact > 0){
-    banner.className = "banner banner-impact";
-    banner.innerHTML = `🟡 <strong>No closures</strong> • ${totalImpact} impacted • ${totalOk} OK`;
-  }
-  else{
-    banner.className = "banner banner-ok";
-    banner.innerHTML = `⚫ <strong>All PA airports operational</strong>`;
-  }
-}
-
-let timerHandle = null;
-
-async function loadData(force=false){
-  try{
-    const r = await fetch(`status.json?ts=${Date.now()}`, { cache: "no-store" });
-    const data = await r.json();
-
-    document.getElementById("meta").textContent =
-      `Last update (UTC): ${data.generated_utc} • Auto-refresh every 5 min`;
-
-    buildBanner(data);
-
-    const grid = document.getElementById("grid");
-    grid.innerHTML =
-      renderRegion("Western", data.regions.Western, data) +
-      renderRegion("Central", data.regions.Central, data) +
-      renderRegion("Eastern", data.regions.Eastern, data);
-
-    if(timerHandle) clearTimeout(timerHandle);
-    timerHandle = setTimeout(() => loadData(false), REFRESH_MS);
-
-  } catch(e){
-    document.getElementById("meta").textContent =
-      `Error loading status.json (${e})`;
-    if(timerHandle) clearTimeout(timerHandle);
-    timerHandle = setTimeout(() => loadData(false), 60000);
-  }
-}
-
-loadData(false);
-</script>
-</body>
-</html>
+    .pill-ok { background: #dff4e5; }
+    .pill-impact { background: #fff
