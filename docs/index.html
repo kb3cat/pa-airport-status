@@ -1,0 +1,105 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>PA Airport Status (FAA NAS)</title>
+  <style>
+    body { font-family: system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif; margin: 16px; }
+    header { display:flex; flex-wrap:wrap; align-items:baseline; gap: 10px; margin-bottom: 10px; }
+    h1 { font-size: 1.2rem; margin: 0; }
+    .meta { color:#444; font-size: 0.95rem; }
+    .grid { display:grid; grid-template-columns: repeat(auto-fit, minmax(340px, 1fr)); gap: 12px; }
+    .card { border:1px solid #333; border-radius: 12px; padding: 10px; }
+    .card h2 { margin: 0 0 8px 0; font-size: 1.05rem; }
+    table { width:100%; border-collapse: collapse; }
+    th, td { text-align:left; vertical-align: top; padding: 6px; border-top: 1px solid #ddd; }
+    th { font-weight: 700; }
+    .pill { display:inline-block; padding: 2px 8px; border-radius: 999px; border:1px solid #333; font-size: 0.85rem; }
+    .closed { font-weight: 800; }
+    .small { font-size: 0.9rem; color:#444; }
+    .btn { padding: 6px 10px; border-radius: 10px; border:1px solid #333; background:#fff; cursor:pointer; }
+    .rowTitle { white-space: nowrap; font-weight: 700; }
+  </style>
+</head>
+<body>
+  <header>
+    <h1>PA Airport Status (FAA NAS Status)</h1>
+    <button class="btn" onclick="loadData()">Refresh</button>
+    <div class="meta" id="meta">Loading…</div>
+  </header>
+
+  <div class="grid" id="grid"></div>
+
+<script>
+function esc(s){ return (s ?? "").toString().replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c])); }
+
+function eventLine(label, obj){
+  if(!obj) return "";
+  const reason = esc(obj.reason || "");
+  const avg = esc(obj.avg_delay || "");
+  const extra = (avg ? ` (avg ${avg} min)` : "");
+  return `<div class="small"><span class="rowTitle">${label}:</span> ${reason}${extra}</div>`;
+}
+
+function renderRegion(regionName, airports, data){
+  let rows = "";
+  for(const a of airports){
+    const st = data.airports[a.code];
+    if(!st) continue;
+
+    const pill = st.closed
+      ? `<span class="pill closed">CLOSED</span>`
+      : `<span class="pill">OK</span>`;
+
+    let details = "";
+    if(st.closed) details += `<div class="small"><span class="rowTitle">Closure:</span> ${esc(st.closure_reason)}</div>`;
+    details += eventLine("Ground Stop", st.ground_stop);
+    details += eventLine("GDP", st.gdp);
+    details += eventLine("Arrival Delay", st.arrival_delay);
+    details += eventLine("Departure Delay", st.departure_delay);
+    details += eventLine("Deicing", st.deicing);
+
+    if(!details && !st.closed) details = `<div class="small">No active NAS events.</div>`;
+
+    rows += `
+      <tr>
+        <td class="rowTitle">${esc(a.code)}</td>
+        <td>${esc(a.name || "")}</td>
+        <td>${pill}</td>
+      </tr>
+      <tr>
+        <td colspan="3">${details}</td>
+      </tr>
+    `;
+  }
+
+  return `
+    <div class="card">
+      <h2>${esc(regionName)}</h2>
+      <table>
+        <thead><tr><th>Code</th><th>Airport</th><th>Status</th></tr></thead>
+        <tbody>${rows}</tbody>
+      </table>
+    </div>
+  `;
+}
+
+async function loadData(){
+  const r = await fetch(`status.json?ts=${Date.now()}`, { cache: "no-store" });
+  const data = await r.json();
+
+  document.getElementById("meta").textContent =
+    `Last update (UTC): ${data.generated_utc} • Auto-updated by GitHub Actions (every 5 min)`;
+
+  const grid = document.getElementById("grid");
+  grid.innerHTML =
+    renderRegion("Western", data.regions.Western, data) +
+    renderRegion("Central", data.regions.Central, data) +
+    renderRegion("Eastern", data.regions.Eastern, data);
+}
+
+loadData();
+</script>
+</body>
+</html>
