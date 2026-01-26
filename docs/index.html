@@ -5,24 +5,16 @@
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>PA Airport Status (FAA NAS)</title>
 
-  <!-- Leaflet (map) -->
+  <!-- Leaflet (map) - loads from CDN; page still works if it fails -->
   <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
   <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 
   <style>
-    body { font-family: system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif; margin: 16px; }
-
+    body { font-family: system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif; margin: 16px; color:#111; }
     header { display:flex; flex-wrap:wrap; align-items:baseline; gap: 10px; margin-bottom: 6px; }
     h1 { font-size: 1.25rem; margin: 0; }
-    .meta { font-size: 0.9rem; }
-
-    .btn {
-      padding: 6px 10px;
-      border-radius: 10px;
-      border:1px solid #333;
-      background:#fff;
-      cursor:pointer;
-    }
+    .meta { font-size: 0.9rem; color:#333; }
+    .btn { padding: 6px 10px; border-radius: 10px; border:1px solid #333; background:#fff; cursor:pointer; }
 
     .banner {
       border: 1px solid #333;
@@ -34,6 +26,7 @@
     .banner-ok { background: #e6e6e6; color:#000; }
     .banner-impact { background: #fff3cd; color:#000; }
     .banner-closed { background: #f8d7da; color:#000; }
+    .banner-error { background:#ffe6e6; color:#000; }
 
     /* Map */
     #mapWrap { margin: 0 0 14px 0; }
@@ -42,41 +35,26 @@
       border: 1px solid #333;
       border-radius: 12px;
       overflow: hidden;
+      background:#fafafa;
     }
-    .mapLegend {
-      display:flex;
-      gap: 10px;
-      align-items:center;
-      margin-top: 6px;
-      font-size: 0.9rem;
-      color:#222;
-    }
+    .mapLegend { display:flex; gap: 12px; align-items:center; margin-top: 6px; font-size: 0.9rem; color:#222; }
     .dot { width: 10px; height: 10px; border-radius: 999px; display:inline-block; border:1px solid #333; }
     .dot-ok { background:#dff4e5; }
     .dot-impact { background:#fff3cd; }
     .dot-closed { background:#f8d7da; }
+    .mapNote { font-size: 0.9rem; color:#444; margin-top:6px; }
 
-    .grid { display:grid; grid-template-columns: repeat(auto-fit, minmax(360px, 1fr)); gap: 12px; }
+    .grid { display:grid; grid-template-columns: repeat(auto-fit, minmax(420px, 1fr)); gap: 12px; }
 
-    .card {
-      border:1px solid #333;
-      border-radius: 12px;
-      padding: 10px;
-    }
+    .card { border:1px solid #333; border-radius: 12px; padding: 10px; }
     .card h2 { margin: 0 0 8px 0; font-size: 1.05rem; }
 
     table { width:100%; border-collapse: collapse; }
-    th, td {
-      text-align:left;
-      vertical-align: top;
-      padding: 6px;
-      border-top: 1px solid #ddd;
-    }
+    th, td { text-align:left; vertical-align: top; padding: 6px; border-top: 1px solid #ddd; }
     th { font-weight: 700; }
 
     .rowTitle { white-space: nowrap; font-weight: 700; }
     .small { font-size: 0.9rem; color:#444; margin-top: 2px; }
-    .detailsBox { border-left: 3px solid #ddd; padding-left: 8px; margin-top: 6px; }
 
     /* Pills */
     .pill {
@@ -87,6 +65,305 @@
       font-size: 0.85rem;
       font-weight: 800;
       line-height: 1.4;
+      white-space: nowrap;
     }
     .pill-ok { background: #dff4e5; }
-    .pill-impact { background: #fff
+    .pill-impact { background: #fff3cd; }
+    .pill-closed { background: #f8d7da; }
+
+    .reasonCell { color:#111; }
+    .reasonMuted { color:#666; }
+  </style>
+</head>
+
+<body>
+<header>
+  <h1>PA Airport Status (FAA NAS Status)</h1>
+  <button class="btn" id="refreshBtn">Refresh</button>
+  <div class="meta" id="meta">Loading…</div>
+</header>
+
+<div class="banner banner-ok" id="banner">Loading…</div>
+
+<div id="mapWrap">
+  <div id="map"></div>
+  <div class="mapLegend">
+    <span><span class="dot dot-closed"></span> CLOSED</span>
+    <span><span class="dot dot-impact"></span> IMPACT</span>
+    <span><span class="dot dot-ok"></span> OK</span>
+  </div>
+  <div class="mapNote" id="mapNote"></div>
+</div>
+
+<div class="grid" id="grid"></div>
+
+<script>
+/* ========== Safety net: never show a blank page ========== */
+(function(){
+  const banner = document.getElementById("banner");
+  window.addEventListener("error", (e) => {
+    banner.className = "banner banner-error";
+    banner.textContent = "Page error: " + (e?.message || "Unknown error. Check console.");
+  });
+})();
+
+const REFRESH_MS = 5 * 60 * 1000;
+
+function esc(s){
+  return (s ?? "").toString().replace(/[&<>"']/g, c => ({
+    '&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'
+  }[c]));
+}
+
+function computeStatus(st){
+  const s = (st.status || "").toUpperCase();
+  if (s === "CLOSED") return "CLOSED";
+  if (s === "IMPACT") return "IMPACT";
+  if (st.closed === true) return "CLOSED";
+  return "OK";
+}
+
+function pill(status){
+  if(status === "CLOSED") return `<span class="pill pill-closed">CLOSED</span>`;
+  if(status === "IMPACT") return `<span class="pill pill-impact">IMPACT</span>`;
+  return `<span class="pill pill-ok">OK</span>`;
+}
+
+/* Parse NOTAM time window tail: YYMMDDhhmm-YYMMDDhhmm (UTC) */
+function parseNotamWindow(line){
+  if(!line) return null;
+  const m = line.match(/(\d{10})-(\d{10})\s*$/);
+  if(!m) return null;
+
+  function toDate(s){
+    const year = 2000 + parseInt(s.slice(0,2),10);
+    const month = parseInt(s.slice(2,4),10)-1;
+    const day = parseInt(s.slice(4,6),10);
+    const hour = parseInt(s.slice(6,8),10);
+    const min = parseInt(s.slice(8,10),10);
+    return new Date(Date.UTC(year,month,day,hour,min));
+  }
+  return { start: toDate(m[1]), end: toDate(m[2]) };
+}
+
+function formatLocal(d){
+  const pad = n => String(n).padStart(2,'0');
+  const yy = String(d.getFullYear()).slice(-2);
+  return `${pad(d.getMonth()+1)}/${pad(d.getDate())}/${yy} ${pad(d.getHours())}:${pad(d.getMinutes())}`;
+}
+
+/* Reason shown on the main line */
+function lineReason(st){
+  const status = computeStatus(st);
+
+  if(status === "CLOSED"){
+    // Keep NOTAM-ish line
+    return st.closure_reason ? esc(st.closure_reason) : "Closure (reason not provided)";
+  }
+
+  if(status === "IMPACT"){
+    if(st.impact_reason) return esc(st.impact_reason);
+    if(st.events && st.events.length > 0){
+      const e = st.events[0];
+      const r = (e.reason || "").trim();
+      return r ? esc(r) : esc(e.type || "Impact");
+    }
+    return "Impact (details not provided)";
+  }
+
+  return `<span class="reasonMuted">—</span>`;
+}
+
+/* Extra friendly closure line under the row */
+function friendlyClosedWindow(st){
+  const status = computeStatus(st);
+  if(status !== "CLOSED") return "";
+  const raw = st.closure_reason || "";
+  const parsed = parseNotamWindow(raw);
+  if(!parsed) return "";
+  return `<div class="small"><span class="rowTitle">Closed from</span> ${esc(formatLocal(parsed.start))} <span class="rowTitle">to</span> ${esc(formatLocal(parsed.end))} (local)</div>`;
+}
+
+/* ===== Map handling (optional if Leaflet loads) ===== */
+let map = null;
+let markersLayer = null;
+
+function ensureMap(){
+  const note = document.getElementById("mapNote");
+
+  // Leaflet missing? Still fine.
+  if(typeof L === "undefined"){
+    note.textContent = "Map unavailable (Leaflet did not load). The status board below is still live.";
+    return false;
+  }
+
+  if(map) return true;
+
+  map = L.map("map", { zoomControl: true }).setView([40.9, -77.8], 7);
+
+  // Basemap (OpenStreetMap)
+  L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
+    maxZoom: 18,
+    attribution: "&copy; OpenStreetMap contributors"
+  }).addTo(map);
+
+  markersLayer = L.layerGroup().addTo(map);
+  note.textContent = "Airport markers are color-coded by status (CLOSED / IMPACT / OK).";
+  return true;
+}
+
+function markerStyle(status){
+  // Use gentle fills aligned with your pills
+  if(status === "CLOSED") return { radius: 8, weight: 1, color: "#333", fillColor: "#f8d7da", fillOpacity: 0.95 };
+  if(status === "IMPACT") return { radius: 7, weight: 1, color: "#333", fillColor: "#fff3cd", fillOpacity: 0.95 };
+  return { radius: 6, weight: 1, color: "#333", fillColor: "#dff4e5", fillOpacity: 0.95 };
+}
+
+function updateMap(data){
+  if(!ensureMap()) return;
+
+  markersLayer.clearLayers();
+
+  const allAirports = []
+    .concat(data.regions.Western || [])
+    .concat(data.regions.Central || [])
+    .concat(data.regions.Eastern || []);
+
+  let added = 0;
+
+  for(const a of allAirports){
+    // Requires lat/lon in status.json region entries. If missing, skip marker.
+    if(typeof a.lat !== "number" || typeof a.lon !== "number") continue;
+
+    const st = data.airports[a.code] || {};
+    const status = computeStatus(st);
+    const reason = lineReason(st).replace(/<[^>]+>/g,""); // strip html for popup
+    const popup =
+      `<strong>${esc(a.code)} - ${esc(a.name || "")}</strong><br>` +
+      `${esc(status)}<br>` +
+      `Reason: ${esc(reason)}`;
+
+    L.circleMarker([a.lat, a.lon], markerStyle(status))
+      .bindPopup(popup)
+      .addTo(markersLayer);
+
+    added++;
+  }
+
+  if(added === 0){
+    document.getElementById("mapNote").textContent =
+      "Map loaded, but no markers yet (lat/lon not present in status.json). Add lat/lon to your AIRPORTS entries in scripts/fetch_faa.py.";
+  }
+}
+
+/* ===== UI rendering ===== */
+function renderRegion(regionName, airports, data){
+  let rows = "";
+  for(const a of airports){
+    const st = data.airports[a.code];
+    if(!st) continue;
+
+    const status = computeStatus(st);
+    const statusPill = pill(status);
+
+    const reason = lineReason(st);
+
+    rows += `
+      <tr>
+        <td class="rowTitle">${esc(a.code)}</td>
+        <td>${esc(a.name || "")}</td>
+        <td>${statusPill}</td>
+        <td class="reasonCell">${reason}</td>
+      </tr>
+      <tr>
+        <td colspan="4">
+          ${friendlyClosedWindow(st)}
+        </td>
+      </tr>
+    `;
+  }
+
+  return `
+    <div class="card">
+      <h2>${esc(regionName)}</h2>
+      <table>
+        <thead>
+          <tr>
+            <th>Code</th>
+            <th>Airport</th>
+            <th>Status</th>
+            <th>Reason</th>
+          </tr>
+        </thead>
+        <tbody>${rows}</tbody>
+      </table>
+    </div>
+  `;
+}
+
+function buildBanner(data){
+  const regions = ["Western","Central","Eastern"];
+  let totalClosed = 0, totalImpact = 0, totalOk = 0;
+
+  for(const r of regions){
+    for(const a of (data.regions[r] || [])){
+      const st = data.airports[a.code];
+      if(!st) continue;
+      const s = computeStatus(st);
+      if(s === "CLOSED") totalClosed++;
+      else if(s === "IMPACT") totalImpact++;
+      else totalOk++;
+    }
+  }
+
+  const banner = document.getElementById("banner");
+
+  if(totalClosed > 0){
+    banner.className = "banner banner-closed";
+    banner.innerHTML = `🔴 <strong>${totalClosed} PA airport(s) CLOSED</strong> • ${totalImpact} impacted • ${totalOk} OK`;
+  } else if(totalImpact > 0){
+    banner.className = "banner banner-impact";
+    banner.innerHTML = `🟡 <strong>No closures</strong> • ${totalImpact} impacted • ${totalOk} OK`;
+  } else {
+    banner.className = "banner banner-ok";
+    banner.innerHTML = `⚫ <strong>All PA airports operational</strong>`;
+  }
+}
+
+let timerHandle = null;
+
+async function loadData(){
+  const meta = document.getElementById("meta");
+  const banner = document.getElementById("banner");
+  try{
+    const r = await fetch(`status.json?ts=${Date.now()}`, { cache: "no-store" });
+    const data = await r.json();
+
+    meta.textContent = `Last update (UTC): ${data.generated_utc} • Auto-refresh every 5 min`;
+
+    buildBanner(data);
+    updateMap(data);
+
+    const grid = document.getElementById("grid");
+    grid.innerHTML =
+      renderRegion("Western", data.regions.Western || [], data) +
+      renderRegion("Central", data.regions.Central || [], data) +
+      renderRegion("Eastern", data.regions.Eastern || [], data);
+
+    if(timerHandle) clearTimeout(timerHandle);
+    timerHandle = setTimeout(loadData, REFRESH_MS);
+
+  } catch(e){
+    banner.className = "banner banner-error";
+    banner.textContent = "Error loading status.json. " + (e?.message || e);
+    meta.textContent = "Error.";
+    if(timerHandle) clearTimeout(timerHandle);
+    timerHandle = setTimeout(loadData, 60000);
+  }
+}
+
+document.getElementById("refreshBtn").addEventListener("click", loadData);
+loadData();
+</script>
+</body>
+</html>
