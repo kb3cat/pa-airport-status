@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>PA Airport Status (FAA NAS)</title>
+  <title>PA Airport Status (FAA NAS Status)</title>
 
   <!-- Leaflet (map) -->
   <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
@@ -16,21 +16,19 @@
     .meta { font-size: 0.9rem; color:#333; }
     .btn { padding: 6px 10px; border-radius: 10px; border:1px solid #333; background:#fff; cursor:pointer; }
 
-    /* Top banner */
     .banner {
       border: 1px solid #333;
       border-radius: 12px;
       padding: 8px 12px;
       margin: 10px 0 14px 0;
       font-weight: 800;
+      background: #e6e6e6;
     }
-    /* Neutral/OK = black/gray */
     .banner-ok { background: #e6e6e6; color:#000; }
     .banner-impact { background: #fff3cd; color:#000; }
     .banner-closed { background: #f8d7da; color:#000; }
     .banner-error { background:#ffe6e6; color:#000; }
 
-    /* Map */
     #mapWrap { margin: 0 0 14px 0; }
     #map {
       height: 320px;
@@ -46,7 +44,6 @@
     .dot-closed { background:#f8d7da; }
     .mapNote { font-size: 0.9rem; color:#444; margin-top:6px; }
 
-    /* Cards */
     .grid { display:grid; grid-template-columns: repeat(auto-fit, minmax(440px, 1fr)); gap: 12px; }
     .card { border:1px solid #333; border-radius: 12px; padding: 10px; }
     .card h2 { margin: 0 0 8px 0; font-size: 1.05rem; }
@@ -57,9 +54,8 @@
 
     .rowTitle { white-space: nowrap; font-weight: 800; }
     .small { font-size: 0.9rem; color:#444; margin-top: 2px; }
-    .reasonMuted { color:#666; }
+    .muted { color:#666; }
 
-    /* Pills */
     .pill {
       display:inline-block;
       padding: 2px 10px;
@@ -98,12 +94,23 @@
 <div class="grid" id="grid"></div>
 
 <script>
-/* Safety net: never blank */
-(function(){
+(function boot(){
   const banner = document.getElementById("banner");
+  const meta = document.getElementById("meta");
+
+  // If JS is running, you should see this change within 1 second.
+  banner.className = "banner banner-ok";
+  banner.textContent = "JS running… fetching status.json";
+  meta.textContent = "JS running…";
+
+  // Show any JS error on screen (so it never silently hangs)
   window.addEventListener("error", (e) => {
     banner.className = "banner banner-error";
-    banner.textContent = "Page error: " + (e?.message || "Unknown error. Check console.");
+    banner.textContent = "Page error: " + (e && e.message ? e.message : "Unknown error");
+  });
+  window.addEventListener("unhandledrejection", (e) => {
+    banner.className = "banner banner-error";
+    banner.textContent = "Promise error: " + (e && e.reason ? e.reason : "Unknown rejection");
   });
 })();
 
@@ -111,7 +118,7 @@ const REFRESH_MS = 5 * 60 * 1000;
 
 function esc(s){
   return (s ?? "").toString().replace(/[&<>"']/g, c => ({
-    '&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'
+    "&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"
   }[c]));
 }
 
@@ -124,12 +131,11 @@ function computeStatus(st){
 }
 
 function pill(status){
-  if(status === "CLOSED") return `<span class="pill pill-closed">CLOSED</span>`;
-  if(status === "IMPACT") return `<span class="pill pill-impact">IMPACT</span>`;
-  return `<span class="pill pill-ok">OK</span>`;
+  if(status === "CLOSED") return '<span class="pill pill-closed">CLOSED</span>';
+  if(status === "IMPACT") return '<span class="pill pill-impact">IMPACT</span>';
+  return '<span class="pill pill-ok">OK</span>';
 }
 
-/* Parse NOTAM time window tail: YYMMDDhhmm-YYMMDDhhmm (UTC) */
 function parseNotamWindow(line){
   if(!line) return null;
   const m = line.match(/(\d{10})-(\d{10})\s*$/);
@@ -147,232 +153,78 @@ function parseNotamWindow(line){
 }
 
 function formatLocal(d){
-  const pad = n => String(n).padStart(2,'0');
+  const pad = n => String(n).padStart(2,"0");
   const yy = String(d.getFullYear()).slice(-2);
   return `${pad(d.getMonth()+1)}/${pad(d.getDate())}/${yy} ${pad(d.getHours())}:${pad(d.getMinutes())}`;
 }
 
-/* Humanize FAA/NOTAM-ish closure text */
 function humanizeClosureReason(raw){
   if(!raw) return "Airport closed (reason not specified)";
-
   const t = raw.toUpperCase();
   const reasons = [];
 
-  // Common winter ops keywords
+  // Winter ops & surface
   if(t.includes("SNOW")) reasons.push("Snow conditions");
   if(t.includes("ICE")) reasons.push("Ice conditions");
   if(t.includes("RMVL")) reasons.push("Snow removal operations");
   if(t.includes("PLOW") || t.includes("PLW")) reasons.push("Plowing operations");
-
-  // Runway/field condition hints
   if(t.includes("FICON")) reasons.push("Poor runway surface conditions");
-  if(t.includes("RWY") && (t.includes("CLSD") || t.includes("CLOSED"))) reasons.push("Runway closed");
+  if(t.includes("BRAKING")) reasons.push("Reduced braking action");
 
-  // Generic closure text
+  // Runway / airport
+  if((t.includes("RWY") || t.includes("RUNWAY")) && (t.includes("CLSD") || t.includes("CLOSED"))) reasons.push("Runway closed");
   if(t.includes("AP CLSD") || t.includes("ARPT CLSD") || t.includes("AIRPORT CLOSURE")) reasons.push("Airport closed");
 
-  // Weather/visibility
+  // Weather & visibility
   if(t.includes("WX")) reasons.push("Weather conditions");
   if(t.includes("LOW VIS") || t.includes("LIFR") || t.includes("IFR")) reasons.push("Low visibility conditions");
+  if(t.includes("FOG")) reasons.push("Fog");
 
-  if(reasons.length === 0){
-    return "Operational disruption (FAA advisory)";
-  }
+  if(reasons.length === 0) return "Operational disruption (FAA advisory)";
 
-  // De-dup while preserving order
+  // de-dup
   const seen = new Set();
   const uniq = [];
   for(const r of reasons){
-    if(!seen.has(r)){
-      uniq.push(r);
-      seen.add(r);
-    }
+    if(!seen.has(r)){ uniq.push(r); seen.add(r); }
   }
-
   return uniq.join(", ");
 }
 
-/* Reason shown on the main line */
 function lineReason(st){
   const status = computeStatus(st);
-
-  if(status === "CLOSED"){
-    // Human friendly reason
-    return esc(humanizeClosureReason(st.closure_reason || ""));
-  }
-
+  if(status === "CLOSED") return esc(humanizeClosureReason(st.closure_reason || ""));
   if(status === "IMPACT"){
     if(st.impact_reason) return esc(st.impact_reason);
-    if(st.events && st.events.length > 0){
+    if(st.events && st.events.length){
       const e = st.events[0];
-      const r = (e.reason || "").trim();
-      return r ? esc(r) : esc(e.type || "Impact");
+      return esc(e.reason || e.type || "Impact");
     }
     return "Impact (details not provided)";
   }
-
-  return `<span class="reasonMuted">—</span>`;
+  return '<span class="muted">—</span>';
 }
 
-/* Under-row CLOSED details: Closed from…to… (local) + Human Reason + Raw FAA */
 function closedDetails(st){
   const status = computeStatus(st);
   if(status !== "CLOSED") return "";
-
   const raw = (st.closure_reason || "").trim();
   const parsed = parseNotamWindow(raw);
 
   let html = "";
-
   if(parsed){
     html += `<div class="small"><span class="rowTitle">Closed from</span> ${esc(formatLocal(parsed.start))} <span class="rowTitle">to</span> ${esc(formatLocal(parsed.end))} (local)</div>`;
   }
-
   html += `<div class="small"><span class="rowTitle">Reason:</span> ${esc(humanizeClosureReason(raw))}</div>`;
-
   if(raw){
-    html += `<div class="small reasonMuted">FAA: ${esc(raw)}</div>`;
+    html += `<div class="small muted">FAA: ${esc(raw)}</div>`;
   }
-
   return html;
 }
 
-/* ===== Map (optional if Leaflet loads) ===== */
+/* Map */
 let map = null;
 let markersLayer = null;
 
 function ensureMap(){
-  const note = document.getElementById("mapNote");
-  if(typeof L === "undefined"){
-    note.textContent = "Map unavailable (Leaflet did not load). Status board below is still live.";
-    return false;
-  }
-  if(map) return true;
-
-  map = L.map("map", { zoomControl: true }).setView([40.9, -77.8], 7);
-  L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
-    maxZoom: 18,
-    attribution: "&copy; OpenStreetMap contributors"
-  }).addTo(map);
-
-  markersLayer = L.layerGroup().addTo(map);
-  note.textContent = "Markers are color-coded by status (CLOSED / IMPACT / OK).";
-  return true;
-}
-
-function markerStyle(status){
-  if(status === "CLOSED") return { radius: 8, weight: 1, color: "#333", fillColor: "#f8d7da", fillOpacity: 0.95 };
-  if(status === "IMPACT") return { radius: 7, weight: 1, color: "#333", fillColor: "#fff3cd", fillOpacity: 0.95 };
-  return { radius: 6, weight: 1, color: "#333", fillColor: "#e6e6e6", fillOpacity: 0.95 };
-}
-
-function updateMap(data){
-  if(!ensureMap()) return;
-  markersLayer.clearLayers();
-
-  const allAirports = []
-    .concat(data.regions.Western || [])
-    .concat(data.regions.Central || [])
-    .concat(data.regions.Eastern || []);
-
-  let added = 0;
-
-  for(const a of allAirports){
-    if(typeof a.lat !== "number" || typeof a.lon !== "number") continue;
-
-    const st = data.airports[a.code] || {};
-    const status = computeStatus(st);
-
-    const reasonText = status === "CLOSED"
-      ? humanizeClosureReason(st.closure_reason || "")
-      : (st.impact_reason || "");
-
-    const popup =
-      `<strong>${esc(a.code)} - ${esc(a.name || "")}</strong><br>` +
-      `${esc(status)}<br>` +
-      (reasonText ? `Reason: ${esc(reasonText)}` : ``);
-
-    L.circleMarker([a.lat, a.lon], markerStyle(status))
-      .bindPopup(popup)
-      .addTo(markersLayer);
-
-    added++;
-  }
-
-  if(added === 0){
-    document.getElementById("mapNote").textContent =
-      "Map loaded, but no markers yet (lat/lon not present in status.json).";
-  }
-}
-
-/* ===== UI ===== */
-function renderRegion(regionName, airports, data){
-  let rows = "";
-  for(const a of airports){
-    const st = data.airports[a.code];
-    if(!st) continue;
-
-    const status = computeStatus(st);
-    const statusPill = pill(status);
-    const reason = lineReason(st);
-
-    rows += `
-      <tr>
-        <td class="rowTitle">${esc(a.code)}</td>
-        <td>${esc(a.name || "")}</td>
-        <td>${statusPill}</td>
-        <td>${reason}</td>
-      </tr>
-      <tr>
-        <td colspan="4">
-          ${closedDetails(st)}
-        </td>
-      </tr>
-    `;
-  }
-
-  return `
-    <div class="card">
-      <h2>${esc(regionName)}</h2>
-      <table>
-        <thead>
-          <tr>
-            <th>Code</th>
-            <th>Airport</th>
-            <th>Status</th>
-            <th>Reason</th>
-          </tr>
-        </thead>
-        <tbody>${rows}</tbody>
-      </table>
-    </div>
-  `;
-}
-
-function buildBanner(data){
-  const regions = ["Western","Central","Eastern"];
-  let totalClosed = 0, totalImpact = 0, totalOk = 0;
-
-  for(const r of regions){
-    for(const a of (data.regions[r] || [])){
-      const st = data.airports[a.code];
-      if(!st) continue;
-      const s = computeStatus(st);
-      if(s === "CLOSED") totalClosed++;
-      else if(s === "IMPACT") totalImpact++;
-      else totalOk++;
-    }
-  }
-
-  const banner = document.getElementById("banner");
-
-  if(totalClosed > 0){
-    banner.className = "banner banner-closed";
-    banner.innerHTML = `🔴 <strong>${totalClosed} PA airport(s) CLOSED</strong> • ${totalImpact} impacted • ${totalOk} OK`;
-  } else if(totalImpact > 0){
-    banner.className = "banner banner-impact";
-    banner.innerHTML = `🟡 <strong>No closures</strong> • ${totalImpact} impacted • ${totalOk} OK`;
-  } else {
-    banner.className = "banner banner-ok";
-    ban
+  const note = document.getElementById("map
