@@ -1,0 +1,33 @@
+name: Refresh FAA Status
+
+on:
+  schedule:
+    - cron: "*/5 * * * *"
+  workflow_dispatch: {}
+
+permissions:
+  contents: write
+
+jobs:
+  refresh:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Fetch FAA and update status.json
+        run: |
+          python scripts/fetch_faa.py
+
+      - name: Commit changes (if any)
+        run: |
+          git config user.name "pa-airport-status-bot"
+          git config user.email "actions@users.noreply.github.com"
+          git add docs/status.json
+          git diff --cached --quiet || git commit -m "Update FAA status.json"
+          git push
