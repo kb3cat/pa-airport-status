@@ -1,5 +1,5 @@
 {
-  "generated_utc": "2026-01-26 12:49:06Z",
+  "generated_utc": "2026-01-26 12:58:43Z",
   "regions": {
     "Western": [
       {
@@ -119,9 +119,9 @@
   "airports": {
     "ABE": {
       "code": "ABE",
-      "status": "CLOSED",
-      "closed": true,
-      "closure_reason": "!ABE 01/366 ABE AD AP CLSD 2601260837-2601261300",
+      "status": "OK",
+      "closed": false,
+      "closure_reason": "",
       "events": []
     },
     "ABP": {
