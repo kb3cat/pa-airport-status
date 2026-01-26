@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>PA Airport Status (FAA NAS)</title>
 
-  <!-- Leaflet (map) - loads from CDN; page still works if it fails -->
+  <!-- Leaflet (map) -->
   <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
   <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 
@@ -16,13 +16,15 @@
     .meta { font-size: 0.9rem; color:#333; }
     .btn { padding: 6px 10px; border-radius: 10px; border:1px solid #333; background:#fff; cursor:pointer; }
 
+    /* Top banner */
     .banner {
       border: 1px solid #333;
       border-radius: 12px;
       padding: 8px 12px;
       margin: 10px 0 14px 0;
-      font-weight: 700;
+      font-weight: 800;
     }
+    /* Neutral/OK = black/gray */
     .banner-ok { background: #e6e6e6; color:#000; }
     .banner-impact { background: #fff3cd; color:#000; }
     .banner-closed { background: #f8d7da; color:#000; }
@@ -39,22 +41,23 @@
     }
     .mapLegend { display:flex; gap: 12px; align-items:center; margin-top: 6px; font-size: 0.9rem; color:#222; }
     .dot { width: 10px; height: 10px; border-radius: 999px; display:inline-block; border:1px solid #333; }
-    .dot-ok { background:#dff4e5; }
+    .dot-ok { background:#e6e6e6; }
     .dot-impact { background:#fff3cd; }
     .dot-closed { background:#f8d7da; }
     .mapNote { font-size: 0.9rem; color:#444; margin-top:6px; }
 
-    .grid { display:grid; grid-template-columns: repeat(auto-fit, minmax(420px, 1fr)); gap: 12px; }
-
+    /* Cards */
+    .grid { display:grid; grid-template-columns: repeat(auto-fit, minmax(440px, 1fr)); gap: 12px; }
     .card { border:1px solid #333; border-radius: 12px; padding: 10px; }
     .card h2 { margin: 0 0 8px 0; font-size: 1.05rem; }
 
     table { width:100%; border-collapse: collapse; }
     th, td { text-align:left; vertical-align: top; padding: 6px; border-top: 1px solid #ddd; }
-    th { font-weight: 700; }
+    th { font-weight: 800; }
 
-    .rowTitle { white-space: nowrap; font-weight: 700; }
+    .rowTitle { white-space: nowrap; font-weight: 800; }
     .small { font-size: 0.9rem; color:#444; margin-top: 2px; }
+    .reasonMuted { color:#666; }
 
     /* Pills */
     .pill {
@@ -63,16 +66,13 @@
       border-radius: 999px;
       border:1px solid #333;
       font-size: 0.85rem;
-      font-weight: 800;
+      font-weight: 900;
       line-height: 1.4;
       white-space: nowrap;
     }
-    .pill-ok { background: #dff4e5; }
+    .pill-ok { background: #e6e6e6; }
     .pill-impact { background: #fff3cd; }
     .pill-closed { background: #f8d7da; }
-
-    .reasonCell { color:#111; }
-    .reasonMuted { color:#666; }
   </style>
 </head>
 
@@ -98,7 +98,7 @@
 <div class="grid" id="grid"></div>
 
 <script>
-/* ========== Safety net: never show a blank page ========== */
+/* Safety net: never blank */
 (function(){
   const banner = document.getElementById("banner");
   window.addEventListener("error", (e) => {
@@ -157,7 +157,6 @@ function lineReason(st){
   const status = computeStatus(st);
 
   if(status === "CLOSED"){
-    // Keep NOTAM-ish line
     return st.closure_reason ? esc(st.closure_reason) : "Closure (reason not provided)";
   }
 
@@ -174,54 +173,58 @@ function lineReason(st){
   return `<span class="reasonMuted">—</span>`;
 }
 
-/* Extra friendly closure line under the row */
-function friendlyClosedWindow(st){
+/* Under-row CLOSED details: Closed from…to… (local) + Reason */
+function closedDetails(st){
   const status = computeStatus(st);
   if(status !== "CLOSED") return "";
-  const raw = st.closure_reason || "";
+
+  const raw = (st.closure_reason || "").trim();
   const parsed = parseNotamWindow(raw);
-  if(!parsed) return "";
-  return `<div class="small"><span class="rowTitle">Closed from</span> ${esc(formatLocal(parsed.start))} <span class="rowTitle">to</span> ${esc(formatLocal(parsed.end))} (local)</div>`;
+
+  let html = "";
+
+  if(parsed){
+    html += `<div class="small"><span class="rowTitle">Closed from</span> ${esc(formatLocal(parsed.start))} <span class="rowTitle">to</span> ${esc(formatLocal(parsed.end))} (local)</div>`;
+  }
+
+  if(raw){
+    html += `<div class="small"><span class="rowTitle">Reason:</span> ${esc(raw)}</div>`;
+  }
+
+  return html;
 }
 
-/* ===== Map handling (optional if Leaflet loads) ===== */
+/* ===== Map (optional if Leaflet loads) ===== */
 let map = null;
 let markersLayer = null;
 
 function ensureMap(){
   const note = document.getElementById("mapNote");
-
-  // Leaflet missing? Still fine.
   if(typeof L === "undefined"){
-    note.textContent = "Map unavailable (Leaflet did not load). The status board below is still live.";
+    note.textContent = "Map unavailable (Leaflet did not load). Status board below is still live.";
     return false;
   }
-
   if(map) return true;
 
   map = L.map("map", { zoomControl: true }).setView([40.9, -77.8], 7);
-
-  // Basemap (OpenStreetMap)
   L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
     maxZoom: 18,
     attribution: "&copy; OpenStreetMap contributors"
   }).addTo(map);
 
   markersLayer = L.layerGroup().addTo(map);
-  note.textContent = "Airport markers are color-coded by status (CLOSED / IMPACT / OK).";
+  note.textContent = "Markers are color-coded by status (CLOSED / IMPACT / OK).";
   return true;
 }
 
 function markerStyle(status){
-  // Use gentle fills aligned with your pills
   if(status === "CLOSED") return { radius: 8, weight: 1, color: "#333", fillColor: "#f8d7da", fillOpacity: 0.95 };
   if(status === "IMPACT") return { radius: 7, weight: 1, color: "#333", fillColor: "#fff3cd", fillOpacity: 0.95 };
-  return { radius: 6, weight: 1, color: "#333", fillColor: "#dff4e5", fillOpacity: 0.95 };
+  return { radius: 6, weight: 1, color: "#333", fillColor: "#e6e6e6", fillOpacity: 0.95 };
 }
 
 function updateMap(data){
   if(!ensureMap()) return;
-
   markersLayer.clearLayers();
 
   const allAirports = []
@@ -232,16 +235,15 @@ function updateMap(data){
   let added = 0;
 
   for(const a of allAirports){
-    // Requires lat/lon in status.json region entries. If missing, skip marker.
     if(typeof a.lat !== "number" || typeof a.lon !== "number") continue;
 
     const st = data.airports[a.code] || {};
     const status = computeStatus(st);
-    const reason = lineReason(st).replace(/<[^>]+>/g,""); // strip html for popup
+    const reasonText = (st.closure_reason || st.impact_reason || "").toString();
     const popup =
       `<strong>${esc(a.code)} - ${esc(a.name || "")}</strong><br>` +
       `${esc(status)}<br>` +
-      `Reason: ${esc(reason)}`;
+      (reasonText ? `Reason: ${esc(reasonText)}` : ``);
 
     L.circleMarker([a.lat, a.lon], markerStyle(status))
       .bindPopup(popup)
@@ -252,11 +254,11 @@ function updateMap(data){
 
   if(added === 0){
     document.getElementById("mapNote").textContent =
-      "Map loaded, but no markers yet (lat/lon not present in status.json). Add lat/lon to your AIRPORTS entries in scripts/fetch_faa.py.";
+      "Map loaded, but no markers yet (lat/lon not present in status.json).";
   }
 }
 
-/* ===== UI rendering ===== */
+/* ===== UI ===== */
 function renderRegion(regionName, airports, data){
   let rows = "";
   for(const a of airports){
@@ -265,7 +267,6 @@ function renderRegion(regionName, airports, data){
 
     const status = computeStatus(st);
     const statusPill = pill(status);
-
     const reason = lineReason(st);
 
     rows += `
@@ -273,11 +274,11 @@ function renderRegion(regionName, airports, data){
         <td class="rowTitle">${esc(a.code)}</td>
         <td>${esc(a.name || "")}</td>
         <td>${statusPill}</td>
-        <td class="reasonCell">${reason}</td>
+        <td>${reason}</td>
       </tr>
       <tr>
         <td colspan="4">
-          ${friendlyClosedWindow(st)}
+          ${closedDetails(st)}
         </td>
       </tr>
     `;
