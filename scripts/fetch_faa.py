@@ -14,37 +14,40 @@ FAA_XML_URL = "https://nasstatus.faa.gov/api/airport-status-information"
 
 OUT_PATH = Path("docs/status.json")
 
+# NOTE: lat/lon are in decimal degrees (W is negative lon)
 AIRPORTS = {
   "Western": [
-    {"code":"PIT","name":"Pittsburgh Intl"},
-    {"code":"ERI","name":"Erie Intl"},
-    {"code":"LBE","name":"Arnold Palmer Regional (Latrobe)"},
-    {"code":"JST","name":"Johnstown–Cambria County"},
-    {"code":"DUJ","name":"DuBois Regional"},
+    {"code":"PIT","name":"Pittsburgh Intl",              "lat":40.4920, "lon":-80.2327},
+    {"code":"ERI","name":"Erie Intl",                    "lat":42.0831, "lon":-80.1739},
+    {"code":"LBE","name":"Arnold Palmer Regional",       "lat":40.2759, "lon":-79.4048},
+    {"code":"JST","name":"Johnstown–Cambria County",     "lat":40.3161, "lon":-78.8339},
+    {"code":"DUJ","name":"DuBois Regional",              "lat":41.1783, "lon":-78.8987},
   ],
   "Central": [
-    {"code":"MDT","name":"Harrisburg Intl"},
-    {"code":"CXY","name":"Capital City"},
-    {"code":"SCE","name":"State College Regional"},
-    {"code":"IPT","name":"Williamsport Regional"},
-    {"code":"AOO","name":"Altoona–Blair County"},
-    {"code":"BFD","name":"Bradford Regional"},
+    {"code":"MDT","name":"Harrisburg Intl",              "lat":40.1931, "lon":-76.7633},
+    {"code":"CXY","name":"Capital City",                 "lat":40.2171, "lon":-76.8515},
+    {"code":"SCE","name":"State College Regional",       "lat":40.8493, "lon":-77.8487},
+    {"code":"IPT","name":"Williamsport Regional",        "lat":41.2421, "lon":-76.9211},
+    {"code":"AOO","name":"Altoona–Blair County",         "lat":40.2964, "lon":-78.3200},
+    {"code":"BFD","name":"Bradford Regional",            "lat":41.8031, "lon":-78.6401},
   ],
   "Eastern": [
-    {"code":"PHL","name":"Philadelphia Intl"},
-    {"code":"ABP","name":"Northeast Philadelphia"},
-    {"code":"ABE","name":"Lehigh Valley Intl"},
-    {"code":"AVP","name":"Wilkes-Barre/Scranton Intl"},
-    {"code":"RDG","name":"Reading Regional"},
-    {"code":"LNS","name":"Lancaster"},
-    {"code":"MPO","name":"Pocono Mountains Municipal"},
+    {"code":"PHL","name":"Philadelphia Intl",            "lat":39.8729, "lon":-75.2437},
+    # Your closure code is ABP, but the field is Northeast Philadelphia (IATA: PNE).
+    # We’re using the physical location of Northeast Philadelphia Airport for the marker.
+    {"code":"ABP","name":"Northeast Philadelphia",       "lat":40.0819, "lon":-75.0106},
+    {"code":"ABE","name":"Lehigh Valley Intl",           "lat":40.6521, "lon":-75.4408},
+    {"code":"AVP","name":"Wilkes-Barre/Scranton Intl",   "lat":41.3385, "lon":-75.7234},
+    {"code":"RDG","name":"Reading Regional",             "lat":40.3785, "lon":-75.9652},
+    {"code":"LNS","name":"Lancaster",                    "lat":40.1217, "lon":-76.2961},
+    {"code":"MPO","name":"Pocono Mountains Municipal",   "lat":41.1375, "lon":-75.3789},
   ],
 }
 
 def fetch_text(url: str, timeout=30, retries=3) -> str:
     last = None
     headers = {
-        "User-Agent": "PA-Airport-StatusBoard/3.0",
+        "User-Agent": "PA-Airport-StatusBoard/3.1",
         "Accept": "text/html,*/*;q=0.8",
     }
     for _ in range(retries):
@@ -60,7 +63,7 @@ def fetch_text(url: str, timeout=30, retries=3) -> str:
 def fetch_bytes(url: str, timeout=30, retries=3) -> bytes:
     last = None
     headers = {
-        "User-Agent": "PA-Airport-StatusBoard/3.0",
+        "User-Agent": "PA-Airport-StatusBoard/3.1",
         "Accept": "application/xml,text/xml,*/*;q=0.9",
     }
     for _ in range(retries):
@@ -78,20 +81,14 @@ def _t(el):
 
 def parse_list_closures(list_html: str) -> dict:
     """
-    Parse https://nasstatus.faa.gov/list for rows like:
-      ABE, Airport Closure, <time>, ...
-    Returns: { "ABE": "Airport Closure" } (we keep it simple & consistent)
+    Parse https://nasstatus.faa.gov/list for Airport Closure occurrences.
+    We search for an airport code near the text 'Airport Closure'.
     """
     closures = {}
-
-    # The list page includes rows with airport code and event type text.
-    # We’ll look for patterns like: >ABE< ... Airport Closure
-    # Make whitespace predictable:
     h = re.sub(r"\s+", " ", list_html)
 
-    # Find any occurrence of (CODE + Airport Closure) in close proximity.
-    # Airport codes in NAS Status list are typically 3–4 chars; we use 3 for IATA-like
-    for m in re.finditer(r">([A-Z0-9]{3})<[^>]*>[^<]*Airport Closure", h):
+    # Typical pattern includes >CODE< somewhere near 'Airport Closure'
+    for m in re.finditer(r">([A-Z0-9]{3,4})<[^>]*>[^<]*Airport Closure", h):
         code = m.group(1).upper()
         closures[code] = "Airport Closure"
     return closures
@@ -115,11 +112,11 @@ def parse_xml_closures(xml_bytes: bytes) -> dict:
     return closures
 
 def main():
-    # Primary closures from the server-rendered list view
+    # Primary: server-rendered list page
     list_html = fetch_text(NASS_LIST_URL)
     list_closures = parse_list_closures(list_html)
 
-    # Secondary closures from XML feed (sometimes helpful)
+    # Secondary: XML feed closures
     xml_bytes = fetch_bytes(FAA_XML_URL)
     xml_closures = parse_xml_closures(xml_bytes)
 
@@ -145,15 +142,15 @@ def main():
             "status": status,
             "closed": closed,
             "closure_reason": closed_reason,
-            "events": []  # keep for future expansion
+            "events": []  # (future) parse impacts from XML if you want
         }
 
     payload = {
         "generated_utc": datetime.now(timezone.utc).strftime("%Y-%m-%d %H:%M:%SZ"),
-        "regions": AIRPORTS,
+        "regions": AIRPORTS,     # <-- this includes lat/lon now
         "airports": airports_out,
         "source": "nasstatus.faa.gov/list + airport-status-information",
-        "note": "Temporary closures are sourced from the NAS Status Active Airport Events list page first, with XML as fallback.",
+        "note": "Temporary closures sourced from NAS Status list page first, with XML as fallback. Regions include lat/lon for map markers.",
     }
 
     OUT_PATH.parent.mkdir(parents=True, exist_ok=True)
