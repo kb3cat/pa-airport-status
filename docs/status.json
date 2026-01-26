@@ -1,0 +1,266 @@
+{
+  "generated_utc": "2026-01-26 11:22:56Z",
+  "regions": {
+    "Western": [
+      {
+        "code": "PIT",
+        "name": "Pittsburgh Intl"
+      },
+      {
+        "code": "ERI",
+        "name": "Erie Intl"
+      },
+      {
+        "code": "LBE",
+        "name": "Arnold Palmer Regional (Latrobe)"
+      },
+      {
+        "code": "JST",
+        "name": "Johnstown\u2013Cambria County"
+      },
+      {
+        "code": "DUJ",
+        "name": "DuBois Regional"
+      }
+    ],
+    "Central": [
+      {
+        "code": "MDT",
+        "name": "Harrisburg Intl"
+      },
+      {
+        "code": "CXY",
+        "name": "Capital City"
+      },
+      {
+        "code": "SCE",
+        "name": "State College Regional"
+      },
+      {
+        "code": "IPT",
+        "name": "Williamsport Regional"
+      },
+      {
+        "code": "AOO",
+        "name": "Altoona\u2013Blair County"
+      },
+      {
+        "code": "BFD",
+        "name": "Bradford Regional"
+      }
+    ],
+    "Eastern": [
+      {
+        "code": "PHL",
+        "name": "Philadelphia Intl"
+      },
+      {
+        "code": "ABP",
+        "name": "Northeast Philadelphia"
+      },
+      {
+        "code": "ABE",
+        "name": "Lehigh Valley Intl"
+      },
+      {
+        "code": "AVP",
+        "name": "Wilkes-Barre/Scranton Intl"
+      },
+      {
+        "code": "RDG",
+        "name": "Reading Regional"
+      },
+      {
+        "code": "LNS",
+        "name": "Lancaster"
+      },
+      {
+        "code": "MPO",
+        "name": "Pocono Mountains Municipal"
+      }
+    ]
+  },
+  "airports": {
+    "ABE": {
+      "code": "ABE",
+      "closed": false,
+      "closure_reason": "",
+      "ground_stop": null,
+      "gdp": null,
+      "arrival_delay": null,
+      "departure_delay": null,
+      "deicing": null
+    },
+    "ABP": {
+      "code": "ABP",
+      "closed": false,
+      "closure_reason": "",
+      "ground_stop": null,
+      "gdp": null,
+      "arrival_delay": null,
+      "departure_delay": null,
+      "deicing": null
+    },
+    "AOO": {
+      "code": "AOO",
+      "closed": false,
+      "closure_reason": "",
+      "ground_stop": null,
+      "gdp": null,
+      "arrival_delay": null,
+      "departure_delay": null,
+      "deicing": null
+    },
+    "AVP": {
+      "code": "AVP",
+      "closed": false,
+      "closure_reason": "",
+      "ground_stop": null,
+      "gdp": null,
+      "arrival_delay": null,
+      "departure_delay": null,
+      "deicing": null
+    },
+    "BFD": {
+      "code": "BFD",
+      "closed": false,
+      "closure_reason": "",
+      "ground_stop": null,
+      "gdp": null,
+      "arrival_delay": null,
+      "departure_delay": null,
+      "deicing": null
+    },
+    "CXY": {
+      "code": "CXY",
+      "closed": false,
+      "closure_reason": "",
+      "ground_stop": null,
+      "gdp": null,
+      "arrival_delay": null,
+      "departure_delay": null,
+      "deicing": null
+    },
+    "DUJ": {
+      "code": "DUJ",
+      "closed": false,
+      "closure_reason": "",
+      "ground_stop": null,
+      "gdp": null,
+      "arrival_delay": null,
+      "departure_delay": null,
+      "deicing": null
+    },
+    "ERI": {
+      "code": "ERI",
+      "closed": false,
+      "closure_reason": "",
+      "ground_stop": null,
+      "gdp": null,
+      "arrival_delay": null,
+      "departure_delay": null,
+      "deicing": null
+    },
+    "IPT": {
+      "code": "IPT",
+      "closed": false,
+      "closure_reason": "",
+      "ground_stop": null,
+      "gdp": null,
+      "arrival_delay": null,
+      "departure_delay": null,
+      "deicing": null
+    },
+    "JST": {
+      "code": "JST",
+      "closed": false,
+      "closure_reason": "",
+      "ground_stop": null,
+      "gdp": null,
+      "arrival_delay": null,
+      "departure_delay": null,
+      "deicing": null
+    },
+    "LBE": {
+      "code": "LBE",
+      "closed": false,
+      "closure_reason": "",
+      "ground_stop": null,
+      "gdp": null,
+      "arrival_delay": null,
+      "departure_delay": null,
+      "deicing": null
+    },
+    "LNS": {
+      "code": "LNS",
+      "closed": false,
+      "closure_reason": "",
+      "ground_stop": null,
+      "gdp": null,
+      "arrival_delay": null,
+      "departure_delay": null,
+      "deicing": null
+    },
+    "MDT": {
+      "code": "MDT",
+      "closed": false,
+      "closure_reason": "",
+      "ground_stop": null,
+      "gdp": null,
+      "arrival_delay": null,
+      "departure_delay": null,
+      "deicing": null
+    },
+    "MPO": {
+      "code": "MPO",
+      "closed": false,
+      "closure_reason": "",
+      "ground_stop": null,
+      "gdp": null,
+      "arrival_delay": null,
+      "departure_delay": null,
+      "deicing": null
+    },
+    "PHL": {
+      "code": "PHL",
+      "closed": false,
+      "closure_reason": "",
+      "ground_stop": null,
+      "gdp": null,
+      "arrival_delay": null,
+      "departure_delay": null,
+      "deicing": null
+    },
+    "PIT": {
+      "code": "PIT",
+      "closed": false,
+      "closure_reason": "",
+      "ground_stop": null,
+      "gdp": null,
+      "arrival_delay": null,
+      "departure_delay": null,
+      "deicing": null
+    },
+    "RDG": {
+      "code": "RDG",
+      "closed": false,
+      "closure_reason": "",
+      "ground_stop": null,
+      "gdp": null,
+      "arrival_delay": null,
+      "departure_delay": null,
+      "deicing": null
+    },
+    "SCE": {
+      "code": "SCE",
+      "closed": false,
+      "closure_reason": "",
+      "ground_stop": null,
+      "gdp": null,
+      "arrival_delay": null,
+      "departure_delay": null,
+      "deicing": null
+    }
+  },
+  "source": "FAA NAS Status airport-status-information"
+}
