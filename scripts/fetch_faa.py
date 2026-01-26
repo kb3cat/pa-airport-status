@@ -6,10 +6,9 @@ import xml.etree.ElementTree as ET
 from datetime import datetime, timezone
 from pathlib import Path
 
-# FAA NAS Status feed (XML)
 FAA_XML_URL = "https://nasstatus.faa.gov/api/airport-status-information"
+OUT_PATH = Path("docs/status.json")
 
-# Airports to display by region (edit anytime)
 AIRPORTS = {
   "Western": [
     {"code":"PIT","name":"Pittsburgh Intl"},
@@ -37,20 +36,17 @@ AIRPORTS = {
   ],
 }
 
-# Output goes into docs/ for GitHub Pages
-OUT_PATH = Path("docs/status.json")
+# Closure-ish hints; FAA sometimes reports snow closures in non-closure buckets.
+CLOSE_HINTS = ("closed", "closure", "snow", "ice", "field", "runway", "plow")
+IMPACT_HINTS = ("delay", "deicing", "ground stop", "gdp", "arrival", "departure")
 
-# Keywords that should cause the board to treat the airport as operationally CLOSED
-# (These help match FAA UI "Airport Closure" cards even when the XML categorizes it differently.)
-CLOSE_HINTS = ("closed", "snow", "field", "runway", "plow", "ice")
-
-def _t(el):
-    return (el.text or "").strip()
+def t(el):
+    return (el.text or "").strip() if el is not None else ""
 
 def fetch_xml(url: str, timeout=30, retries=3) -> bytes:
     last = None
     headers = {
-        "User-Agent": "PA-Airport-StatusBoard/1.1",
+        "User-Agent": "PA-Airport-StatusBoard/1.2",
         "Accept": "application/xml,text/xml,*/*;q=0.9",
     }
     for _ in range(retries):
@@ -63,127 +59,146 @@ def fetch_xml(url: str, timeout=30, retries=3) -> bytes:
             time.sleep(2)
     raise RuntimeError(f"Failed to fetch FAA feed after {retries} tries: {last}")
 
-def parse_delay_types(root):
+def looks_like_closed(text_value: str) -> bool:
+    s = (text_value or "").lower()
+    return any(k in s for k in CLOSE_HINTS)
+
+def parse_all_events(root):
     """
-    FAA XML includes multiple <Delay_type> blocks with <Name> like:
-      Airport Closures, Ground Stop Programs, Ground Delay Programs,
-      Arrival Delay, Departure Delay, Deicing, etc.
+    Returns a list of normalized event entries across ALL Delay_type blocks.
+
+    Each entry:
+      {
+        "type": "<Delay_type Name>",
+        "arpt": "<ARPT code>",
+        "reason": "<Reason text>",
+        "avg_delay": "<Avg_delay if present>"
+      }
+
+    FAA XML varies; we scan for any element that has a child named ARPT.
     """
-    events = {}
+    events = []
+
     for dt in root.iterfind(".//Delay_type"):
-        name = _t(dt.find("./Name"))
-        if name:
-            events[name] = dt
+        dtype_name = t(dt.find("./Name")) or "Unknown"
+
+        # Find any element under this Delay_type that contains an ARPT child
+        for node in dt.iter():
+            arpt_el = node.find("./ARPT")
+            if arpt_el is None:
+                continue
+
+            arpt = t(arpt_el).upper()
+            if not arpt:
+                continue
+
+            reason = t(node.find("./Reason"))
+            avg = t(node.find("./Avg_delay")) or t(node.find("./AvgDelay"))
+
+            events.append({
+                "type": dtype_name,
+                "arpt": arpt,
+                "reason": reason,
+                "avg_delay": avg,
+            })
+
     return events
 
-def extract_closures(dt):
+def summarize_for_airport(code: str, all_events):
     """
-    Pull closure airport codes + reason text.
-    """
-    out = {}
-    for a in dt.findall(".//Airport_Closure_List//Airport"):
-        code = _t(a.find("./ARPT"))
-        reason = _t(a.find("./Reason"))
-        if code:
-            out[code] = reason or "Closed (reason not provided)"
-    return out
+    For a given airport code (IATA-like in this feed), collect all related events.
 
-def extract_programs(dt, list_path, item_tag):
+    Determine:
+      - closed: True if any event type or reason indicates closure
+      - impacts: list of events (for display)
+      - closure_reason: joined closure reasons for display
     """
-    Generic extractor for lists like Ground Stops / GDP / delays / deicing.
-    These vary slightly, but many include ARPT + Reason + Avg_delay.
-    """
-    out = {}
-    for p in dt.findall(f".//{list_path}//{item_tag}"):
-        code = _t(p.find("./ARPT"))
-        if not code:
+    code = code.upper()
+    matches = [e for e in all_events if e["arpt"] == code]
+
+    # Determine closed:
+    closed_reasons = []
+    for e in matches:
+        type_l = (e["type"] or "").lower()
+        reason_l = (e["reason"] or "").lower()
+
+        # If FAA explicitly calls it a closure-type, trust that
+        if "closure" in type_l:
+            if e["reason"]:
+                closed_reasons.append(e["reason"])
+            else:
+                closed_reasons.append(f"{e['type']}")
             continue
-        reason = _t(p.find("./Reason"))
-        avg = _t(p.find("./Avg_delay")) or _t(p.find("./AvgDelay")) or ""
-        out[code] = {"reason": reason, "avg_delay": avg}
-    return out
 
-def looks_like_closure(reason: str) -> bool:
-    r = (reason or "").lower()
-    return any(k in r for k in CLOSE_HINTS)
+        # Or if the reason looks like an operational closure
+        if looks_like_closed(e["reason"]) or "closed" in reason_l:
+            closed_reasons.append(e["reason"] or e["type"])
 
-def decide_operational_closure(code: str, closures, ground_stops, gdps, arr_delays, dep_delays, deicing):
-    """
-    FAA sometimes displays "Airport Closure" on the UI even when the feed places
-    the airport in delay/deicing/ground stop buckets. We treat it as CLOSED if:
-      - It's in Airport Closures list OR
-      - Any event reason contains closure hints (closed/snow/runway/field/ice/etc.)
-    """
-    reasons = []
+    closed = len([r for r in closed_reasons if r.strip()]) > 0
 
-    # True closures bucket
-    if code in closures:
-        reasons.append(closures.get(code, ""))
+    # De-dup closure reasons while preserving order
+    seen = set()
+    uniq_closed = []
+    for r in closed_reasons:
+        rr = (r or "").strip()
+        if rr and rr not in seen:
+            uniq_closed.append(rr)
+            seen.add(rr)
 
-    # Other buckets that can indicate a practical closure
-    for src in (ground_stops, gdps, arr_delays, dep_delays, deicing):
-        ev = src.get(code)
-        if ev:
-            reason = ev.get("reason") or ""
-            if looks_like_closure(reason):
-                reasons.append(reason)
+    # Impacts: show everything we found (even if not closed) so you have transparency
+    # De-dup same type+reason combos
+    seen_ev = set()
+    impacts = []
+    for e in matches:
+        key = (e["type"], e["reason"], e["avg_delay"])
+        if key in seen_ev:
+            continue
+        seen_ev.add(key)
+        impacts.append(e)
 
-    if reasons:
-        # De-dup while preserving order
-        seen = set()
-        uniq = []
-        for r in reasons:
-            rr = r.strip()
-            if rr and rr not in seen:
-                uniq.append(rr)
-                seen.add(rr)
-        return True, " | ".join(uniq) if uniq else "Closed (reason not provided)"
+    closure_reason = " | ".join(uniq_closed) if uniq_closed else ""
 
-    return False, ""
+    # classify overall status for UI
+    # CLOSED > IMPACT > OK
+    has_any_event = len(impacts) > 0
+    status = "OK"
+    if closed:
+        status = "CLOSED"
+    elif has_any_event:
+        status = "IMPACT"
+
+    return {
+        "closed": closed,
+        "status": status,
+        "closure_reason": closure_reason,
+        "events": impacts,  # list of {type, reason, avg_delay}
+    }
 
 def main():
     xml_bytes = fetch_xml(FAA_XML_URL)
     root = ET.fromstring(xml_bytes)
-    events = parse_delay_types(root)
 
-    # Extract known categories
-    closures = extract_closures(events.get("Airport Closures", ET.Element("x")))
-    ground_stops = extract_programs(events.get("Ground Stop Programs", ET.Element("x")),
-                                    "Ground_Stop_List", "Program")
-    gdps = extract_programs(events.get("Ground Delay Programs", ET.Element("x")),
-                            "Ground_Delay_List", "Program")
-    arr_delays = extract_programs(events.get("Arrival Delay", ET.Element("x")),
-                                  "Arrival_Delay_List", "Airport")
-    dep_delays = extract_programs(events.get("Departure Delay", ET.Element("x")),
-                                  "Departure_Delay_List", "Airport")
-    deicing = extract_programs(events.get("Deicing", ET.Element("x")),
-                               "Deicing_List", "Airport")
+    all_events = parse_all_events(root)
 
-    monitored = {}
     codes = {a["code"] for region in AIRPORTS.values() for a in region}
+    airports_out = {}
 
     for code in sorted(codes):
-        closed, closure_reason = decide_operational_closure(
-            code, closures, ground_stops, gdps, arr_delays, dep_delays, deicing
-        )
-
-        monitored[code] = {
+        summary = summarize_for_airport(code, all_events)
+        airports_out[code] = {
             "code": code,
-            "closed": closed,
-            "closure_reason": closure_reason,
-            "ground_stop": ground_stops.get(code),
-            "gdp": gdps.get(code),
-            "arrival_delay": arr_delays.get(code),
-            "departure_delay": dep_delays.get(code),
-            "deicing": deicing.get(code),
+            "status": summary["status"],        # OK / IMPACT / CLOSED
+            "closed": summary["closed"],
+            "closure_reason": summary["closure_reason"],
+            "events": summary["events"],        # for display/debug
         }
 
     payload = {
         "generated_utc": datetime.now(timezone.utc).strftime("%Y-%m-%d %H:%M:%SZ"),
         "regions": AIRPORTS,
-        "airports": monitored,
+        "airports": airports_out,
         "source": "FAA NAS Status airport-status-information",
-        "note": "Airports may be marked CLOSED if any FAA NAS event reason suggests operational closure (snow/field/runway/ice), matching NAS Status UI behavior.",
+        "note": "Board scans all Delay_type blocks and marks CLOSED if any closure-type or closure-like reason is present (matches FAA UI behavior).",
     }
 
     OUT_PATH.parent.mkdir(parents=True, exist_ok=True)
