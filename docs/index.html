@@ -18,8 +18,9 @@
     .btn { padding: 6px 10px; border-radius: 10px; border:1px solid #333; background:#fff; cursor:pointer; }
     .rowTitle { white-space: nowrap; font-weight: 700; }
     .small { font-size: 0.9rem; color:#444; margin-top: 2px; }
+    .detailsBox { border-left: 3px solid #ddd; padding-left: 8px; margin-top: 6px; }
 
-    /* Color-coded status pills */
+    /* Pills */
     .pill {
       display:inline-block;
       padding: 2px 10px;
@@ -29,29 +30,46 @@
       font-weight: 800;
       line-height: 1.4;
     }
-    .pill-ok { background: #dff4e5; }       /* green-ish */
-    .pill-impact { background: #fff3cd; }   /* yellow-ish */
-    .pill-closed { background: #f8d7da; }   /* red-ish */
+    .pill-ok { background: #dff4e5; }
+    .pill-impact { background: #fff3cd; }
+    .pill-closed { background: #f8d7da; }
 
-    .detailsBox {
-      border-left: 3px solid #ddd;
-      padding-left: 8px;
-      margin-top: 6px;
+    /* Banner */
+    .banner {
+      border: 1px solid #333;
+      border-radius: 12px;
+      padding: 8px 10px;
+      margin: 10px 0 14px 0;
+      background: #f7f7f7;
+      display: none;
     }
+    .banner strong { font-weight: 800; }
   </style>
 </head>
 <body>
   <header>
     <h1>PA Airport Status (FAA NAS Status)</h1>
-    <button class="btn" onclick="loadData()">Refresh</button>
+    <button class="btn" onclick="loadData(true)">Refresh</button>
     <div class="meta" id="meta">Loading…</div>
   </header>
+
+  <div class="banner" id="banner"></div>
 
   <div class="grid" id="grid"></div>
 
 <script>
+const REFRESH_MS = 5 * 60 * 1000;
+
 function esc(s){
   return (s ?? "").toString().replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+}
+
+function computeStatus(st){
+  const s = (st.status || "").toUpperCase();
+  if (s === "CLOSED") return "CLOSED";
+  if (s === "IMPACT") return "IMPACT";
+  if (st.closed === true) return "CLOSED";
+  return "OK";
 }
 
 function pill(status){
@@ -60,7 +78,47 @@ function pill(status){
   return `<span class="pill pill-ok">OK</span>`;
 }
 
-function renderEvents(events){
+/**
+ * Parse a NOTAM-ish time window at the end of the closure line:
+ * Example tail: 2601260837-2601261300
+ * Format: YYMMDDhhmm-YYMMDDhhmm (UTC)
+ */
+function parseNotamWindow(line){
+  if(!line) return null;
+  const m = line.match(/(\d{10})-(\d{10})\s*$/);
+  if(!m) return null;
+
+  function toDate(s){
+    // YYMMDDhhmm
+    const yy = parseInt(s.slice(0,2), 10);
+    const year = 2000 + yy; // good until 2099
+    const month = parseInt(s.slice(2,4), 10) - 1;
+    const day = parseInt(s.slice(4,6), 10);
+    const hour = parseInt(s.slice(6,8), 10);
+    const min = parseInt(s.slice(8,10), 10);
+    return new Date(Date.UTC(year, month, day, hour, min, 0));
+  }
+
+  const start = toDate(m[1]);
+  const end = toDate(m[2]);
+
+  // Display both UTC and local in one line.
+  const fmtUTC = (d) => d.toISOString().replace("T"," ").slice(0,16) + "Z";
+  const fmtLocal = (d) => {
+    const pad = (n) => String(n).padStart(2,"0");
+    return `${d.getFullYear()}-${pad(d.getMonth()+1)}-${pad(d.getDate())} ${pad(d.getHours())}:${pad(d.getMinutes())}`;
+  };
+
+  return {
+    startUTC: fmtUTC(start),
+    endUTC: fmtUTC(end),
+    startLocal: fmtLocal(new Date(start.getTime())),
+    endLocal: fmtLocal(new Date(end.getTime()))
+  };
+}
+
+function renderEvents(events, status){
+  if(status === "CLOSED") return ""; // don't show "No active..." when closed
   if(!events || events.length === 0) return `<div class="small">No active NAS events.</div>`;
 
   let html = `<div class="detailsBox">`;
@@ -81,15 +139,25 @@ function renderRegion(regionName, airports, data){
     const st = data.airports[a.code];
     if(!st) continue;
 
-    const status = st.status || (st.closed ? "CLOSED" : "OK");
+    const status = computeStatus(st);
     const statusPill = pill(status);
 
-    let topLine = "";
+    let closureBlock = "";
     if(status === "CLOSED" && st.closure_reason){
-      topLine = `<div class="small"><span class="rowTitle">Closure:</span> ${esc(st.closure_reason)}</div>`;
+      const raw = st.closure_reason;
+      const parsed = parseNotamWindow(raw);
+
+      closureBlock = `<div class="small"><span class="rowTitle">Closure:</span> ${esc(raw)}</div>`;
+      if(parsed){
+        closureBlock += `<div class="small">
+          <span class="rowTitle">Window:</span>
+          ${esc(parsed.startLocal)}–${esc(parsed.endLocal)} (local) •
+          ${esc(parsed.startUTC)}–${esc(parsed.endUTC)} (UTC)
+        </div>`;
+      }
     }
 
-    const evBlock = renderEvents(st.events);
+    const evBlock = renderEvents(st.events, status);
 
     rows += `
       <tr>
@@ -99,7 +167,7 @@ function renderRegion(regionName, airports, data){
       </tr>
       <tr>
         <td colspan="3">
-          ${topLine}
+          ${closureBlock}
           ${evBlock}
         </td>
       </tr>
@@ -117,21 +185,65 @@ function renderRegion(regionName, airports, data){
   `;
 }
 
-async function loadData(){
-  const r = await fetch(`status.json?ts=${Date.now()}`, { cache: "no-store" });
-  const data = await r.json();
+function buildBanner(data){
+  // Quick region counts
+  const regions = ["Western","Central","Eastern"];
+  const parts = [];
+  let anyClosed = false;
 
-  document.getElementById("meta").textContent =
-    `Last update (UTC): ${data.generated_utc} • Auto-updated by GitHub Actions (every 5 min)`;
+  for(const r of regions){
+    const list = data.regions[r] || [];
+    let closed = 0, impact = 0, ok = 0;
 
-  const grid = document.getElementById("grid");
-  grid.innerHTML =
-    renderRegion("Western", data.regions.Western, data) +
-    renderRegion("Central", data.regions.Central, data) +
-    renderRegion("Eastern", data.regions.Eastern, data);
+    for(const a of list){
+      const st = data.airports[a.code];
+      if(!st){ continue; }
+      const s = computeStatus(st);
+      if(s === "CLOSED"){ closed++; anyClosed = true; }
+      else if(s === "IMPACT"){ impact++; }
+      else { ok++; }
+    }
+
+    const seg = `${r}: ${closed} CLOSED, ${impact} IMPACT, ${ok} OK`;
+    parts.push(seg);
+  }
+
+  const banner = document.getElementById("banner");
+  banner.style.display = "block";
+  banner.innerHTML = anyClosed
+    ? `⚠️ <strong>Aviation Impacts:</strong> ${esc(parts.join(" • "))}`
+    : `✅ <strong>No PA airport closures detected.</strong> ${esc(parts.join(" • "))}`;
 }
 
-loadData();
+let timerHandle = null;
+
+async function loadData(force=false){
+  try{
+    const r = await fetch(`status.json?ts=${Date.now()}`, { cache: "no-store" });
+    const data = await r.json();
+
+    document.getElementById("meta").textContent =
+      `Last update (UTC): ${data.generated_utc} • Auto-refresh every 5 min`;
+
+    buildBanner(data);
+
+    const grid = document.getElementById("grid");
+    grid.innerHTML =
+      renderRegion("Western", data.regions.Western, data) +
+      renderRegion("Central", data.regions.Central, data) +
+      renderRegion("Eastern", data.regions.Eastern, data);
+
+    if(timerHandle) clearTimeout(timerHandle);
+    timerHandle = setTimeout(() => loadData(false), REFRESH_MS);
+  } catch (e){
+    document.getElementById("meta").textContent =
+      `Error loading status.json. (${e})`;
+    if(timerHandle) clearTimeout(timerHandle);
+    timerHandle = setTimeout(() => loadData(false), 60_000);
+  }
+}
+
+loadData(false);
 </script>
 </body>
 </html>
