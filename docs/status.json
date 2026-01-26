@@ -1,5 +1,5 @@
 {
-  "generated_utc": "2026-01-26 11:22:56Z",
+  "generated_utc": "2026-01-26 12:05:19Z",
   "regions": {
     "Western": [
       {
@@ -83,184 +83,131 @@
   "airports": {
     "ABE": {
       "code": "ABE",
-      "closed": false,
-      "closure_reason": "",
-      "ground_stop": null,
-      "gdp": null,
-      "arrival_delay": null,
-      "departure_delay": null,
-      "deicing": null
+      "status": "CLOSED",
+      "closed": true,
+      "closure_reason": "!ABE 01/366 ABE AD AP CLSD 2601260837-2601261300",
+      "events": []
     },
     "ABP": {
       "code": "ABP",
+      "status": "OK",
       "closed": false,
       "closure_reason": "",
-      "ground_stop": null,
-      "gdp": null,
-      "arrival_delay": null,
-      "departure_delay": null,
-      "deicing": null
+      "events": []
     },
     "AOO": {
       "code": "AOO",
+      "status": "OK",
       "closed": false,
       "closure_reason": "",
-      "ground_stop": null,
-      "gdp": null,
-      "arrival_delay": null,
-      "departure_delay": null,
-      "deicing": null
+      "events": []
     },
     "AVP": {
       "code": "AVP",
+      "status": "OK",
       "closed": false,
       "closure_reason": "",
-      "ground_stop": null,
-      "gdp": null,
-      "arrival_delay": null,
-      "departure_delay": null,
-      "deicing": null
+      "events": []
     },
     "BFD": {
       "code": "BFD",
+      "status": "OK",
       "closed": false,
       "closure_reason": "",
-      "ground_stop": null,
-      "gdp": null,
-      "arrival_delay": null,
-      "departure_delay": null,
-      "deicing": null
+      "events": []
     },
     "CXY": {
       "code": "CXY",
+      "status": "OK",
       "closed": false,
       "closure_reason": "",
-      "ground_stop": null,
-      "gdp": null,
-      "arrival_delay": null,
-      "departure_delay": null,
-      "deicing": null
+      "events": []
     },
     "DUJ": {
       "code": "DUJ",
+      "status": "OK",
       "closed": false,
       "closure_reason": "",
-      "ground_stop": null,
-      "gdp": null,
-      "arrival_delay": null,
-      "departure_delay": null,
-      "deicing": null
+      "events": []
     },
     "ERI": {
       "code": "ERI",
+      "status": "OK",
       "closed": false,
       "closure_reason": "",
-      "ground_stop": null,
-      "gdp": null,
-      "arrival_delay": null,
-      "departure_delay": null,
-      "deicing": null
+      "events": []
     },
     "IPT": {
       "code": "IPT",
+      "status": "OK",
       "closed": false,
       "closure_reason": "",
-      "ground_stop": null,
-      "gdp": null,
-      "arrival_delay": null,
-      "departure_delay": null,
-      "deicing": null
+      "events": []
     },
     "JST": {
       "code": "JST",
+      "status": "OK",
       "closed": false,
       "closure_reason": "",
-      "ground_stop": null,
-      "gdp": null,
-      "arrival_delay": null,
-      "departure_delay": null,
-      "deicing": null
+      "events": []
     },
     "LBE": {
       "code": "LBE",
+      "status": "OK",
       "closed": false,
       "closure_reason": "",
-      "ground_stop": null,
-      "gdp": null,
-      "arrival_delay": null,
-      "departure_delay": null,
-      "deicing": null
+      "events": []
     },
     "LNS": {
       "code": "LNS",
+      "status": "OK",
       "closed": false,
       "closure_reason": "",
-      "ground_stop": null,
-      "gdp": null,
-      "arrival_delay": null,
-      "departure_delay": null,
-      "deicing": null
+      "events": []
     },
     "MDT": {
       "code": "MDT",
+      "status": "OK",
       "closed": false,
       "closure_reason": "",
-      "ground_stop": null,
-      "gdp": null,
-      "arrival_delay": null,
-      "departure_delay": null,
-      "deicing": null
+      "events": []
     },
     "MPO": {
       "code": "MPO",
+      "status": "OK",
       "closed": false,
       "closure_reason": "",
-      "ground_stop": null,
-      "gdp": null,
-      "arrival_delay": null,
-      "departure_delay": null,
-      "deicing": null
+      "events": []
     },
     "PHL": {
       "code": "PHL",
+      "status": "OK",
       "closed": false,
       "closure_reason": "",
-      "ground_stop": null,
-      "gdp": null,
-      "arrival_delay": null,
-      "departure_delay": null,
-      "deicing": null
+      "events": []
     },
     "PIT": {
       "code": "PIT",
+      "status": "OK",
       "closed": false,
       "closure_reason": "",
-      "ground_stop": null,
-      "gdp": null,
-      "arrival_delay": null,
-      "departure_delay": null,
-      "deicing": null
+      "events": []
     },
     "RDG": {
       "code": "RDG",
+      "status": "OK",
       "closed": false,
       "closure_reason": "",
-      "ground_stop": null,
-      "gdp": null,
-      "arrival_delay": null,
-      "departure_delay": null,
-      "deicing": null
+      "events": []
     },
     "SCE": {
       "code": "SCE",
+      "status": "OK",
       "closed": false,
       "closure_reason": "",
-      "ground_stop": null,
-      "gdp": null,
-      "arrival_delay": null,
-      "departure_delay": null,
-      "deicing": null
+      "events": []
     }
   },
-  "source": "FAA NAS Status airport-status-information"
+  "source": "nasstatus.faa.gov/list + airport-status-information",
+  "note": "Temporary closures are sourced from the NAS Status Active Airport Events list page first, with XML as fallback."
 }
