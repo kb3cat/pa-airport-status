@@ -152,12 +152,54 @@ function formatLocal(d){
   return `${pad(d.getMonth()+1)}/${pad(d.getDate())}/${yy} ${pad(d.getHours())}:${pad(d.getMinutes())}`;
 }
 
+/* Humanize FAA/NOTAM-ish closure text */
+function humanizeClosureReason(raw){
+  if(!raw) return "Airport closed (reason not specified)";
+
+  const t = raw.toUpperCase();
+  const reasons = [];
+
+  // Common winter ops keywords
+  if(t.includes("SNOW")) reasons.push("Snow conditions");
+  if(t.includes("ICE")) reasons.push("Ice conditions");
+  if(t.includes("RMVL")) reasons.push("Snow removal operations");
+  if(t.includes("PLOW") || t.includes("PLW")) reasons.push("Plowing operations");
+
+  // Runway/field condition hints
+  if(t.includes("FICON")) reasons.push("Poor runway surface conditions");
+  if(t.includes("RWY") && (t.includes("CLSD") || t.includes("CLOSED"))) reasons.push("Runway closed");
+
+  // Generic closure text
+  if(t.includes("AP CLSD") || t.includes("ARPT CLSD") || t.includes("AIRPORT CLOSURE")) reasons.push("Airport closed");
+
+  // Weather/visibility
+  if(t.includes("WX")) reasons.push("Weather conditions");
+  if(t.includes("LOW VIS") || t.includes("LIFR") || t.includes("IFR")) reasons.push("Low visibility conditions");
+
+  if(reasons.length === 0){
+    return "Operational disruption (FAA advisory)";
+  }
+
+  // De-dup while preserving order
+  const seen = new Set();
+  const uniq = [];
+  for(const r of reasons){
+    if(!seen.has(r)){
+      uniq.push(r);
+      seen.add(r);
+    }
+  }
+
+  return uniq.join(", ");
+}
+
 /* Reason shown on the main line */
 function lineReason(st){
   const status = computeStatus(st);
 
   if(status === "CLOSED"){
-    return st.closure_reason ? esc(st.closure_reason) : "Closure (reason not provided)";
+    // Human friendly reason
+    return esc(humanizeClosureReason(st.closure_reason || ""));
   }
 
   if(status === "IMPACT"){
@@ -173,7 +215,7 @@ function lineReason(st){
   return `<span class="reasonMuted">—</span>`;
 }
 
-/* Under-row CLOSED details: Closed from…to… (local) + Reason */
+/* Under-row CLOSED details: Closed from…to… (local) + Human Reason + Raw FAA */
 function closedDetails(st){
   const status = computeStatus(st);
   if(status !== "CLOSED") return "";
@@ -187,8 +229,10 @@ function closedDetails(st){
     html += `<div class="small"><span class="rowTitle">Closed from</span> ${esc(formatLocal(parsed.start))} <span class="rowTitle">to</span> ${esc(formatLocal(parsed.end))} (local)</div>`;
   }
 
+  html += `<div class="small"><span class="rowTitle">Reason:</span> ${esc(humanizeClosureReason(raw))}</div>`;
+
   if(raw){
-    html += `<div class="small"><span class="rowTitle">Reason:</span> ${esc(raw)}</div>`;
+    html += `<div class="small reasonMuted">FAA: ${esc(raw)}</div>`;
   }
 
   return html;
@@ -239,7 +283,11 @@ function updateMap(data){
 
     const st = data.airports[a.code] || {};
     const status = computeStatus(st);
-    const reasonText = (st.closure_reason || st.impact_reason || "").toString();
+
+    const reasonText = status === "CLOSED"
+      ? humanizeClosureReason(st.closure_reason || "")
+      : (st.impact_reason || "");
+
     const popup =
       `<strong>${esc(a.code)} - ${esc(a.name || "")}</strong><br>` +
       `${esc(status)}<br>` +
@@ -327,44 +375,4 @@ function buildBanner(data){
     banner.innerHTML = `🟡 <strong>No closures</strong> • ${totalImpact} impacted • ${totalOk} OK`;
   } else {
     banner.className = "banner banner-ok";
-    banner.innerHTML = `⚫ <strong>All PA airports operational</strong>`;
-  }
-}
-
-let timerHandle = null;
-
-async function loadData(){
-  const meta = document.getElementById("meta");
-  const banner = document.getElementById("banner");
-  try{
-    const r = await fetch(`status.json?ts=${Date.now()}`, { cache: "no-store" });
-    const data = await r.json();
-
-    meta.textContent = `Last update (UTC): ${data.generated_utc} • Auto-refresh every 5 min`;
-
-    buildBanner(data);
-    updateMap(data);
-
-    const grid = document.getElementById("grid");
-    grid.innerHTML =
-      renderRegion("Western", data.regions.Western || [], data) +
-      renderRegion("Central", data.regions.Central || [], data) +
-      renderRegion("Eastern", data.regions.Eastern || [], data);
-
-    if(timerHandle) clearTimeout(timerHandle);
-    timerHandle = setTimeout(loadData, REFRESH_MS);
-
-  } catch(e){
-    banner.className = "banner banner-error";
-    banner.textContent = "Error loading status.json. " + (e?.message || e);
-    meta.textContent = "Error.";
-    if(timerHandle) clearTimeout(timerHandle);
-    timerHandle = setTimeout(loadData, 60000);
-  }
-}
-
-document.getElementById("refreshBtn").addEventListener("click", loadData);
-loadData();
-</script>
-</body>
-</html>
+    ban
