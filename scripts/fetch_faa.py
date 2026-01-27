@@ -9,7 +9,7 @@ import requests
 
 
 # -----------------------------
-# Airport list (PA)
+# PA Airports
 # -----------------------------
 AIRPORTS = [
   {"code":"PIT","name":"Pittsburgh Intl","region":"Western","lat":40.4920,"lon":-80.2327,"metar":"KPIT"},
@@ -34,12 +34,12 @@ AIRPORTS = [
   {"code":"MPO","name":"Pocono Mountains Municipal","region":"Eastern","lat":41.1375,"lon":-75.3789,"metar":"KMPO"},
 ]
 
-
-FAA_AIRPORT_STATUS_XML = "https://nasstatus.faa.gov/api/airport-status-information"
+FAA_STATUS_URL = "https://nasstatus.faa.gov/api/airport-status-information"
+NOAA_METAR_URL = "https://aviationweather.gov/adds/dataserver_current/httpparam"
 
 
 # -----------------------------
-def utc_now_str():
+def utc_now():
     return datetime.now(timezone.utc).strftime("%Y-%m-%d %H:%M:%SZ")
 
 
@@ -56,31 +56,30 @@ def build_regions():
 
 
 # -----------------------------
-# FAA closures
+# FAA closures / impacts
 # -----------------------------
-def fetch_airport_status_information():
+def fetch_faa_status():
     closures = {}
     impacts = {}
 
-    r = requests.get(FAA_AIRPORT_STATUS_XML, timeout=30)
+    r = requests.get(FAA_STATUS_URL, timeout=30)
     r.raise_for_status()
 
-    text = re.sub(r"^\ufeff", "", r.text.strip())
-    root = ET.fromstring(text)
+    root = ET.fromstring(r.text)
 
     for el in root.iter():
         if "}" in el.tag:
             el.tag = el.tag.split("}",1)[1]
 
-    for lst in root.iter():
-        if not lst.tag.endswith("_List"):
+    for group in root.iter():
+        if not group.tag.endswith("_List"):
             continue
 
-        is_closure = "Closure" in lst.tag
+        is_closure = "Closure" in group.tag
 
-        for ap in lst.findall(".//Airport"):
-            arpt = ap.findtext("ARPT","").strip().upper()
-            if not arpt:
+        for ap in group.findall(".//Airport"):
+            code = (ap.findtext("ARPT") or "").strip().upper()
+            if not code:
                 continue
 
             reason = (ap.findtext("Reason") or "").strip()
@@ -88,21 +87,21 @@ def fetch_airport_status_information():
                 reason = " ".join(ap.itertext()).strip()
 
             if is_closure:
-                closures[arpt] = reason
+                closures[code] = reason
             else:
-                impacts[arpt] = reason
+                impacts[code] = reason
 
     return closures, impacts
 
 
 # -----------------------------
-# METAR Flight Category (NOAA ADDS XML)
+# NOAA METAR Flight Category
 # -----------------------------
-def fetch_flight_categories(metar_ids):
-    ids = ",".join(metar_ids)
+def fetch_flight_categories(stations):
+    ids = ",".join(stations)
 
     url = (
-        "https://aviationweather.gov/adds/dataserver_current/httpparam"
+        NOAA_METAR_URL +
         f"?dataSource=metars&requestType=retrieve&format=xml"
         f"&stationString={ids}&hoursBeforeNow=2"
     )
@@ -113,10 +112,9 @@ def fetch_flight_categories(metar_ids):
     root = ET.fromstring(r.text)
 
     cats = {}
-
     for metar in root.findall(".//METAR"):
-        station = metar.findtext("station_id","").strip().upper()
-        fc = metar.findtext("flight_category","").strip().upper()
+        station = (metar.findtext("station_id") or "").strip().upper()
+        fc = (metar.findtext("flight_category") or "").strip().upper()
         if station and fc:
             cats[station] = fc
 
@@ -127,9 +125,7 @@ def fetch_flight_categories(metar_ids):
 # Main
 # -----------------------------
 def main():
-    generated_utc = utc_now_str()
-
-    airports_status = {
+    airports = {
         a["code"]: {
             "code": a["code"],
             "status": "OK",
@@ -141,27 +137,26 @@ def main():
         for a in AIRPORTS
     }
 
-    # FAA status
     try:
-        closures, impacts = fetch_airport_status_information()
+        closures, impacts = fetch_faa_status()
         print(f"[INFO] FAA closures: {len(closures)}, impacts: {len(impacts)}")
     except Exception as e:
         print(f"[WARN] FAA status fetch failed: {e}")
         closures, impacts = {}, {}
 
     for code, reason in closures.items():
-        if code in airports_status:
-            airports_status[code]["status"] = "CLOSED"
-            airports_status[code]["closed"] = True
-            airports_status[code]["closure_reason"] = reason
+        if code in airports:
+            airports[code]["status"] = "CLOSED"
+            airports[code]["closed"] = True
+            airports[code]["closure_reason"] = reason
 
     for code, reason in impacts.items():
-        if code in airports_status and not airports_status[code]["closed"]:
-            airports_status[code]["status"] = "IMPACT"
-            airports_status[code]["events"] = [{"type":"Impact","reason":reason}]
+        if code in airports and not airports[code]["closed"]:
+            airports[code]["status"] = "IMPACT"
+            airports[code]["events"] = [{"type":"Impact","reason":reason}]
 
-    # METAR categories
     metar_ids = [a["metar"] for a in AIRPORTS]
+
     try:
         cats = fetch_flight_categories(metar_ids)
         print(f"[INFO] METAR flight categories: {len(cats)} of {len(metar_ids)}")
@@ -170,21 +165,19 @@ def main():
         cats = {}
 
     for a in AIRPORTS:
-        code = a["code"]
-        metar = a["metar"]
-        airports_status[code]["flight_category"] = cats.get(metar,"UNK")
+        airports[a["code"]]["flight_category"] = cats.get(a["metar"], "UNK")
 
     out = {
-        "generated_utc": generated_utc,
+        "generated_utc": utc_now(),
         "regions": build_regions(),
-        "airports": airports_status,
-        "source": "nasstatus.faa.gov + aviationweather.gov ADDS XML",
+        "airports": airports,
+        "source": "nasstatus.faa.gov + NOAA ADDS XML",
         "note": "Closures from FAA NAS Status. Flight categories from NOAA ADDS METAR feed."
     }
 
     os.makedirs("docs", exist_ok=True)
-    with open("docs/status.json","w",encoding="utf-8") as f:
-        json.dump(out,f,indent=2)
+    with open("docs/status.json", "w", encoding="utf-8") as f:
+        json.dump(out, f, indent=2)
 
     print("Wrote docs/status.json")
 
