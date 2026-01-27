@@ -105,7 +105,7 @@
       font-size: 0.95rem;
     }
     .opacityGroup{
-      display:none;
+      display:none; /* toggled by JS */
       align-items:center;
       gap: 10px;
       border: 1px solid #333;
@@ -173,6 +173,13 @@
 
     .muted { color:#666; }
     .small { font-size: 0.9rem; color:#444; }
+
+    .impact-line {
+      margin-top: 4px;
+      font-size: 0.85rem;
+      color: #333;
+    }
+    .impact-line b { font-weight: 900; }
 
     /* METAR MODAL */
     #metarOverlay {
@@ -342,14 +349,14 @@ function flightPill(cat, code){
   return `<span class="pill ${cls} metar-pill" role="button" tabindex="0" data-code="${esc(code)}" title="Click to view METAR">${esc(c)}</span>`;
 }
 
-function markerColor(status){
+function markerColorByStatus(status){
   const s = (status || "OK").toUpperCase();
   if (s === "CLOSED") return "#e74c3c";
   if (s === "IMPACT") return "#f1c40f";
   return "#2ecc71";
 }
 
-function flightRuleColor(cat){
+function markerColorByFlight(cat){
   const c = (cat || "UNK").toUpperCase();
   if (c === "VFR") return "#2ecc71";
   if (c === "MVFR") return "#f1c40f";
@@ -404,12 +411,18 @@ function updateOverallBar(airportsObj){
 // -----------------------------
 const map = L.map("map").setView([40.9, -77.7], 7);
 
-L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
+const baseLabels = L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
   maxZoom: 19,
   attribution: "&copy; OpenStreetMap"
 }).addTo(map);
 
-// Overlays
+// no-label base when flight rules are on
+const baseNoLabels = L.tileLayer(
+  "https://{s}.basemaps.cartocdn.com/light_nolabels/{z}/{x}/{y}{r}.png",
+  { maxZoom: 19, attribution: "&copy; OpenStreetMap &copy; CARTO" }
+);
+
+// overlays
 const clouds = L.tileLayer(
   "https://mesonet.agron.iastate.edu/cache/tile.py/1.0.0/sat/{z}/{x}/{y}.png",
   { maxZoom: 8, opacity: 0.55, attribution: "NOAA GOES-East (IEM)" }
@@ -449,7 +462,6 @@ function applyRadarOpacity(){
   radarPct.textContent = v + "%";
   radar.setOpacity(v / 100);
 }
-
 function setCloudUI(){
   cloudOpacityGroup.style.display = cloudToggle.checked ? "flex" : "none";
   if (cloudToggle.checked) clouds.addTo(map);
@@ -460,10 +472,21 @@ function setRadarUI(){
   if (radarToggle.checked) radar.addTo(map);
   else map.removeLayer(radar);
 }
+function syncFlightRulesKey(){
+  frKey.style.display = flightRulesToggle.checked ? "flex" : "none";
+}
+function syncBaseLayer(){
+  if (flightRulesToggle.checked) {
+    if (map.hasLayer(baseLabels)) map.removeLayer(baseLabels);
+    if (!map.hasLayer(baseNoLabels)) baseNoLabels.addTo(map);
+  } else {
+    if (map.hasLayer(baseNoLabels)) map.removeLayer(baseNoLabels);
+    if (!map.hasLayer(baseLabels)) baseLabels.addTo(map);
+  }
+}
 
 cloudToggle.addEventListener("change", setCloudUI);
 radarToggle.addEventListener("change", setRadarUI);
-
 cloudOpacity.addEventListener("input", applyCloudOpacity);
 radarOpacity.addEventListener("input", applyRadarOpacity);
 
@@ -471,14 +494,11 @@ applyCloudOpacity();
 applyRadarOpacity();
 setCloudUI();
 setRadarUI();
-
-function syncFlightRulesKey(){
-  frKey.style.display = flightRulesToggle.checked ? "flex" : "none";
-}
 syncFlightRulesKey();
+syncBaseLayer();
 
 // -----------------------------
-// METAR modal (STATIC only)
+// METAR modal (reads from status.json)
 // -----------------------------
 const metarOverlay = document.getElementById("metarOverlay");
 const metarCloseBtn = document.getElementById("metarCloseBtn");
@@ -500,7 +520,7 @@ document.addEventListener("keydown", (e) => {
 function getEmbeddedMetarText(code){
   const st = (LAST_AIRPORTS || {})[code] || {};
   return (
-    st.metar_raw ||     // recommended
+    st.metar_raw ||
     st.raw_metar ||
     st.metar_text ||
     st.metar ||
@@ -532,12 +552,9 @@ async function openMetar(code){
 
   metarBody.textContent =
     `No METAR text found in status.json for this airport.\n\n` +
-    `Add one of these fields under airports["${code}"]:\n` +
-    `  metar_raw  (recommended)\n` +
-    `  raw_metar\n` +
-    `  metar_text\n` +
-    `  metar\n`;
-  metarHint.innerHTML = `Static site: add METAR fields into <code>status.json</code>`;
+    `Expected field under airports["${code}"]:\n` +
+    `  metar_raw (recommended)\n`;
+  metarHint.innerHTML = `METAR is injected by GitHub Actions into <code>status.json</code>`;
 }
 
 document.getElementById("grid").addEventListener("click", (e) => {
@@ -573,38 +590,61 @@ async function load(){
   LAST_NAME_BY_CODE = {};
 
   updateOverallBar(airports);
+
   markers.clearLayers();
 
-  const showFRColors = !!flightRulesToggle.checked;
+  const useFlightColors = !!flightRulesToggle.checked;
+  syncFlightRulesKey();
+  syncBaseLayer();
 
   let html = "";
   for (const regionName of Object.keys(regions)) {
     let rows = "";
+
     for (const a of (regions[regionName] || [])) {
       const st = airports[a.code] || {};
       LAST_NAME_BY_CODE[a.code] = a.name || "";
 
-      const fill = showFRColors ? flightRuleColor(st.flight_category) : markerColor(st.status);
+      const status = ((st.status || "OK") + "").toUpperCase();
+      const fc = ((st.flight_category || "UNK") + "").toUpperCase();
+      const impactReason = (st.impact_reason || "").toString().trim();
 
-      L.circleMarker([a.lat, a.lon], {
-        radius: 8,
-        weight: 3,
-        color: "#000",
-        fillColor: fill,
-        fillOpacity: 0.95
+      const fill = useFlightColors ? markerColorByFlight(st.flight_category) : markerColorByStatus(st.status);
+
+      // marker halo + dot (visible over overlays)
+      const latlng = [a.lat, a.lon];
+      L.circleMarker(latlng, {
+        radius: 11, weight: 0, fillColor: "#fff", fillOpacity: 0.95, interactive: false
+      }).addTo(markers);
+
+      const popupImpactLine = (status === "IMPACT" && impactReason)
+        ? `<br><b>Impact:</b> ${esc(impactReason)}`
+        : "";
+
+      L.circleMarker(latlng, {
+        radius: 7, weight: 3, color: "#000",
+        fillColor: fill, fillOpacity: 0.95
       })
       .bindPopup(
         `<b>${esc(a.code)}</b><br>${esc(a.name)}<br>` +
-        `Status: ${esc(st.status || "OK")}<br>` +
-        `Flight: ${esc(st.flight_category || "UNK")}`
+        `Status: ${esc(status)}<br>` +
+        `Flight: ${esc(fc)}` +
+        popupImpactLine
       )
       .addTo(markers);
+
+      const impactRowLine = (status === "IMPACT" && impactReason)
+        ? `<div class="impact-line"><b>Impact:</b> ${esc(impactReason)}</div>`
+        : "";
 
       rows += `
         <tr>
           <td><b>${esc(a.code)}</b><br><span class="small muted">${esc(a.name)}</span></td>
-          <td>${statusPill(st.status || "OK")}</td>
-          <td>${flightPill(st.flight_category || "UNK", a.code)}</td>
+          <td>
+            ${statusPill(status)}
+            ${impactRowLine}
+          </td>
+          <td>${flightPill(fc, a.code)}</td>
         </tr>
       `;
     }
@@ -621,7 +661,6 @@ async function load(){
   }
 
   document.getElementById("grid").innerHTML = html;
-  syncFlightRulesKey();
 }
 
 async function refresh(){
@@ -630,7 +669,7 @@ async function refresh(){
 }
 
 refreshBtn.addEventListener("click", refresh);
-flightRulesToggle.addEventListener("change", () => { syncFlightRulesKey(); refresh(); });
+flightRulesToggle.addEventListener("change", refresh);
 
 refresh();
 setInterval(refresh, REFRESH_MS);
