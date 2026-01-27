@@ -1,502 +1,123 @@
 <!doctype html>
 <html lang="en">
 <head>
-  <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>PA Airport Status (FAA NAS Status)</title>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>PA Airport Status</title>
 
-  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
-  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 
-  <style>
-    body { font-family: system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif; margin: 16px; color:#111; }
-    header { display:flex; flex-wrap:wrap; align-items:baseline; gap: 10px; margin-bottom: 6px; }
-    h1 { font-size: 1.25rem; margin: 0; }
-    .meta { font-size: 0.9rem; color:#333; }
-    .btn { padding: 6px 10px; border-radius: 10px; border:1px solid #333; background:#fff; cursor:pointer; }
+<style>
+body { font-family: system-ui,Segoe UI,Roboto,Arial,sans-serif; margin:16px; }
+h1 { font-size:1.3rem; margin:0 0 6px 0; }
 
-    .banner { border: 1px solid #333; border-radius: 12px; padding: 8px 12px; margin: 10px 0 14px 0; font-weight: 800; }
-    .banner-ok { background: #d4edda; color:#000; }
-    .banner-impact { background: #fff3cd; color:#000; }
-    .banner-closed { background: #f8d7da; color:#000; }
-    .banner-error { background:#ffe6e6; color:#000; }
+#map { height:320px; border:1px solid #333; border-radius:12px; }
 
-    /* Flash banner when new closures appear */
-    @keyframes flashBanner {
-      0%, 100% { filter: brightness(1); }
-      50% { filter: brightness(1.25); }
-    }
-    .banner-flash {
-      animation: flashBanner 0.9s linear infinite;
-      outline: 3px solid #000;
-    }
+.grid { display:grid; grid-template-columns:repeat(auto-fit,minmax(420px,1fr)); gap:12px; }
 
-    #mapWrap { margin: 0 0 14px 0; }
-    #map {
-      height: 340px;
-      border: 1px solid #333;
-      border-radius: 12px;
-      overflow: hidden;
-      background:#fafafa;
-    }
-    .mapLegend { display:flex; gap: 12px; align-items:center; margin-top: 6px; font-size: 0.9rem; color:#222; flex-wrap: wrap; }
-    .dot { width: 10px; height: 10px; border-radius: 999px; display:inline-block; border:1px solid #333; }
-    .dot-ok { background:#d4edda; }      /* OK key green */
-    .dot-impact { background:#fff3cd; }
-    .dot-closed { background:#f8d7da; }
+.card { border:1px solid #333; border-radius:12px; padding:10px; }
+.card h2 { margin:0 0 8px 0; font-size:1.1rem; }
 
-    .small { font-size: 0.9rem; color:#444; margin-top: 6px; }
-    .muted { color:#666; }
+table { width:100%; border-collapse:collapse; }
+th,td { padding:6px; border-top:1px solid #ddd; text-align:left; }
 
-    .grid { display:grid; grid-template-columns: repeat(auto-fit, minmax(440px, 1fr)); gap: 12px; }
-    .card { border:1px solid #333; border-radius: 12px; padding: 10px; }
-    .card h2 { margin: 0 0 8px 0; font-size: 1.05rem; }
+.pill { padding:3px 10px; border-radius:999px; border:1px solid #333; font-weight:800; font-size:.85rem; }
+.ok { background:#d4edda; }
+.impact { background:#fff3cd; }
+.closed { background:#f8d7da; }
 
-    table { width:100%; border-collapse: collapse; }
-    th, td { text-align:left; vertical-align: top; padding: 6px; border-top: 1px solid #ddd; }
-    th { font-weight: 800; }
-
-    .rowTitle { white-space: nowrap; font-weight: 800; }
-
-    .pill {
-      display:inline-block;
-      padding: 2px 10px;
-      border-radius: 999px;
-      border:1px solid #333;
-      font-size: 0.85rem;
-      font-weight: 900;
-      line-height: 1.4;
-      white-space: nowrap;
-    }
-    .pill-ok { background: #d4edda; }      /* OK pill green */
-    .pill-impact { background: #fff3cd; }
-    .pill-closed { background: #f8d7da; }
-
-    .legendBox {
-      border: 1px solid #333;
-      border-radius: 12px;
-      padding: 8px 10px;
-      background: #fff;
-      margin-top: 10px;
-    }
-    .swatch {
-      display:inline-block; width: 12px; height: 12px; border-radius: 4px; border:1px solid #333; vertical-align: -2px;
-      margin-right: 6px;
-    }
-  </style>
+#satCtl { margin-top:8px; display:flex; gap:12px; align-items:center; }
+</style>
 </head>
 
 <body>
-<header>
-  <h1>PA Airport Status (FAA NAS Status)</h1>
-  <button class="btn" id="refreshBtn">Refresh</button>
-  <div class="meta" id="meta">Loading…</div>
-</header>
 
-<div class="banner banner-ok" id="banner">Loading…</div>
+<h1>PA Airport Status</h1>
+<div id="meta">Loading…</div>
 
-<div id="mapWrap">
-  <div id="map"></div>
+<div id="map"></div>
 
-  <div class="mapLegend">
-    <span><span class="dot dot-closed"></span> CLOSED</span>
-    <span><span class="dot dot-impact"></span> IMPACT</span>
-    <span><span class="dot dot-ok"></span> OK</span>
-  </div>
-
-  <label class="small">
-    <input type="checkbox" id="fltcatToggle" />
-    Show VFR/IFR Flight Category layer
-  </label>
-
-  <div class="legendBox small muted">
-    <div><span class="swatch" style="background:#00a000;"></span><strong>VFR</strong></div>
-    <div><span class="swatch" style="background:#0047ff;"></span><strong>MVFR</strong></div>
-    <div><span class="swatch" style="background:#d00000;"></span><strong>IFR</strong></div>
-    <div><span class="swatch" style="background:#a000a0;"></span><strong>LIFR</strong></div>
-    <div><span class="swatch" style="background:#777777;"></span><strong>UNK</strong></div>
-  </div>
-
-  <div class="small muted" id="mapNote"></div>
+<div id="satCtl">
+  <label><input type="checkbox" id="satToggle"> Satellite</label>
+  <label>Opacity</label>
+  <input type="range" id="satOpacity" min="0" max="100" value="55">
+  <span id="satPct">55%</span>
 </div>
+
+<br>
 
 <div class="grid" id="grid"></div>
 
 <script>
-const REFRESH_MS = 5 * 60 * 1000;
-const FLASH_MS = 20 * 1000;
-const STORAGE_KEY = "paAirportClosedSetV1";
+let map = L.map("map").setView([40.9,-77.7],7);
 
-const banner = document.getElementById("banner");
-const meta = document.getElementById("meta");
+let base = L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png",{maxZoom:19}).addTo(map);
 
-function esc(s){
-  return (s ?? "").toString().replace(/[&<>"']/g, c => ({
-    "&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"
-  }[c]));
-}
+let sat = L.tileLayer(
+  "https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}",
+  {maxZoom:19,opacity:0.55}
+);
 
-window.addEventListener("error", (e) => {
-  banner.className = "banner banner-error";
-  banner.textContent = "Page error: " + (e && e.message ? e.message : "Unknown error");
-});
-window.addEventListener("unhandledrejection", (e) => {
-  banner.className = "banner banner-error";
-  banner.textContent = "Promise error: " + (e && e.reason ? e.reason : "Unknown rejection");
-});
+let markers = L.layerGroup().addTo(map);
 
-function computeStatus(st){
-  const s = (st.status || "").toUpperCase();
-  if (s === "CLOSED") return "CLOSED";
-  if (s === "IMPACT") return "IMPACT";
-  if (st.closed === true) return "CLOSED";
-  return "OK";
-}
+document.getElementById("satToggle").onchange = e=>{
+  e.target.checked ? sat.addTo(map) : map.removeLayer(sat);
+};
+document.getElementById("satOpacity").oninput = e=>{
+  let v=e.target.value;
+  document.getElementById("satPct").textContent=v+"%";
+  sat.setOpacity(v/100);
+};
 
-function pill(status){
-  if(status === "CLOSED") return '<span class="pill pill-closed">CLOSED</span>';
-  if(status === "IMPACT") return '<span class="pill pill-impact">IMPACT</span>';
-  return '<span class="pill pill-ok">OK</span>';
-}
+async function load(){
+  const r = await fetch("status.json?"+Date.now());
+  const d = await r.json();
 
-/* Flash logic */
-function getClosedSet(data){
-  const set = [];
-  const regions = ["Western","Central","Eastern"];
-  for(const r of regions){
-    for(const a of (data.regions[r] || [])){
-      const st = data.airports[a.code];
-      if(!st) continue;
-      if(computeStatus(st) === "CLOSED") set.push(a.code);
+  document.getElementById("meta").textContent =
+    "Last update: "+d.generated_utc+" UTC";
+
+  markers.clearLayers();
+  let grid="";
+
+  for(const [region,aps] of Object.entries(d.regions)){
+    let rows="";
+    for(const a of aps){
+      const st=d.airports[a.code];
+      let cls="ok";
+      if(st.status==="IMPACT") cls="impact";
+      if(st.status==="CLOSED") cls="closed";
+
+      rows+=`<tr>
+        <td><b>${a.code}</b><br>${a.name}</td>
+        <td><span class="pill ${cls}">${st.status}</span></td>
+        <td>${st.flight_category||""}</td>
+      </tr>`;
+
+      let col = st.status==="CLOSED"?"red":st.status==="IMPACT"?"orange":"green";
+
+      L.circleMarker([a.lat,a.lon],{
+        radius:7,weight:2,color:"#000",fillColor:col,fillOpacity:0.8
+      }).bindPopup(`<b>${a.code}</b><br>${a.name}<br>Status: ${st.status}<br>Flight: ${st.flight_category}`)
+      .addTo(markers);
     }
-  }
-  set.sort();
-  return set;
-}
-function loadPrevClosedSet(){
-  try{
-    const raw = localStorage.getItem(STORAGE_KEY);
-    if(!raw) return [];
-    const arr = JSON.parse(raw);
-    return Array.isArray(arr) ? arr : [];
-  } catch { return []; }
-}
-function saveClosedSet(arr){
-  try{ localStorage.setItem(STORAGE_KEY, JSON.stringify(arr)); } catch {}
-}
-function startBannerFlash(){
-  banner.classList.add("banner-flash");
-  clearTimeout(window.__flashTimer);
-  window.__flashTimer = setTimeout(() => {
-    banner.classList.remove("banner-flash");
-  }, FLASH_MS);
-}
 
-/* Time window parsing (YYMMDDhhmm-YYMMDDhhmm at end) */
-function parseNotamWindow(line){
-  if(!line) return null;
-  const m = line.match(/(\d{10})-(\d{10})\s*$/);
-  if(!m) return null;
-
-  function toDate(s){
-    const year = 2000 + parseInt(s.slice(0,2),10);
-    const month = parseInt(s.slice(2,4),10)-1;
-    const day = parseInt(s.slice(4,6),10);
-    const hour = parseInt(s.slice(6,8),10);
-    const min = parseInt(s.slice(8,10),10);
-    return new Date(Date.UTC(year,month,day,hour,min));
-  }
-  return { start: toDate(m[1]), end: toDate(m[2]) };
-}
-
-function formatLocal(d){
-  const pad = n => String(n).padStart(2,"0");
-  const yy = String(d.getFullYear()).slice(-2);
-  return `${pad(d.getMonth()+1)}/${pad(d.getDate())}/${yy} ${pad(d.getHours())}:${pad(d.getMinutes())}`;
-}
-
-function humanizeClosureReason(raw){
-  if(!raw) return "Airport closed (reason not specified)";
-  const t = raw.toUpperCase();
-  const reasons = [];
-
-  if(t.includes("SNOW")) reasons.push("Snow conditions");
-  if(t.includes("ICE")) reasons.push("Ice conditions");
-  if(t.includes("RMVL")) reasons.push("Snow removal operations");
-  if(t.includes("PLOW") || t.includes("PLW")) reasons.push("Plowing operations");
-  if(t.includes("FICON")) reasons.push("Poor runway surface conditions");
-  if(t.includes("BRAKING")) reasons.push("Reduced braking action");
-  if((t.includes("RWY") || t.includes("RUNWAY")) && (t.includes("CLSD") || t.includes("CLOSED"))) reasons.push("Runway closed");
-  if(t.includes("AP CLSD") || t.includes("ARPT CLSD") || t.includes("AIRPORT CLOSURE")) reasons.push("Airport closed");
-  if(t.includes("WX")) reasons.push("Weather conditions");
-  if(t.includes("LOW VIS") || t.includes("LIFR") || t.includes("IFR")) reasons.push("Low visibility conditions");
-  if(t.includes("FOG")) reasons.push("Fog");
-
-  if(reasons.length === 0) return "Operational disruption (FAA advisory)";
-  return [...new Set(reasons)].join(", ");
-}
-
-function lineReason(st){
-  const status = computeStatus(st);
-  if(status === "CLOSED") return esc(humanizeClosureReason(st.closure_reason || ""));
-  if(status === "IMPACT"){
-    if(st.impact_reason) return esc(st.impact_reason);
-    if(st.events && st.events.length){
-      const e = st.events[0];
-      return esc(e.reason || e.type || "Impact");
-    }
-    return "Impact (details not provided)";
-  }
-  return '<span class="muted">—</span>';
-}
-
-function closedDetails(st){
-  const status = computeStatus(st);
-  if(status !== "CLOSED") return "";
-  const raw = (st.closure_reason || "").trim();
-  const parsed = parseNotamWindow(raw);
-
-  let html = "";
-  if(parsed){
-    html += `<div class="small"><span class="rowTitle">Closed from</span> ${esc(formatLocal(parsed.start))} <span class="rowTitle">to</span> ${esc(formatLocal(parsed.end))} (local)</div>`;
-  }
-  html += `<div class="small"><span class="rowTitle">Reason:</span> ${esc(humanizeClosureReason(raw))}</div>`;
-  if(raw){
-    html += `<div class="small muted">FAA: ${esc(raw)}</div>`;
-  }
-  return html;
-}
-
-/* Map base status markers */
-let map = null;
-let markersLayer = null;
-
-function ensureMap(){
-  const note = document.getElementById("mapNote");
-  if(typeof L === "undefined"){
-    note.textContent = "Map unavailable (Leaflet blocked/unavailable). Status board still updates.";
-    return false;
-  }
-  if(map) return true;
-
-  map = L.map("map").setView([40.9, -77.8], 7);
-  L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
-    maxZoom: 18,
-    attribution: "&copy; OpenStreetMap contributors"
-  }).addTo(map);
-
-  markersLayer = L.layerGroup().addTo(map);
-  note.textContent = "Base markers are airport operational status. Toggle overlay for flight category.";
-  return true;
-}
-
-function markerStyle(status){
-  if(status === "CLOSED") return { radius: 8, weight: 1, color: "#333", fillColor: "#f8d7da", fillOpacity: 0.95 };
-  if(status === "IMPACT") return { radius: 7, weight: 1, color: "#333", fillColor: "#fff3cd", fillOpacity: 0.95 };
-  return { radius: 6, weight: 1, color: "#333", fillColor: "#d4edda", fillOpacity: 0.95 };
-}
-
-function updateMapStatusMarkers(data){
-  if(!ensureMap()) return;
-  markersLayer.clearLayers();
-
-  const all = []
-    .concat(data.regions.Western || [])
-    .concat(data.regions.Central || [])
-    .concat(data.regions.Eastern || []);
-
-  let added = 0;
-  for(const a of all){
-    if(typeof a.lat !== "number" || typeof a.lon !== "number") continue;
-    const st = data.airports[a.code] || {};
-    const status = computeStatus(st);
-    const reason = status === "CLOSED" ? humanizeClosureReason(st.closure_reason || "") : (st.events?.[0]?.reason || "");
-    const popup = `<strong>${esc(a.code)} - ${esc(a.name || "")}</strong><br>${esc(status)}${reason ? "<br>Reason: " + esc(reason) : ""}`;
-
-    L.circleMarker([a.lat, a.lon], markerStyle(status))
-      .bindPopup(popup)
-      .addTo(markersLayer);
-
-    added++;
-  }
-
-  if(added === 0){
-    document.getElementById("mapNote").textContent = "Map loaded, but no markers found (lat/lon missing in status.json).";
-  }
-}
-
-/* Flight category overlay layer */
-let fltcatLayer = null;
-
-function fltcatColor(fc){
-  switch((fc || "UNK").toUpperCase()){
-    case "VFR":  return "#00a000";
-    case "MVFR": return "#0047ff";
-    case "IFR":  return "#d00000";
-    case "LIFR": return "#a000a0";
-    default:     return "#777777";
-  }
-}
-
-function ensureFltcatLayer(){
-  if(!ensureMap()) return null;
-  if(fltcatLayer) return fltcatLayer;
-  fltcatLayer = L.layerGroup();
-  return fltcatLayer;
-}
-
-function buildFltcatLayer(data){
-  const layer = ensureFltcatLayer();
-  if(!layer) return;
-  layer.clearLayers();
-
-  const all = []
-    .concat(data.regions.Western || [])
-    .concat(data.regions.Central || [])
-    .concat(data.regions.Eastern || []);
-
-  for(const a of all){
-    if(typeof a.lat !== "number" || typeof a.lon !== "number") continue;
-    const st = data.airports[a.code] || {};
-    const fc = st.flight_category || "UNK";
-
-    L.circleMarker([a.lat, a.lon], {
-      radius: 10,
-      weight: 2,
-      color: "#111",
-      fillColor: fltcatColor(fc),
-      fillOpacity: 0.70
-    }).bindPopup(
-      `<strong>${esc(a.code)} - ${esc(a.name||"")}</strong><br>` +
-      `Flight Category: <strong>${esc(fc)}</strong>`
-    ).addTo(layer);
-  }
-}
-
-function syncFltcatVisibility(){
-  const cb = document.getElementById("fltcatToggle");
-  if(!cb || !fltcatLayer || !map) return;
-  if(cb.checked){
-    if(!map.hasLayer(fltcatLayer)) fltcatLayer.addTo(map);
-  } else {
-    if(map.hasLayer(fltcatLayer)) map.removeLayer(fltcatLayer);
-  }
-}
-document.getElementById("fltcatToggle").addEventListener("change", syncFltcatVisibility);
-
-/* UI render */
-function renderRegion(regionName, airports, data){
-  let rows = "";
-  for(const a of airports){
-    const st = data.airports[a.code];
-    if(!st) continue;
-    const status = computeStatus(st);
-
-    const fc = (st.flight_category || "UNK").toUpperCase();
-    const fcChip = `<span class="pill" style="background:${fc==="VFR"?"#d4edda":fc==="MVFR"?"#dbeafe":fc==="IFR"?"#f8d7da":fc==="LIFR"?"#f5d0fe":"#e6e6e6"};">${esc(fc)}</span>`;
-
-    rows += `
-      <tr>
-        <td class="rowTitle">${esc(a.code)}</td>
-        <td>${esc(a.name || "")}</td>
-        <td>${pill(status)} ${fcChip}</td>
-        <td>${lineReason(st)}</td>
-      </tr>
-      <tr>
-        <td colspan="4">${closedDetails(st)}</td>
-      </tr>
-    `;
-  }
-
-  return `
+    grid+=`
     <div class="card">
-      <h2>${esc(regionName)}</h2>
+      <h2>${region}</h2>
       <table>
-        <thead>
-          <tr><th>Code</th><th>Airport</th><th>Status / FC</th><th>Reason</th></tr>
-        </thead>
-        <tbody>${rows}</tbody>
+        <tr><th>Airport</th><th>Status</th><th>Flight</th></tr>
+        ${rows}
       </table>
-    </div>
-  `;
-}
-
-function buildBanner(data){
-  let closed = 0, impact = 0, ok = 0;
-  const regions = ["Western","Central","Eastern"];
-  for(const r of regions){
-    for(const a of (data.regions[r] || [])){
-      const st = data.airports[a.code];
-      if(!st) continue;
-      const s = computeStatus(st);
-      if(s === "CLOSED") closed++;
-      else if(s === "IMPACT") impact++;
-      else ok++;
-    }
+    </div>`;
   }
 
-  if(closed > 0){
-    banner.className = "banner banner-closed";
-    banner.innerHTML = `🔴 <strong>${closed} PA airport(s) CLOSED</strong> • ${impact} impacted • ${ok} OK`;
-  } else if(impact > 0){
-    banner.className = "banner banner-impact";
-    banner.innerHTML = `🟡 <strong>No closures</strong> • ${impact} impacted • ${ok} OK`;
-  } else {
-    banner.className = "banner banner-ok";
-    banner.innerHTML = `🟢 <strong>All PA airports operational</strong>`;
-  }
+  document.getElementById("grid").innerHTML = grid;
 }
 
-let timerHandle = null;
-
-async function loadData(){
-  try{
-    banner.className = "banner banner-ok";
-    banner.textContent = "Loading status.json…";
-
-    const res = await fetch(`status.json?ts=${Date.now()}`, { cache: "no-store" });
-    if(!res.ok) throw new Error(`Fetch failed: ${res.status} ${res.statusText}`);
-    const data = await res.json();
-
-    // Flash banner if any NEW closures appear since last refresh
-    const prev = loadPrevClosedSet();
-    const cur = getClosedSet(data);
-    const prevSet = new Set(prev);
-    const newOnes = cur.filter(code => !prevSet.has(code));
-    if(newOnes.length > 0){
-      startBannerFlash();
-    }
-    saveClosedSet(cur);
-
-    meta.textContent = `Last update (UTC): ${data.generated_utc} • Auto-refresh every 5 min`;
-
-    buildBanner(data);
-
-    // Map layers
-    updateMapStatusMarkers(data);
-    buildFltcatLayer(data);
-    syncFltcatVisibility();
-
-    const grid = document.getElementById("grid");
-    grid.innerHTML =
-      renderRegion("Western", data.regions.Western || [], data) +
-      renderRegion("Central", data.regions.Central || [], data) +
-      renderRegion("Eastern", data.regions.Eastern || [], data);
-
-    if(timerHandle) clearTimeout(timerHandle);
-    timerHandle = setTimeout(loadData, REFRESH_MS);
-
-  } catch(e){
-    banner.className = "banner banner-error";
-    banner.innerHTML = `Error loading status.json: ${esc(e && e.message ? e.message : String(e))}`;
-    meta.textContent = "Error.";
-    if(timerHandle) clearTimeout(timerHandle);
-    timerHandle = setTimeout(loadData, 60000);
-  }
-}
-
-document.getElementById("refreshBtn").addEventListener("click", loadData);
-loadData();
+load();
+setInterval(load,300000);
 </script>
+
 </body>
 </html>
