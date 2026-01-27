@@ -3,13 +3,13 @@ name: Update PA Airport Status
 on:
   workflow_dispatch:
   schedule:
-    - cron: "*/10 * * * *"  # every 10 minutes
+    - cron: "*/10 * * * *"
 
 permissions:
   contents: write
 
 jobs:
-  build:
+  update:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
@@ -20,18 +20,14 @@ jobs:
         with:
           python-version: "3.11"
 
-      - name: Build full PA station list (preserve manual statuses)
+      - name: Update METAR + impact fields in docs/status.json
         run: |
-          python scripts/build_status_json_pa.py
-
-      - name: Update METARs into docs/status.json
-        run: |
-          python scripts/update_metar.py
+          python3 scripts/update_metar.py
 
       - name: Commit changes (if any)
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
           git add docs/status.json
-          git diff --cached --quiet || git commit -m "Update PA airport status.json"
+          git diff --cached --quiet || git commit -m "Update docs/status.json"
           git push
