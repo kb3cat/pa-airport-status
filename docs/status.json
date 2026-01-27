@@ -1,267 +1,115 @@
 {
-  "generated_utc": "2026-01-27 07:58:17Z",
+  "generated_utc": "1970-01-01 00:00",
   "regions": {
-    "Western": [
-      {
-        "code": "PIT",
-        "name": "Pittsburgh Intl",
-        "lat": 40.492,
-        "lon": -80.2327
-      },
-      {
-        "code": "ERI",
-        "name": "Erie Intl",
-        "lat": 42.0831,
-        "lon": -80.1739
-      },
-      {
-        "code": "LBE",
-        "name": "Arnold Palmer Regional",
-        "lat": 40.2759,
-        "lon": -79.4048
-      },
-      {
-        "code": "JST",
-        "name": "Johnstown\u2013Cambria County",
-        "lat": 40.3161,
-        "lon": -78.8339
-      },
-      {
-        "code": "DUJ",
-        "name": "DuBois Regional",
-        "lat": 41.1783,
-        "lon": -78.8987
-      }
+    "West": [
+      { "code": "22N", "name": "Cambria County Airport", "lat": 40.2902, "lon": -78.8347 },
+      { "code": "2G9", "name": "Somerset County Airport", "lat": 40.0391, "lon": -79.0145 },
+      { "code": "AFJ", "name": "Washington County", "lat": 40.1365, "lon": -80.2902 },
+      { "code": "AGC", "name": "Allegheny County Airport", "lat": 40.3544, "lon": -79.9302 },
+      { "code": "BFD", "name": "Bradford Regional", "lat": 41.8031, "lon": -78.6401 },
+      { "code": "BTP", "name": "Butler Co. (AWOS)", "lat": 40.7769, "lon": -79.9497 },
+      { "code": "BVI", "name": "Beaver Falls ARPT", "lat": 40.7725, "lon": -80.3914 },
+      { "code": "DUJ", "name": "DuBois (AWOS)", "lat": 41.18, "lon": -78.9 },
+      { "code": "ERI", "name": "Erie Intl Airport", "lat": 42.08, "lon": -80.18 },
+      { "code": "FIG", "name": "Clearfield–Lawrence Apt", "lat": 41.0467, "lon": -78.4117 },
+      { "code": "FKL", "name": "Franklin (AWOS)", "lat": 41.3779, "lon": -79.8604 },
+      { "code": "GKJ", "name": "Meadville", "lat": 41.6265, "lon": -80.2147 },
+      { "code": "IDI", "name": "Indiana / Stewart Field", "lat": 40.6322, "lon": -79.1055 },
+      { "code": "JST", "name": "Johnstown / Cambria", "lat": 40.3161, "lon": -78.8339 },
+      { "code": "LBE", "name": "Latrobe / Westmoreland", "lat": 40.2759, "lon": -79.4048 },
+      { "code": "OYM", "name": "St Marys", "lat": 41.4125, "lon": -78.5026 },
+      { "code": "PIT", "name": "Pittsburgh Intl", "lat": 40.4915, "lon": -80.2329 },
+      { "code": "PJC", "name": "Zelienople", "lat": 40.8009, "lon": -80.1624 },
+      { "code": "UCP", "name": "New Castle", "lat": 41.0253, "lon": -80.4134 },
+      { "code": "VVS", "name": "Connellsville", "lat": 39.9581, "lon": -79.6575 }
     ],
     "Central": [
-      {
-        "code": "MDT",
-        "name": "Harrisburg Intl",
-        "lat": 40.1931,
-        "lon": -76.7633
-      },
-      {
-        "code": "CXY",
-        "name": "Capital City",
-        "lat": 40.2171,
-        "lon": -76.8515
-      },
-      {
-        "code": "SCE",
-        "name": "State College Regional",
-        "lat": 40.8493,
-        "lon": -77.8487
-      },
-      {
-        "code": "IPT",
-        "name": "Williamsport Regional",
-        "lat": 41.2421,
-        "lon": -76.9211
-      },
-      {
-        "code": "AOO",
-        "name": "Altoona\u2013Blair County",
-        "lat": 40.2964,
-        "lon": -78.32
-      },
-      {
-        "code": "BFD",
-        "name": "Bradford Regional",
-        "lat": 41.8031,
-        "lon": -78.6401
-      }
+      { "code": "AOO", "name": "Altoona / Blair Co", "lat": 40.2964, "lon": -78.32 },
+      { "code": "CXY", "name": "Harrisburg / Capital City", "lat": 40.2171, "lon": -76.8515 },
+      { "code": "HMZ", "name": "Bedford", "lat": 40.0853, "lon": -78.5122 },
+      { "code": "IPT", "name": "Williamsport", "lat": 41.2433, "lon": -76.9217 },
+      { "code": "LNS", "name": "Lancaster", "lat": 40.1203, "lon": -76.2944 },
+      { "code": "MDT", "name": "Middletown / Harrisburg Intl", "lat": 40.1936, "lon": -76.7633 },
+      { "code": "MUI", "name": "Muir AAF / Indiantown", "lat": 40.4348, "lon": -76.5693 },
+      { "code": "N38", "name": "Wellsboro", "lat": 41.7279, "lon": -77.3965 },
+      { "code": "RVL", "name": "Reedsville", "lat": 40.6774, "lon": -77.6268 },
+      { "code": "SEG", "name": "Selinsgrove", "lat": 40.8206, "lon": -76.8639 },
+      { "code": "THV", "name": "Thomasville / York", "lat": 39.917, "lon": -76.873 },
+      { "code": "UNV", "name": "State College", "lat": 40.85, "lon": -77.85 },
+      { "code": "XIF", "name": "Liberty – Raven Rock", "lat": 39.729, "lon": -77.43 }
     ],
-    "Eastern": [
-      {
-        "code": "PHL",
-        "name": "Philadelphia Intl",
-        "lat": 39.8729,
-        "lon": -75.2437
-      },
-      {
-        "code": "ABP",
-        "name": "Northeast Philadelphia",
-        "lat": 40.0819,
-        "lon": -75.0106
-      },
-      {
-        "code": "ABE",
-        "name": "Lehigh Valley Intl",
-        "lat": 40.6521,
-        "lon": -75.4408
-      },
-      {
-        "code": "AVP",
-        "name": "Wilkes-Barre/Scranton Intl",
-        "lat": 41.3385,
-        "lon": -75.7234
-      },
-      {
-        "code": "RDG",
-        "name": "Reading Regional",
-        "lat": 40.3785,
-        "lon": -75.9652
-      },
-      {
-        "code": "LNS",
-        "name": "Lancaster",
-        "lat": 40.1217,
-        "lon": -76.2961
-      },
-      {
-        "code": "MPO",
-        "name": "Pocono Mountains Municipal",
-        "lat": 41.1375,
-        "lon": -75.3789
-      }
+    "East": [
+      { "code": "ABE", "name": "Allentown / Lehigh Valley Intl", "lat": 40.6521, "lon": -75.4408 },
+      { "code": "AVP", "name": "Wilkes-Barre / Scranton Intl", "lat": 41.3385, "lon": -75.7234 },
+      { "code": "CKZ", "name": "Perkasie", "lat": 40.3892, "lon": -75.2905 },
+      { "code": "DYL", "name": "Doylestown Airport", "lat": 40.333, "lon": -75.1223 },
+      { "code": "HZL", "name": "Hazleton", "lat": 40.9868, "lon": -75.9949 },
+      { "code": "LOM", "name": "Philadelphia / Wings Field", "lat": 40.1376, "lon": -75.2651 },
+      { "code": "MPO", "name": "Mt Pocono", "lat": 41.1389, "lon": -75.3794 },
+      { "code": "MQS", "name": "Coatesville", "lat": 39.979, "lon": -75.8655 },
+      { "code": "N79", "name": "Shamokin", "lat": 40.8369, "lon": -76.5525 },
+      { "code": "OQN", "name": "West Chester", "lat": 39.9889, "lon": -75.5803 },
+      { "code": "PHL", "name": "Philadelphia Intl", "lat": 39.8734, "lon": -75.2266 },
+      { "code": "PNE", "name": "Philadelphia NE", "lat": 40.0789, "lon": -75.0134 },
+      { "code": "PTW", "name": "Pottstown Limerick Airport", "lat": 40.2383, "lon": -75.5572 },
+      { "code": "RDG", "name": "Reading / Spaatz Field", "lat": 40.3785, "lon": -75.9652 },
+      { "code": "UKT", "name": "Quakertown ARPT", "lat": 40.4352, "lon": -75.3819 },
+      { "code": "XLL", "name": "Allentown", "lat": 40.5703, "lon": -75.4883 },
+      { "code": "ZER", "name": "Pottsville", "lat": 40.7065, "lon": -76.3731 }
     ]
   },
   "airports": {
-    "PIT": {
-      "code": "PIT",
-      "status": "OK",
-      "closed": false,
-      "closure_reason": "",
-      "events": [],
-      "flight_category": "MVFR"
-    },
-    "ERI": {
-      "code": "ERI",
-      "status": "OK",
-      "closed": false,
-      "closure_reason": "",
-      "events": [],
-      "flight_category": "VFR"
-    },
-    "LBE": {
-      "code": "LBE",
-      "status": "OK",
-      "closed": false,
-      "closure_reason": "",
-      "events": [],
-      "flight_category": "VFR"
-    },
-    "JST": {
-      "code": "JST",
-      "status": "OK",
-      "closed": false,
-      "closure_reason": "",
-      "events": [],
-      "flight_category": "MVFR"
-    },
-    "DUJ": {
-      "code": "DUJ",
-      "status": "OK",
-      "closed": false,
-      "closure_reason": "",
-      "events": [],
-      "flight_category": "MVFR"
-    },
-    "MDT": {
-      "code": "MDT",
-      "status": "OK",
-      "closed": false,
-      "closure_reason": "",
-      "events": [],
-      "flight_category": "VFR"
-    },
-    "CXY": {
-      "code": "CXY",
-      "status": "OK",
-      "closed": false,
-      "closure_reason": "",
-      "events": [],
-      "flight_category": "VFR"
-    },
-    "SCE": {
-      "code": "SCE",
-      "status": "OK",
-      "closed": false,
-      "closure_reason": "",
-      "events": [],
-      "flight_category": "VFR"
-    },
-    "IPT": {
-      "code": "IPT",
-      "status": "OK",
-      "closed": false,
-      "closure_reason": "",
-      "events": [],
-      "flight_category": "VFR"
-    },
-    "AOO": {
-      "code": "AOO",
-      "status": "OK",
-      "closed": false,
-      "closure_reason": "",
-      "events": [],
-      "flight_category": "VFR"
-    },
-    "BFD": {
-      "code": "BFD",
-      "status": "OK",
-      "closed": false,
-      "closure_reason": "",
-      "events": [],
-      "flight_category": "VFR"
-    },
-    "PHL": {
-      "code": "PHL",
-      "status": "OK",
-      "closed": false,
-      "closure_reason": "",
-      "events": [],
-      "flight_category": "VFR"
-    },
-    "ABP": {
-      "code": "ABP",
-      "status": "OK",
-      "closed": false,
-      "closure_reason": "",
-      "events": [],
-      "flight_category": "VFR"
-    },
-    "ABE": {
-      "code": "ABE",
-      "status": "OK",
-      "closed": false,
-      "closure_reason": "",
-      "events": [],
-      "flight_category": "VFR"
-    },
-    "AVP": {
-      "code": "AVP",
-      "status": "OK",
-      "closed": false,
-      "closure_reason": "",
-      "events": [],
-      "flight_category": "VFR"
-    },
-    "RDG": {
-      "code": "RDG",
-      "status": "OK",
-      "closed": false,
-      "closure_reason": "",
-      "events": [],
-      "flight_category": "VFR"
-    },
-    "LNS": {
-      "code": "LNS",
-      "status": "OK",
-      "closed": false,
-      "closure_reason": "",
-      "events": [],
-      "flight_category": "VFR"
-    },
-    "MPO": {
-      "code": "MPO",
-      "status": "OK",
-      "closed": false,
-      "closure_reason": "",
-      "events": [],
-      "flight_category": "UNK"
-    }
-  },
-  "source": "nasstatus.faa.gov + aviationweather.gov Data API (metar)",
-  "note": "Closures from FAA NAS Status; flight categories from AWC METAR feed."
+    "22N": { "status": "OK", "flight_category": "UNK", "impact_reason": "", "metar_raw": "", "metar_time_utc": "", "updated_utc": "" },
+    "2G9": { "status": "OK", "flight_category": "UNK", "impact_reason": "", "metar_raw": "", "metar_time_utc": "", "updated_utc": "" },
+    "AFJ": { "status": "OK", "flight_category": "UNK", "impact_reason": "", "metar_raw": "", "metar_time_utc": "", "updated_utc": "" },
+    "AGC": { "status": "OK", "flight_category": "UNK", "impact_reason": "", "metar_raw": "", "metar_time_utc": "", "updated_utc": "" },
+    "BFD": { "status": "OK", "flight_category": "UNK", "impact_reason": "", "metar_raw": "", "metar_time_utc": "", "updated_utc": "" },
+    "BTP": { "status": "OK", "flight_category": "UNK", "impact_reason": "", "metar_raw": "", "metar_time_utc": "", "updated_utc": "" },
+    "BVI": { "status": "OK", "flight_category": "UNK", "impact_reason": "", "metar_raw": "", "metar_time_utc": "", "updated_utc": "" },
+    "DUJ": { "status": "OK", "flight_category": "UNK", "impact_reason": "", "metar_raw": "", "metar_time_utc": "", "updated_utc": "" },
+    "ERI": { "status": "OK", "flight_category": "UNK", "impact_reason": "", "metar_raw": "", "metar_time_utc": "", "updated_utc": "" },
+    "FIG": { "status": "OK", "flight_category": "UNK", "impact_reason": "", "metar_raw": "", "metar_time_utc": "", "updated_utc": "" },
+    "FKL": { "status": "OK", "flight_category": "UNK", "impact_reason": "", "metar_raw": "", "metar_time_utc": "", "updated_utc": "" },
+    "GKJ": { "status": "OK", "flight_category": "UNK", "impact_reason": "", "metar_raw": "", "metar_time_utc": "", "updated_utc": "" },
+    "IDI": { "status": "OK", "flight_category": "UNK", "impact_reason": "", "metar_raw": "", "metar_time_utc": "", "updated_utc": "" },
+    "JST": { "status": "OK", "flight_category": "UNK", "impact_reason": "", "metar_raw": "", "metar_time_utc": "", "updated_utc": "" },
+    "LBE": { "status": "OK", "flight_category": "UNK", "impact_reason": "", "metar_raw": "", "metar_time_utc": "", "updated_utc": "" },
+    "OYM": { "status": "OK", "flight_category": "UNK", "impact_reason": "", "metar_raw": "", "metar_time_utc": "", "updated_utc": "" },
+    "PIT": { "status": "OK", "flight_category": "UNK", "impact_reason": "", "metar_raw": "", "metar_time_utc": "", "updated_utc": "" },
+    "PJC": { "status": "OK", "flight_category": "UNK", "impact_reason": "", "metar_raw": "", "metar_time_utc": "", "updated_utc": "" },
+    "UCP": { "status": "OK", "flight_category": "UNK", "impact_reason": "", "metar_raw": "", "metar_time_utc": "", "updated_utc": "" },
+    "VVS": { "status": "OK", "flight_category": "UNK", "impact_reason": "", "metar_raw": "", "metar_time_utc": "", "updated_utc": "" },
+
+    "AOO": { "status": "OK", "flight_category": "UNK", "impact_reason": "", "metar_raw": "", "metar_time_utc": "", "updated_utc": "" },
+    "CXY": { "status": "OK", "flight_category": "UNK", "impact_reason": "", "metar_raw": "", "metar_time_utc": "", "updated_utc": "" },
+    "HMZ": { "status": "OK", "flight_category": "UNK", "impact_reason": "", "metar_raw": "", "metar_time_utc": "", "updated_utc": "" },
+    "IPT": { "status": "OK", "flight_category": "UNK", "impact_reason": "", "metar_raw": "", "metar_time_utc": "", "updated_utc": "" },
+    "LNS": { "status": "OK", "flight_category": "UNK", "impact_reason": "", "metar_raw": "", "metar_time_utc": "", "updated_utc": "" },
+    "MDT": { "status": "OK", "flight_category": "UNK", "impact_reason": "", "metar_raw": "", "metar_time_utc": "", "updated_utc": "" },
+    "MUI": { "status": "OK", "flight_category": "UNK", "impact_reason": "", "metar_raw": "", "metar_time_utc": "", "updated_utc": "" },
+    "N38": { "status": "OK", "flight_category": "UNK", "impact_reason": "", "metar_raw": "", "metar_time_utc": "", "updated_utc": "" },
+    "RVL": { "status": "OK", "flight_category": "UNK", "impact_reason": "", "metar_raw": "", "metar_time_utc": "", "updated_utc": "" },
+    "SEG": { "status": "OK", "flight_category": "UNK", "impact_reason": "", "metar_raw": "", "metar_time_utc": "", "updated_utc": "" },
+    "THV": { "status": "OK", "flight_category": "UNK", "impact_reason": "", "metar_raw": "", "metar_time_utc": "", "updated_utc": "" },
+    "UNV": { "status": "OK", "flight_category": "UNK", "impact_reason": "", "metar_raw": "", "metar_time_utc": "", "updated_utc": "" },
+    "XIF": { "status": "OK", "flight_category": "UNK", "impact_reason": "", "metar_raw": "", "metar_time_utc": "", "updated_utc": "" },
+
+    "ABE": { "status": "OK", "flight_category": "UNK", "impact_reason": "", "metar_raw": "", "metar_time_utc": "", "updated_utc": "" },
+    "AVP": { "status": "OK", "flight_category": "UNK", "impact_reason": "", "metar_raw": "", "metar_time_utc": "", "updated_utc": "" },
+    "CKZ": { "status": "OK", "flight_category": "UNK", "impact_reason": "", "metar_raw": "", "metar_time_utc": "", "updated_utc": "" },
+    "DYL": { "status": "OK", "flight_category": "UNK", "impact_reason": "", "metar_raw": "", "metar_time_utc": "", "updated_utc": "" },
+    "HZL": { "status": "OK", "flight_category": "UNK", "impact_reason": "", "metar_raw": "", "metar_time_utc": "", "updated_utc": "" },
+    "LOM": { "status": "OK", "flight_category": "UNK", "impact_reason": "", "metar_raw": "", "metar_time_utc": "", "updated_utc": "" },
+    "MPO": { "status": "OK", "flight_category": "UNK", "impact_reason": "", "metar_raw": "", "metar_time_utc": "", "updated_utc": "" },
+    "MQS": { "status": "OK", "flight_category": "UNK", "impact_reason": "", "metar_raw": "", "metar_time_utc": "", "updated_utc": "" },
+    "N79": { "status": "OK", "flight_category": "UNK", "impact_reason": "", "metar_raw": "", "metar_time_utc": "", "updated_utc": "" },
+    "OQN": { "status": "OK", "flight_category": "UNK", "impact_reason": "", "metar_raw": "", "metar_time_utc": "", "updated_utc": "" },
+    "PHL": { "status": "OK", "flight_category": "UNK", "impact_reason": "", "metar_raw": "", "metar_time_utc": "", "updated_utc": "" },
+    "PNE": { "status": "OK", "flight_category": "UNK", "impact_reason": "", "metar_raw": "", "metar_time_utc": "", "updated_utc": "" },
+    "PTW": { "status": "OK", "flight_category": "UNK", "impact_reason": "", "metar_raw": "", "metar_time_utc": "", "updated_utc": "" },
+    "RDG": { "status": "OK", "flight_category": "UNK", "impact_reason": "", "metar_raw": "", "metar_time_utc": "", "updated_utc": "" },
+    "UKT": { "status": "OK", "flight_category": "UNK", "impact_reason": "", "metar_raw": "", "metar_time_utc": "", "updated_utc": "" },
+    "XLL": { "status": "OK", "flight_category": "UNK", "impact_reason": "", "metar_raw": "", "metar_time_utc": "", "updated_utc": "" },
+    "ZER": { "status": "OK", "flight_category": "UNK", "impact_reason": "", "metar_raw": "", "metar_time_utc": "", "updated_utc": "" }
+  }
 }
