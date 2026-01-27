@@ -1,5 +1,5 @@
 {
-  "generated_utc": "2026-01-27 09:45:55Z",
+  "generated_utc": "2026-01-27 09:50:50Z",
   "regions": {
     "Western": [
       {
@@ -22,7 +22,7 @@
       },
       {
         "code": "JST",
-        "name": "Johnstown–Cambria County",
+        "name": "Johnstown\u2013Cambria County",
         "lat": 40.3161,
         "lon": -78.8339
       },
@@ -60,7 +60,7 @@
       },
       {
         "code": "AOO",
-        "name": "Altoona–Blair County",
+        "name": "Altoona\u2013Blair County",
         "lat": 40.2964,
         "lon": -78.32
       },
@@ -123,10 +123,7 @@
       "closed": false,
       "closure_reason": "",
       "events": [],
-      "flight_category": "MVFR",
-      "metar_icao": "KPIT",
-      "metar_ts": 1769507147,
-      "metar_raw": "METAR KPIT 270851Z 21008KT 10SM FEW020 FEW250 M17/M22 A3015 RMK AO2 SLP243 60000 T11671222 58005\nMETAR KPIT 270751Z 23008G18KT 10SM FEW020 M16/M22 A3017 RMK AO2 SLP250 T11611222"
+      "flight_category": "MVFR"
     },
     "ERI": {
       "code": "ERI",
@@ -134,10 +131,7 @@
       "closed": false,
       "closure_reason": "",
       "events": [],
-      "flight_category": "MVFR",
-      "metar_icao": "KERI",
-      "metar_ts": 1769507150,
-      "metar_raw": "METAR KERI 270851Z AUTO 19013G22KT 10SM SCT120 M16/M22 A3007 RMK AO2 SLP197 T11611222 58014\nMETAR KERI 270751Z AUTO 21014G21KT 10SM CLR M16/M21 A3010 RMK AO2 SLP210 T11611211"
+      "flight_category": "VFR"
     },
     "LBE": {
       "code": "LBE",
@@ -145,10 +139,7 @@
       "closed": false,
       "closure_reason": "",
       "events": [],
-      "flight_category": "MVFR",
-      "metar_icao": "KLBE",
-      "metar_ts": 1769507150,
-      "metar_raw": "METAR KLBE 270935Z AUTO 20012KT 10SM CLR M16/M20 A3017 RMK AO2\nMETAR KLBE 270915Z AUTO 21010KT 10SM CLR M16/M20 A3018 RMK AO2\nMETAR KLBE 270855Z AUTO 21011KT 10SM CLR M15/M20 A3019 RMK AO2\nMETAR KLBE 270835Z AUTO 22018KT 10SM FEW025 FEW030 M15/M19 A3020 RMK AO2\nMETAR KLBE 270815Z AUTO 23013KT 10SM FEW018 FEW025 FEW032 M14/M18 A3019 RMK AO2\nMETAR KLBE 270755Z AUTO 22014G19KT 9SM FEW013 SCT025 BKN029 M14/M17 A3020 RMK AO2"
+      "flight_category": "MVFR"
     },
     "JST": {
       "code": "JST",
@@ -156,10 +147,7 @@
       "closed": false,
       "closure_reason": "",
       "events": [],
-      "flight_category": "IFR",
-      "metar_icao": "KJST",
-      "metar_ts": 1769507150,
-      "metar_raw": "SPECI KJST 270930Z AUTO 25014G25KT 7SM SCT017 M18/M22 A3000 RMK AO2 PK WND 24031/0905 UPB11E15SNB01E11 P0000 T11781222\nSPECI KJST 270921Z AUTO 24017G27KT 5SM HZ BKN018 BKN023 M17/M22 A3000 RMK AO2 PK WND 24031/0905 UPB11E15SNB01E11 P0000 T11721217\nSPECI KJST 270913Z AUTO 26018G31KT 2 1/2SM UP OVC018 M17/M21 A3000 RMK AO2 PK WND 24031/0905 VIS 1 3/4V4 UPB11SNB01E11 P0000 T11721211\nMETAR KJST 270854Z AUTO 26014G27KT 5SM HZ OVC018 M17/M20 A3000 RMK AO2 PK WND 26027/0850 UPB37E42SNE37 SLP209 P0000 60004 T11671200 58002\nSPECI KJST 270805Z AUTO 26017G24KT 3SM -SN OVC016 M16/M19 A3001 RMK AO2 P0000 T11611189\nMETAR KJST 270754Z AUTO 27018G27KT 2SM -SN OVC014 M16/M19 A3001 RMK AO2 PK WND 27032/0724 SLP214 P0004 T11611189\nSPECI KJST 270750Z AUTO 25016G25KT 2 1/2SM -SN OVC014 M16/M19 A3002 RMK AO2 PK WND 27032/0724 P0004"
+      "flight_category": "IFR"
     },
     "DUJ": {
       "code": "DUJ",
@@ -167,10 +155,7 @@
       "closed": false,
       "closure_reason": "",
       "events": [],
-      "flight_category": "MVFR",
-      "metar_icao": "KDUJ",
-      "metar_ts": 1769507150,
-      "metar_raw": "METAR KDUJ 270853Z AUTO 26012KT 10SM OVC017 M16/M19 A3001 RMK AO2 SNB01E32 SLP200 P0000 60000 T11561189 58002\nSPECI KDUJ 270804Z AUTO 25012KT 4SM -SN OVC016 M15/M18 A3002 RMK AO2 SNB01 P0000 T11501183\nMETAR KDUJ 270753Z AUTO 25016G23KT 7SM OVC014 M15/M18 A3002 RMK AO2 PK WND 23026/0731 SNB0659E18 SLP202 P0000 T11501183"
+      "flight_category": "MVFR"
     },
     "MDT": {
       "code": "MDT",
@@ -178,10 +163,7 @@
       "closed": false,
       "closure_reason": "",
       "events": [],
-      "flight_category": "VFR",
-      "metar_icao": "KMDT",
-      "metar_ts": 1769507151,
-      "metar_raw": "METAR KMDT 270856Z 31006KT 10SM CLR M13/M18 A3015 RMK AO2 SLP216 T11281178 50006\nMETAR KMDT 270756Z 26007KT 10SM CLR M11/M16 A3015 RMK AO2 SLP217 T11061161"
+      "flight_category": "VFR"
     },
     "CXY": {
       "code": "CXY",
@@ -189,10 +171,7 @@
       "closed": false,
       "closure_reason": "",
       "events": [],
-      "flight_category": "VFR",
-      "metar_icao": "KCXY",
-      "metar_ts": 1769507151,
-      "metar_raw": "METAR KCXY 270856Z AUTO 25006KT 10SM CLR M11/M18 A3015 RMK AO2 SLP218 T11111183 50005\nMETAR KCXY 270756Z AUTO 27004KT 10SM CLR M11/M17 A3015 RMK AO2 SLP218 T11061172"
+      "flight_category": "VFR"
     },
     "SCE": {
       "code": "SCE",
@@ -200,9 +179,7 @@
       "closed": false,
       "closure_reason": "",
       "events": [],
-      "flight_category": "MVFR",
-      "metar_icao": "KSCE",
-      "metar_ts": 1769507152
+      "flight_category": "MVFR"
     },
     "IPT": {
       "code": "IPT",
@@ -210,10 +187,7 @@
       "closed": false,
       "closure_reason": "",
       "events": [],
-      "flight_category": "VFR",
-      "metar_icao": "KIPT",
-      "metar_ts": 1769507152,
-      "metar_raw": "METAR KIPT 270854Z AUTO 00000KT 10SM OVC039 M14/M17 A3010 RMK AO2 SLP203 T11441172 53002 $\nMETAR KIPT 270754Z AUTO 32004KT 10SM FEW043 M12/M17 A3010 RMK AO2 SLP203 T11171172 $"
+      "flight_category": "VFR"
     },
     "AOO": {
       "code": "AOO",
@@ -221,10 +195,7 @@
       "closed": false,
       "closure_reason": "",
       "events": [],
-      "flight_category": "MVFR",
-      "metar_icao": "KAOO",
-      "metar_ts": 1769507152,
-      "metar_raw": "SPECI KAOO 270931Z AUTO 27017G23KT 10SM SCT019 M15/M20 A3007 RMK AO2 T11501200\nMETAR KAOO 270853Z AUTO 27011KT 10SM OVC020 M15/M20 A3007 RMK AO2 PK WND 27029/0801 UPB00E10 SLP217 P0000 60000 T11501200 50000\nMETAR KAOO 270753Z AUTO 27016G23KT 10SM OVC024 M13/M18 A3008 RMK AO2 SLP217 T11331183"
+      "flight_category": "MVFR"
     },
     "BFD": {
       "code": "BFD",
@@ -232,10 +203,7 @@
       "closed": false,
       "closure_reason": "",
       "events": [],
-      "flight_category": "MVFR",
-      "metar_icao": "KBFD",
-      "metar_ts": 1769507153,
-      "metar_raw": "METAR KBFD 270853Z AUTO 23008G19KT 5SM HZ FEW010 BKN015 OVC021 M16/M19 A2993 RMK AO2 SNE40 SLP178 P0000 60000 T11611189 58006\nSPECI KBFD 270839Z AUTO 24009G20KT 3SM -SN BKN016 OVC021 M16/M19 A2993 RMK AO2 P0000 T11561189\nSPECI KBFD 270820Z AUTO VRB03KT 2SM -SN OVC016 M15/M18 A2994 RMK AO2 P0000 T11501178\nMETAR KBFD 270753Z AUTO VRB05G21KT 3SM -SN OVC017 M15/M18 A2994 RMK AO2 PK WND 23026/0705 SLP181 P0000 T11501178\nSPECI KBFD 270751Z AUTO 25007G21KT 3SM -SN OVC017 M15/M18 A2994 RMK AO2 PK WND 23026/0705 P0000"
+      "flight_category": "IFR"
     },
     "PHL": {
       "code": "PHL",
@@ -243,10 +211,7 @@
       "closed": false,
       "closure_reason": "",
       "events": [],
-      "flight_category": "VFR",
-      "metar_icao": "KPHL",
-      "metar_ts": 1769507153,
-      "metar_raw": "METAR KPHL 270854Z 28008KT 10SM CLR M08/M17 A3018 RMK SLP218 T10781167 51018\nMETAR KPHL 270754Z 29008G18KT 10SM CLR M07/M16 A3015 RMK SLP211 T10721161"
+      "flight_category": "VFR"
     },
     "ABP": {
       "code": "ABP",
@@ -254,9 +219,7 @@
       "closed": false,
       "closure_reason": "",
       "events": [],
-      "flight_category": "VFR",
-      "metar_icao": "KABP",
-      "metar_ts": 1769507154
+      "flight_category": "VFR"
     },
     "ABE": {
       "code": "ABE",
@@ -264,10 +227,7 @@
       "closed": false,
       "closure_reason": "",
       "events": [],
-      "flight_category": "VFR",
-      "metar_icao": "KABE",
-      "metar_ts": 1769507154,
-      "metar_raw": "METAR KABE 270851Z AUTO 26006KT 10SM CLR M12/M18 A3010 RMK AO2 SLP199 T11171183 50013\nMETAR KABE 270751Z AUTO 28007KT 10SM CLR M10/M18 A3010 RMK AO2 SLP199 T11001183"
+      "flight_category": "VFR"
     },
     "AVP": {
       "code": "AVP",
@@ -275,10 +235,7 @@
       "closed": false,
       "closure_reason": "",
       "events": [],
-      "flight_category": "VFR",
-      "metar_icao": "KAVP",
-      "metar_ts": 1769507154,
-      "metar_raw": "METAR KAVP 270854Z 24006KT 10SM CLR M14/M19 A3003 RMK AO2 SLP186 T11391189 51008\nMETAR KAVP 270754Z 23004KT 10SM CLR M13/M19 A3003 RMK AO2 SLP185 T11281189"
+      "flight_category": "VFR"
     },
     "RDG": {
       "code": "RDG",
@@ -286,10 +243,7 @@
       "closed": false,
       "closure_reason": "",
       "events": [],
-      "flight_category": "VFR",
-      "metar_icao": "KRDG",
-      "metar_ts": 1769507154,
-      "metar_raw": "METAR KRDG 270854Z AUTO 29005KT 10SM FEW033 SCT044 M09/M17 A3012 RMK AO2 SLP211 6//// T10941172 50008 PNO $\nMETAR KRDG 270754Z AUTO 27007KT 10SM CLR M09/M18 A3013 RMK AO2 SLP214 T10891178 PNO $"
+      "flight_category": "VFR"
     },
     "LNS": {
       "code": "LNS",
@@ -297,10 +251,7 @@
       "closed": false,
       "closure_reason": "",
       "events": [],
-      "flight_category": "VFR",
-      "metar_icao": "KLNS",
-      "metar_ts": 1769507155,
-      "metar_raw": "METAR KLNS 270853Z AUTO 26006KT 10SM CLR M11/M17 A3014 RMK AO2 SLP213 T11111167 51008\nMETAR KLNS 270753Z AUTO 29009KT 10SM CLR M10/M17 A3014 RMK AO2 SLP213 T11001172"
+      "flight_category": "VFR"
     },
     "MPO": {
       "code": "MPO",
@@ -308,10 +259,7 @@
       "closed": false,
       "closure_reason": "",
       "events": [],
-      "flight_category": "UNK",
-      "metar_icao": "KMPO",
-      "metar_ts": 1769507155,
-      "metar_raw": "METAR KMPO 270853Z AUTO 28012G21KT 10SM M15/M20 A2991 RMK AO2 SLP170 T11501200 53014\nMETAR KMPO 270753Z AUTO 28012G21KT 10SM M14/M20 A2990 RMK AO2 PK WND 28026/0656 SLP164 T11441200"
+      "flight_category": "UNK"
     }
   },
   "source": "nasstatus.faa.gov + aviationweather.gov Data API (metar)",
