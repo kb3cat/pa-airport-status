@@ -1,0 +1,267 @@
+{
+  "generated_utc": "2026-01-27 07:18:00Z",
+  "regions": {
+    "Western": [
+      {
+        "code": "PIT",
+        "name": "Pittsburgh Intl",
+        "lat": 40.492,
+        "lon": -80.2327
+      },
+      {
+        "code": "ERI",
+        "name": "Erie Intl",
+        "lat": 42.0831,
+        "lon": -80.1739
+      },
+      {
+        "code": "LBE",
+        "name": "Arnold Palmer Regional",
+        "lat": 40.2759,
+        "lon": -79.4048
+      },
+      {
+        "code": "JST",
+        "name": "Johnstown\u2013Cambria County",
+        "lat": 40.3161,
+        "lon": -78.8339
+      },
+      {
+        "code": "DUJ",
+        "name": "DuBois Regional",
+        "lat": 41.1783,
+        "lon": -78.8987
+      }
+    ],
+    "Central": [
+      {
+        "code": "MDT",
+        "name": "Harrisburg Intl",
+        "lat": 40.1931,
+        "lon": -76.7633
+      },
+      {
+        "code": "CXY",
+        "name": "Capital City",
+        "lat": 40.2171,
+        "lon": -76.8515
+      },
+      {
+        "code": "SCE",
+        "name": "State College Regional",
+        "lat": 40.8493,
+        "lon": -77.8487
+      },
+      {
+        "code": "IPT",
+        "name": "Williamsport Regional",
+        "lat": 41.2421,
+        "lon": -76.9211
+      },
+      {
+        "code": "AOO",
+        "name": "Altoona\u2013Blair County",
+        "lat": 40.2964,
+        "lon": -78.32
+      },
+      {
+        "code": "BFD",
+        "name": "Bradford Regional",
+        "lat": 41.8031,
+        "lon": -78.6401
+      }
+    ],
+    "Eastern": [
+      {
+        "code": "PHL",
+        "name": "Philadelphia Intl",
+        "lat": 39.8729,
+        "lon": -75.2437
+      },
+      {
+        "code": "ABP",
+        "name": "Northeast Philadelphia",
+        "lat": 40.0819,
+        "lon": -75.0106
+      },
+      {
+        "code": "ABE",
+        "name": "Lehigh Valley Intl",
+        "lat": 40.6521,
+        "lon": -75.4408
+      },
+      {
+        "code": "AVP",
+        "name": "Wilkes-Barre/Scranton Intl",
+        "lat": 41.3385,
+        "lon": -75.7234
+      },
+      {
+        "code": "RDG",
+        "name": "Reading Regional",
+        "lat": 40.3785,
+        "lon": -75.9652
+      },
+      {
+        "code": "LNS",
+        "name": "Lancaster",
+        "lat": 40.1217,
+        "lon": -76.2961
+      },
+      {
+        "code": "MPO",
+        "name": "Pocono Mountains Municipal",
+        "lat": 41.1375,
+        "lon": -75.3789
+      }
+    ]
+  },
+  "airports": {
+    "PIT": {
+      "code": "PIT",
+      "status": "OK",
+      "closed": false,
+      "closure_reason": "",
+      "events": [],
+      "flight_category": "MVFR"
+    },
+    "ERI": {
+      "code": "ERI",
+      "status": "OK",
+      "closed": false,
+      "closure_reason": "",
+      "events": [],
+      "flight_category": "MVFR"
+    },
+    "LBE": {
+      "code": "LBE",
+      "status": "OK",
+      "closed": false,
+      "closure_reason": "",
+      "events": [],
+      "flight_category": "VFR"
+    },
+    "JST": {
+      "code": "JST",
+      "status": "OK",
+      "closed": false,
+      "closure_reason": "",
+      "events": [],
+      "flight_category": "IFR"
+    },
+    "DUJ": {
+      "code": "DUJ",
+      "status": "OK",
+      "closed": false,
+      "closure_reason": "",
+      "events": [],
+      "flight_category": "VFR"
+    },
+    "MDT": {
+      "code": "MDT",
+      "status": "OK",
+      "closed": false,
+      "closure_reason": "",
+      "events": [],
+      "flight_category": "VFR"
+    },
+    "CXY": {
+      "code": "CXY",
+      "status": "OK",
+      "closed": false,
+      "closure_reason": "",
+      "events": [],
+      "flight_category": "VFR"
+    },
+    "SCE": {
+      "code": "SCE",
+      "status": "OK",
+      "closed": false,
+      "closure_reason": "",
+      "events": [],
+      "flight_category": "VFR"
+    },
+    "IPT": {
+      "code": "IPT",
+      "status": "OK",
+      "closed": false,
+      "closure_reason": "",
+      "events": [],
+      "flight_category": "VFR"
+    },
+    "AOO": {
+      "code": "AOO",
+      "status": "OK",
+      "closed": false,
+      "closure_reason": "",
+      "events": [],
+      "flight_category": "MVFR"
+    },
+    "BFD": {
+      "code": "BFD",
+      "status": "OK",
+      "closed": false,
+      "closure_reason": "",
+      "events": [],
+      "flight_category": "MVFR"
+    },
+    "PHL": {
+      "code": "PHL",
+      "status": "OK",
+      "closed": false,
+      "closure_reason": "",
+      "events": [],
+      "flight_category": "VFR"
+    },
+    "ABP": {
+      "code": "ABP",
+      "status": "OK",
+      "closed": false,
+      "closure_reason": "",
+      "events": [],
+      "flight_category": "VFR"
+    },
+    "ABE": {
+      "code": "ABE",
+      "status": "OK",
+      "closed": false,
+      "closure_reason": "",
+      "events": [],
+      "flight_category": "VFR"
+    },
+    "AVP": {
+      "code": "AVP",
+      "status": "OK",
+      "closed": false,
+      "closure_reason": "",
+      "events": [],
+      "flight_category": "VFR"
+    },
+    "RDG": {
+      "code": "RDG",
+      "status": "OK",
+      "closed": false,
+      "closure_reason": "",
+      "events": [],
+      "flight_category": "VFR"
+    },
+    "LNS": {
+      "code": "LNS",
+      "status": "OK",
+      "closed": false,
+      "closure_reason": "",
+      "events": [],
+      "flight_category": "VFR"
+    },
+    "MPO": {
+      "code": "MPO",
+      "status": "OK",
+      "closed": false,
+      "closure_reason": "",
+      "events": [],
+      "flight_category": "UNK"
+    }
+  },
+  "source": "nasstatus.faa.gov + aviationweather.gov Data API (metar)",
+  "note": "Closures from FAA NAS Status; flight categories from AWC METAR feed."
+}
