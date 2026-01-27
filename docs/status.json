@@ -1,5 +1,5 @@
 {
-  "generated_utc": "2026-01-27 08:45:30Z",
+  "generated_utc": "2026-01-27T09:01:16Z",
   "regions": {
     "Western": [
       {
@@ -119,147 +119,219 @@
   "airports": {
     "PIT": {
       "code": "PIT",
-      "status": "OK",
+      "status": "CLOSED",
       "closed": false,
       "closure_reason": "",
       "events": [],
-      "flight_category": "MVFR"
+      "flight_category": "UNK",
+      "impact_reason": "No METAR returned",
+      "metar_raw": "",
+      "metar_time_utc": "",
+      "updated_utc": "2026-01-27T09:01:16Z"
     },
     "ERI": {
       "code": "ERI",
-      "status": "OK",
+      "status": "CLOSED",
       "closed": false,
       "closure_reason": "",
       "events": [],
-      "flight_category": "VFR"
+      "flight_category": "UNK",
+      "impact_reason": "No METAR returned",
+      "metar_raw": "",
+      "metar_time_utc": "",
+      "updated_utc": "2026-01-27T09:01:16Z"
     },
     "LBE": {
       "code": "LBE",
-      "status": "OK",
+      "status": "CLOSED",
       "closed": false,
       "closure_reason": "",
       "events": [],
-      "flight_category": "VFR"
+      "flight_category": "UNK",
+      "impact_reason": "No METAR returned",
+      "metar_raw": "",
+      "metar_time_utc": "",
+      "updated_utc": "2026-01-27T09:01:16Z"
     },
     "JST": {
       "code": "JST",
-      "status": "OK",
+      "status": "CLOSED",
       "closed": false,
       "closure_reason": "",
       "events": [],
-      "flight_category": "MVFR"
+      "flight_category": "UNK",
+      "impact_reason": "No METAR returned",
+      "metar_raw": "",
+      "metar_time_utc": "",
+      "updated_utc": "2026-01-27T09:01:16Z"
     },
     "DUJ": {
       "code": "DUJ",
-      "status": "OK",
+      "status": "CLOSED",
       "closed": false,
       "closure_reason": "",
       "events": [],
-      "flight_category": "MVFR"
+      "flight_category": "UNK",
+      "impact_reason": "No METAR returned",
+      "metar_raw": "",
+      "metar_time_utc": "",
+      "updated_utc": "2026-01-27T09:01:16Z"
     },
     "MDT": {
       "code": "MDT",
-      "status": "OK",
+      "status": "CLOSED",
       "closed": false,
       "closure_reason": "",
       "events": [],
-      "flight_category": "VFR"
+      "flight_category": "UNK",
+      "impact_reason": "No METAR returned",
+      "metar_raw": "",
+      "metar_time_utc": "",
+      "updated_utc": "2026-01-27T09:01:16Z"
     },
     "CXY": {
       "code": "CXY",
-      "status": "OK",
+      "status": "CLOSED",
       "closed": false,
       "closure_reason": "",
       "events": [],
-      "flight_category": "VFR"
+      "flight_category": "UNK",
+      "impact_reason": "No METAR returned",
+      "metar_raw": "",
+      "metar_time_utc": "",
+      "updated_utc": "2026-01-27T09:01:16Z"
     },
     "SCE": {
       "code": "SCE",
-      "status": "OK",
+      "status": "CLOSED",
       "closed": false,
       "closure_reason": "",
       "events": [],
-      "flight_category": "VFR"
+      "flight_category": "UNK",
+      "impact_reason": "No METAR returned",
+      "metar_raw": "",
+      "metar_time_utc": "",
+      "updated_utc": "2026-01-27T09:01:16Z"
     },
     "IPT": {
       "code": "IPT",
-      "status": "OK",
+      "status": "CLOSED",
       "closed": false,
       "closure_reason": "",
       "events": [],
-      "flight_category": "VFR"
+      "flight_category": "UNK",
+      "impact_reason": "No METAR returned",
+      "metar_raw": "",
+      "metar_time_utc": "",
+      "updated_utc": "2026-01-27T09:01:16Z"
     },
     "AOO": {
       "code": "AOO",
-      "status": "OK",
+      "status": "CLOSED",
       "closed": false,
       "closure_reason": "",
       "events": [],
-      "flight_category": "MVFR"
+      "flight_category": "UNK",
+      "impact_reason": "No METAR returned",
+      "metar_raw": "",
+      "metar_time_utc": "",
+      "updated_utc": "2026-01-27T09:01:16Z"
     },
     "BFD": {
       "code": "BFD",
-      "status": "OK",
+      "status": "CLOSED",
       "closed": false,
       "closure_reason": "",
       "events": [],
-      "flight_category": "MVFR"
+      "flight_category": "UNK",
+      "impact_reason": "No METAR returned",
+      "metar_raw": "",
+      "metar_time_utc": "",
+      "updated_utc": "2026-01-27T09:01:16Z"
     },
     "PHL": {
       "code": "PHL",
-      "status": "OK",
+      "status": "CLOSED",
       "closed": false,
       "closure_reason": "",
       "events": [],
-      "flight_category": "VFR"
+      "flight_category": "UNK",
+      "impact_reason": "No METAR returned",
+      "metar_raw": "",
+      "metar_time_utc": "",
+      "updated_utc": "2026-01-27T09:01:16Z"
     },
     "ABP": {
       "code": "ABP",
-      "status": "OK",
+      "status": "CLOSED",
       "closed": false,
       "closure_reason": "",
       "events": [],
-      "flight_category": "VFR"
+      "flight_category": "UNK",
+      "impact_reason": "No METAR returned",
+      "metar_raw": "",
+      "metar_time_utc": "",
+      "updated_utc": "2026-01-27T09:01:16Z"
     },
     "ABE": {
       "code": "ABE",
-      "status": "OK",
+      "status": "CLOSED",
       "closed": false,
       "closure_reason": "",
       "events": [],
-      "flight_category": "VFR"
+      "flight_category": "UNK",
+      "impact_reason": "No METAR returned",
+      "metar_raw": "",
+      "metar_time_utc": "",
+      "updated_utc": "2026-01-27T09:01:16Z"
     },
     "AVP": {
       "code": "AVP",
-      "status": "OK",
+      "status": "CLOSED",
       "closed": false,
       "closure_reason": "",
       "events": [],
-      "flight_category": "VFR"
+      "flight_category": "UNK",
+      "impact_reason": "No METAR returned",
+      "metar_raw": "",
+      "metar_time_utc": "",
+      "updated_utc": "2026-01-27T09:01:16Z"
     },
     "RDG": {
       "code": "RDG",
-      "status": "OK",
+      "status": "CLOSED",
       "closed": false,
       "closure_reason": "",
       "events": [],
-      "flight_category": "VFR"
+      "flight_category": "UNK",
+      "impact_reason": "No METAR returned",
+      "metar_raw": "",
+      "metar_time_utc": "",
+      "updated_utc": "2026-01-27T09:01:16Z"
     },
     "LNS": {
       "code": "LNS",
-      "status": "OK",
+      "status": "CLOSED",
       "closed": false,
       "closure_reason": "",
       "events": [],
-      "flight_category": "VFR"
+      "flight_category": "UNK",
+      "impact_reason": "No METAR returned",
+      "metar_raw": "",
+      "metar_time_utc": "",
+      "updated_utc": "2026-01-27T09:01:16Z"
     },
     "MPO": {
       "code": "MPO",
-      "status": "OK",
+      "status": "CLOSED",
       "closed": false,
       "closure_reason": "",
       "events": [],
-      "flight_category": "UNK"
+      "flight_category": "UNK",
+      "impact_reason": "No METAR returned",
+      "metar_raw": "",
+      "metar_time_utc": "",
+      "updated_utc": "2026-01-27T09:01:16Z"
     }
   },
   "source": "nasstatus.faa.gov + aviationweather.gov Data API (metar)",
