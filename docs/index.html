@@ -16,40 +16,48 @@
     .btn { padding: 6px 10px; border-radius: 10px; border:1px solid #333; background:#fff; cursor:pointer; }
 
     .banner { border: 1px solid #333; border-radius: 12px; padding: 8px 12px; margin: 10px 0 14px 0; font-weight: 800; }
-    .banner-ok { background: #e6e6e6; color:#000; }
-    .banner-impact { background: #fff3cd; color:#000; }
-    .banner-closed { background: #f8d7da; color:#000; }
-    .banner-error { background:#ffe6e6; color:#000; }
+    .banner-ok { background: #d4edda; }
+    .banner-impact { background: #fff3cd; }
+    .banner-closed { background: #f8d7da; }
+    .banner-error { background:#ffe6e6; }
+
+    @keyframes flashBanner {
+      0%,100% { filter: brightness(1); }
+      50% { filter: brightness(1.25); }
+    }
+    .banner-flash {
+      animation: flashBanner 0.9s linear infinite;
+      outline: 3px solid #000;
+    }
 
     #mapWrap { margin: 0 0 14px 0; }
-    #map { height: 320px; border: 1px solid #333; border-radius: 12px; overflow: hidden; background:#fafafa; }
-    .mapLegend { display:flex; gap: 12px; align-items:center; margin-top: 6px; font-size: 0.9rem; color:#222; }
+    #map { height: 320px; border: 1px solid #333; border-radius: 12px; background:#fafafa; }
+    .mapLegend { display:flex; gap: 12px; align-items:center; margin-top: 6px; font-size: 0.9rem; }
     .dot { width: 10px; height: 10px; border-radius: 999px; display:inline-block; border:1px solid #333; }
-    .dot-ok { background:#e6e6e6; }
+    .dot-ok { background:#d4edda; }
     .dot-impact { background:#fff3cd; }
     .dot-closed { background:#f8d7da; }
-    .mapNote { font-size: 0.9rem; color:#444; margin-top:6px; }
 
     .grid { display:grid; grid-template-columns: repeat(auto-fit, minmax(440px, 1fr)); gap: 12px; }
     .card { border:1px solid #333; border-radius: 12px; padding: 10px; }
     .card h2 { margin: 0 0 8px 0; font-size: 1.05rem; }
 
     table { width:100%; border-collapse: collapse; }
-    th, td { text-align:left; vertical-align: top; padding: 6px; border-top: 1px solid #ddd; }
+    th, td { padding: 6px; border-top: 1px solid #ddd; }
     th { font-weight: 800; }
 
-    .rowTitle { white-space: nowrap; font-weight: 800; }
-    .small { font-size: 0.9rem; color:#444; margin-top: 2px; }
-    .muted { color:#666; }
+    .pill { padding: 2px 10px; border-radius: 999px; border:1px solid #333; font-size: 0.85rem; font-weight: 900; }
+    .pill-ok { background:#d4edda; }
+    .pill-impact { background:#fff3cd; }
+    .pill-closed { background:#f8d7da; }
 
-    .pill { display:inline-block; padding: 2px 10px; border-radius: 999px; border:1px solid #333; font-size: 0.85rem; font-weight: 900; line-height: 1.4; white-space: nowrap; }
-    .pill-ok { background: #d4edda; }
-    .pill-impact { background: #fff3cd; }
-    .pill-closed { background: #f8d7da; }
+    .small { font-size: 0.9rem; color:#444; }
+    .muted { color:#666; }
   </style>
 </head>
 
 <body>
+
 <header>
   <h1>PA Airport Status (FAA NAS Status)</h1>
   <button class="btn" id="refreshBtn">Refresh</button>
@@ -65,274 +73,128 @@
     <span><span class="dot dot-impact"></span> IMPACT</span>
     <span><span class="dot dot-ok"></span> OK</span>
   </div>
-  <div class="mapNote" id="mapNote"></div>
 </div>
 
 <div class="grid" id="grid"></div>
 
 <script>
 const REFRESH_MS = 5 * 60 * 1000;
+const FLASH_MS = 20 * 1000;
+const STORAGE_KEY = "paAirportClosedSet";
 
 const banner = document.getElementById("banner");
 const meta = document.getElementById("meta");
 
-function esc(s){
-  return (s ?? "").toString().replace(/[&<>"']/g, c => ({
-    "&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"
-  }[c]));
-}
-
-window.addEventListener("error", (e) => {
-  banner.className = "banner banner-error";
-  banner.textContent = "Page error: " + (e && e.message ? e.message : "Unknown error");
-});
-window.addEventListener("unhandledrejection", (e) => {
-  banner.className = "banner banner-error";
-  banner.textContent = "Promise error: " + (e && e.reason ? e.reason : "Unknown rejection");
-});
-
 function computeStatus(st){
-  const s = (st.status || "").toUpperCase();
-  if (s === "CLOSED") return "CLOSED";
-  if (s === "IMPACT") return "IMPACT";
-  if (st.closed === true) return "CLOSED";
+  if(st.closed) return "CLOSED";
+  if(st.status === "IMPACT") return "IMPACT";
   return "OK";
 }
 
-function pill(status){
-  if(status === "CLOSED") return '<span class="pill pill-closed">CLOSED</span>';
-  if(status === "IMPACT") return '<span class="pill pill-impact">IMPACT</span>';
+function pill(s){
+  if(s==="CLOSED") return '<span class="pill pill-closed">CLOSED</span>';
+  if(s==="IMPACT") return '<span class="pill pill-impact">IMPACT</span>';
   return '<span class="pill pill-ok">OK</span>';
 }
 
-function parseNotamWindow(line){
-  if(!line) return null;
-  const m = line.match(/(\d{10})-(\d{10})\s*$/);
-  if(!m) return null;
-
-  function toDate(s){
-    const year = 2000 + parseInt(s.slice(0,2),10);
-    const month = parseInt(s.slice(2,4),10)-1;
-    const day = parseInt(s.slice(4,6),10);
-    const hour = parseInt(s.slice(6,8),10);
-    const min = parseInt(s.slice(8,10),10);
-    return new Date(Date.UTC(year,month,day,hour,min));
-  }
-  return { start: toDate(m[1]), end: toDate(m[2]) };
+function humanize(raw){
+  if(!raw) return "Airport closed";
+  raw = raw.toUpperCase();
+  if(raw.includes("SNOW")) return "Snow removal operations";
+  if(raw.includes("ICE")) return "Ice conditions";
+  return "Operational impact";
 }
 
-function formatLocal(d){
-  const pad = n => String(n).padStart(2,"0");
-  const yy = String(d.getFullYear()).slice(-2);
-  return `${pad(d.getMonth()+1)}/${pad(d.getDate())}/${yy} ${pad(d.getHours())}:${pad(d.getMinutes())}`;
-}
-
-function humanizeClosureReason(raw){
-  if(!raw) return "Airport closed (reason not specified)";
-  const t = raw.toUpperCase();
-  const reasons = [];
-
-  if(t.includes("SNOW")) reasons.push("Snow conditions");
-  if(t.includes("ICE")) reasons.push("Ice conditions");
-  if(t.includes("RMVL")) reasons.push("Snow removal operations");
-  if(t.includes("PLOW") || t.includes("PLW")) reasons.push("Plowing operations");
-  if(t.includes("FICON")) reasons.push("Poor runway surface conditions");
-  if(t.includes("BRAKING")) reasons.push("Reduced braking action");
-  if((t.includes("RWY") || t.includes("RUNWAY")) && (t.includes("CLSD") || t.includes("CLOSED"))) reasons.push("Runway closed");
-  if(t.includes("AP CLSD") || t.includes("ARPT CLSD") || t.includes("AIRPORT CLOSURE")) reasons.push("Airport closed");
-  if(t.includes("WX")) reasons.push("Weather conditions");
-  if(t.includes("LOW VIS") || t.includes("LIFR") || t.includes("IFR")) reasons.push("Low visibility conditions");
-  if(t.includes("FOG")) reasons.push("Fog");
-
-  if(reasons.length === 0) return "Operational disruption (FAA advisory)";
-  return [...new Set(reasons)].join(", ");
-}
-
-function lineReason(st){
-  const status = computeStatus(st);
-  if(status === "CLOSED") return esc(humanizeClosureReason(st.closure_reason || ""));
-  if(status === "IMPACT"){
-    if(st.impact_reason) return esc(st.impact_reason);
-    if(st.events && st.events.length){
-      const e = st.events[0];
-      return esc(e.reason || e.type || "Impact");
+/* Flash logic */
+function getClosedSet(data){
+  const arr=[];
+  for(const r in data.regions){
+    for(const a of data.regions[r]){
+      const st=data.airports[a.code];
+      if(st && computeStatus(st)==="CLOSED") arr.push(a.code);
     }
-    return "Impact (details not provided)";
   }
-  return '<span class="muted">—</span>';
+  return arr.sort();
 }
 
-function closedDetails(st){
-  const status = computeStatus(st);
-  if(status !== "CLOSED") return "";
-  const raw = (st.closure_reason || "").trim();
-  const parsed = parseNotamWindow(raw);
-
-  let html = "";
-  if(parsed){
-    html += `<div class="small"><span class="rowTitle">Closed from</span> ${esc(formatLocal(parsed.start))} <span class="rowTitle">to</span> ${esc(formatLocal(parsed.end))} (local)</div>`;
-  }
-  html += `<div class="small"><span class="rowTitle">Reason:</span> ${esc(humanizeClosureReason(raw))}</div>`;
-  if(raw){
-    html += `<div class="small muted">FAA: ${esc(raw)}</div>`;
-  }
-  return html;
+function startFlash(){
+  banner.classList.add("banner-flash");
+  clearTimeout(window.__flashTimer);
+  window.__flashTimer=setTimeout(()=>banner.classList.remove("banner-flash"),FLASH_MS);
 }
 
 /* Map */
-let map = null;
-let markersLayer = null;
+let map, layer;
 
 function ensureMap(){
-  const note = document.getElementById("mapNote");
-  if(typeof L === "undefined"){
-    note.textContent = "Map unavailable (Leaflet blocked/unavailable). Status board still updates.";
-    return false;
-  }
-  if(map) return true;
-
-  map = L.map("map").setView([40.9, -77.8], 7);
-  L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
-    maxZoom: 18,
-    attribution: "&copy; OpenStreetMap contributors"
-  }).addTo(map);
-
-  markersLayer = L.layerGroup().addTo(map);
-  note.textContent = "Markers are color-coded by status (CLOSED / IMPACT / OK).";
-  return true;
+  if(map) return;
+  map = L.map("map").setView([40.9,-77.8],7);
+  L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png",{maxZoom:18}).addTo(map);
+  layer=L.layerGroup().addTo(map);
 }
 
-function markerStyle(status){
-  if(status === "CLOSED") return { radius: 8, weight: 1, color: "#333", fillColor: "#f8d7da", fillOpacity: 0.95 };
-  if(status === "IMPACT") return { radius: 7, weight: 1, color: "#333", fillColor: "#fff3cd", fillOpacity: 0.95 };
-  return { radius: 6, weight: 1, color: "#333", fillColor: "#d4edda", fillOpacity: 0.95 };
+function markerStyle(s){
+  if(s==="CLOSED") return {radius:8,fillColor:"#f8d7da",color:"#333",weight:1,fillOpacity:1};
+  if(s==="IMPACT") return {radius:7,fillColor:"#fff3cd",color:"#333",weight:1,fillOpacity:1};
+  return {radius:6,fillColor:"#d4edda",color:"#333",weight:1,fillOpacity:1};
 }
 
 function updateMap(data){
-  if(!ensureMap()) return;
-  markersLayer.clearLayers();
-
-  const all = []
-    .concat(data.regions.Western || [])
-    .concat(data.regions.Central || [])
-    .concat(data.regions.Eastern || []);
-
-  let added = 0;
-  for(const a of all){
-    if(typeof a.lat !== "number" || typeof a.lon !== "number") continue;
-    const st = data.airports[a.code] || {};
-    const status = computeStatus(st);
-    const reason = status === "CLOSED" ? humanizeClosureReason(st.closure_reason || "") : (st.impact_reason || "");
-    const popup = `<strong>${esc(a.code)} - ${esc(a.name || "")}</strong><br>${esc(status)}<br>${reason ? ("Reason: " + esc(reason)) : ""}`;
-
-    L.circleMarker([a.lat, a.lon], markerStyle(status))
-      .bindPopup(popup)
-      .addTo(markersLayer);
-
-    added++;
-  }
-
-  if(added === 0){
-    document.getElementById("mapNote").textContent = "Map loaded, but no markers found (lat/lon missing in status.json).";
-  }
-}
-
-/* UI */
-function renderRegion(regionName, airports, data){
-  let rows = "";
-  for(const a of airports){
-    const st = data.airports[a.code];
-    if(!st) continue;
-    const status = computeStatus(st);
-
-    rows += `
-      <tr>
-        <td class="rowTitle">${esc(a.code)}</td>
-        <td>${esc(a.name || "")}</td>
-        <td>${pill(status)}</td>
-        <td>${lineReason(st)}</td>
-      </tr>
-      <tr>
-        <td colspan="4">${closedDetails(st)}</td>
-      </tr>
-    `;
-  }
-
-  return `
-    <div class="card">
-      <h2>${esc(regionName)}</h2>
-      <table>
-        <thead>
-          <tr><th>Code</th><th>Airport</th><th>Status</th><th>Reason</th></tr>
-        </thead>
-        <tbody>${rows}</tbody>
-      </table>
-    </div>
-  `;
-}
-
-function buildBanner(data){
-  let closed = 0, impact = 0, ok = 0;
-  const regions = ["Western","Central","Eastern"];
-  for(const r of regions){
-    for(const a of (data.regions[r] || [])){
-      const st = data.airports[a.code];
-      if(!st) continue;
-      const s = computeStatus(st);
-      if(s === "CLOSED") closed++;
-      else if(s === "IMPACT") impact++;
-      else ok++;
+  ensureMap();
+  layer.clearLayers();
+  for(const r in data.regions){
+    for(const a of data.regions[r]){
+      const st=data.airports[a.code];
+      const s=computeStatus(st);
+      L.circleMarker([a.lat,a.lon],markerStyle(s))
+       .bindPopup(`<b>${a.code}</b><br>${a.name}<br>${s}`)
+       .addTo(layer);
     }
   }
-
-  if(closed > 0){
-    banner.className = "banner banner-closed";
-    banner.innerHTML = `🔴 <strong>${closed} PA airport(s) CLOSED</strong> • ${impact} impacted • ${ok} OK`;
-  } else if(impact > 0){
-    banner.className = "banner banner-impact";
-    banner.innerHTML = `🟡 <strong>No closures</strong> • ${impact} impacted • ${ok} OK`;
-  } else {
-    banner.className = "banner banner-ok";
-    banner.innerHTML = `⚫ <strong>All PA airports operational</strong>`;
-  }
 }
-
-let timerHandle = null;
 
 async function loadData(){
-  try{
-    banner.className = "banner banner-ok";
-    banner.textContent = "Loading status.json…";
+  const res = await fetch("status.json?ts="+Date.now());
+  const data = await res.json();
 
-    const res = await fetch(`status.json?ts=${Date.now()}`, { cache: "no-store" });
-    if(!res.ok) throw new Error(`Fetch failed: ${res.status} ${res.statusText}`);
-    const data = await res.json();
+  meta.textContent = "Updated: "+data.generated_utc+" UTC";
 
-    meta.textContent = `Last update (UTC): ${data.generated_utc} • Auto-refresh every 5 min`;
+  const prev = JSON.parse(localStorage.getItem(STORAGE_KEY)||"[]");
+  const cur = getClosedSet(data);
+  if(cur.some(c=>!prev.includes(c))) startFlash();
+  localStorage.setItem(STORAGE_KEY,JSON.stringify(cur));
 
-    buildBanner(data);
-    updateMap(data);
+  updateMap(data);
 
-    const grid = document.getElementById("grid");
-    grid.innerHTML =
-      renderRegion("Western", data.regions.Western || [], data) +
-      renderRegion("Central", data.regions.Central || [], data) +
-      renderRegion("Eastern", data.regions.Eastern || [], data);
+  let html="";
+  for(const r in data.regions){
+    html+=`<div class="card"><h2>${r}</h2><table>`;
+    for(const a of data.regions[r]){
+      const st=data.airports[a.code];
+      const s=computeStatus(st);
+      html+=`<tr>
+        <td><b>${a.code}</b></td>
+        <td>${a.name}</td>
+        <td>${pill(s)}</td>
+        <td>${s==="CLOSED"?humanize(st.closure_reason):"—"}</td>
+      </tr>`;
+    }
+    html+=`</table></div>`;
+  }
+  document.getElementById("grid").innerHTML=html;
 
-    if(timerHandle) clearTimeout(timerHandle);
-    timerHandle = setTimeout(loadData, REFRESH_MS);
-
-  } catch(e){
-    banner.className = "banner banner-error";
-    banner.innerHTML = `Error loading status.json: ${esc(e && e.message ? e.message : String(e))}`;
-    meta.textContent = "Error.";
-    if(timerHandle) clearTimeout(timerHandle);
-    timerHandle = setTimeout(loadData, 60000);
+  if(cur.length){
+    banner.className="banner banner-closed";
+    banner.innerHTML=`🔴 <b>${cur.length} airports CLOSED</b>`;
+  } else {
+    banner.className="banner banner-ok";
+    banner.innerHTML="🟢 <b>All PA airports operational</b>";
   }
 }
 
-document.getElementById("refreshBtn").addEventListener("click", loadData);
+document.getElementById("refreshBtn").onclick=loadData;
 loadData();
+setInterval(loadData,REFRESH_MS);
 </script>
 </body>
 </html>
