@@ -1,9 +1,9 @@
 #!/usr/bin/env python3
 import json
 import os
-import re
-from datetime import datetime, timezone
 import xml.etree.ElementTree as ET
+from datetime import datetime, timezone
+
 import requests
 
 # -----------------------------
@@ -45,7 +45,7 @@ def build_regions():
             "code": a["code"],
             "name": a["name"],
             "lat": a["lat"],
-            "lon": a["lon"]
+            "lon": a["lon"],
         })
     return regions
 
@@ -59,9 +59,10 @@ def fetch_faa_status():
 
     root = ET.fromstring(r.text)
 
+    # strip namespaces (defensive)
     for el in root.iter():
         if "}" in el.tag:
-            el.tag = el.tag.split("}",1)[1]
+            el.tag = el.tag.split("}", 1)[1]
 
     for group in root.iter():
         if not group.tag.endswith("_List"):
@@ -85,12 +86,12 @@ def fetch_faa_status():
 
     return closures, impacts
 
-# METAR flight categories
+# METAR flight categories (VFR/MVFR/IFR/LIFR)
 def fetch_flight_categories(stations):
     params = {
         "format": "xml",
-        "hours": "6",  # widened window so MPO doesn't go UNK
-        "ids": ",".join(stations)
+        "hours": "6",  # widened window so MPO is much less likely to go missing
+        "ids": ",".join(stations),
     }
 
     r = requests.get(METAR_API, params=params, timeout=45)
@@ -115,11 +116,12 @@ def main():
             "closed": False,
             "closure_reason": "",
             "events": [],
-            "flight_category": "UNK"
+            "flight_category": "UNK",
         }
         for a in AIRPORTS
     }
 
+    # FAA status
     try:
         closures, impacts = fetch_faa_status()
         print(f"[INFO] FAA closures: {len(closures)}, impacts: {len(impacts)}")
@@ -136,10 +138,10 @@ def main():
     for code, reason in impacts.items():
         if code in airports and not airports[code]["closed"]:
             airports[code]["status"] = "IMPACT"
-            airports[code]["events"] = [{"type":"Impact","reason":reason}]
+            airports[code]["events"] = [{"type": "Impact", "reason": reason}]
 
-    metar_ids = [a["metar"] for a in AIRPORTS]
-
+    # METAR categories
+    metar_ids = [a["metar"].upper() for a in AIRPORTS]
     try:
         cats = fetch_flight_categories(metar_ids)
         print(f"[INFO] METAR flight categories: {len(cats)} of {len(metar_ids)}")
@@ -148,14 +150,14 @@ def main():
         print(f"[WARN] METAR fetch failed: {e}")
 
     for a in AIRPORTS:
-        airports[a["code"]]["flight_category"] = cats.get(a["metar"], "UNK")
+        airports[a["code"]]["flight_category"] = cats.get(a["metar"].upper(), "UNK")
 
     out = {
         "generated_utc": utc_now(),
         "regions": build_regions(),
         "airports": airports,
-        "source": "nasstatus.faa.gov + aviationweather.gov Data API",
-        "note": "Closures from FAA NAS Status; flight categories from NOAA ADDS METAR feed."
+        "source": "nasstatus.faa.gov + aviationweather.gov Data API (metar)",
+        "note": "Closures from FAA NAS Status; flight categories from AWC METAR feed.",
     }
 
     os.makedirs("docs", exist_ok=True)
