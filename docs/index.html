@@ -187,7 +187,7 @@
       z-index: 5000;
     }
     #metarModal {
-      width: min(820px, 100%);
+      width: min(860px, 100%);
       background: #fff;
       border: 2px solid #111;
       border-radius: 14px;
@@ -223,7 +223,14 @@
       word-break: break-word;
       font-size: 0.95rem;
       line-height: 1.35;
+      min-height: 140px;
     }
+    .metarHint {
+      margin-top: 10px;
+      font-size: 0.9rem;
+      color:#333;
+    }
+    .metarHint code { font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, "Liberation Mono", monospace; }
   </style>
 </head>
 
@@ -279,7 +286,7 @@
   </div>
 </div>
 
-<!-- Flight rules key: appears only when flight rules toggle is ON -->
+<!-- Flight rules key: appears only when toggle on -->
 <div id="frKey">
   <span class="title">Flight Rules Key:</span>
   <span class="keyItem"><span class="keyDot k-vfr"></span> VFR</span>
@@ -317,15 +324,20 @@
       <button class="modalClose" id="metarCloseBtn" type="button">Close</button>
     </div>
     <pre class="metarBox" id="metarBody">Loading…</pre>
+    <div class="metarHint" id="metarHint"></div>
   </div>
 </div>
 
 <script>
 const REFRESH_MS = 5 * 60 * 1000;
 
-// latest data cache (for METAR modal)
+// latest data cache (for modal)
 let LAST_AIRPORTS = {};
 let LAST_NAME_BY_CODE = {};
+
+// Cache live METAR fetches (so you don’t hammer the API)
+const METAR_CACHE = new Map(); // station -> { ts: ms, text: string }
+const METAR_CACHE_TTL_MS = 2 * 60 * 1000; // 2 minutes
 
 function esc(s){
   return (s ?? "").toString().replace(/[&<>"']/g, c => ({
@@ -487,46 +499,7 @@ const metarCloseBtn = document.getElementById("metarCloseBtn");
 const metarTitle = document.getElementById("metarTitle");
 const metarSub = document.getElementById("metarSub");
 const metarBody = document.getElementById("metarBody");
-
-function getMetarTextForAirport(code){
-  const st = (LAST_AIRPORTS || {})[code] || {};
-  return (
-    st.metar_raw ||
-    st.metar ||
-    st.raw_metar ||
-    st.metar_text ||
-    st.metar_utc ||
-    st.metar_string ||
-    ""
-  );
-}
-
-function openMetar(code){
-  const name = LAST_NAME_BY_CODE[code] || "";
-  const st = (LAST_AIRPORTS || {})[code] || {};
-  const fc = ((st.flight_category || "UNK") + "").toUpperCase();
-  const status = ((st.status || "OK") + "").toUpperCase();
-
-  metarTitle.textContent = `METAR – ${code}`;
-  metarSub.textContent = `${name ? name + " • " : ""}Status: ${status} • Flight: ${fc}`;
-
-  const metar = getMetarTextForAirport(code);
-  if (metar) {
-    metarBody.textContent = metar;
-  } else {
-    metarBody.textContent =
-      "No METAR text found in status.json for this airport.\n\n" +
-      "Add one of these fields under airports[CODE]:\n" +
-      "  metar_raw (recommended)\n" +
-      "  metar\n" +
-      "  metar_text\n" +
-      "  raw_metar";
-  }
-
-  metarOverlay.style.display = "flex";
-  metarOverlay.setAttribute("aria-hidden", "false");
-  metarCloseBtn.focus();
-}
+const metarHint = document.getElementById("metarHint");
 
 function closeMetar(){
   metarOverlay.style.display = "none";
@@ -540,6 +513,94 @@ metarOverlay.addEventListener("click", (e) => {
 document.addEventListener("keydown", (e) => {
   if (e.key === "Escape" && metarOverlay.style.display === "flex") closeMetar();
 });
+
+function stationFromCode(code){
+  const c = (code || "").toUpperCase().trim();
+  // If your list is 3-letter (PIT), assume ICAO is KPIT.
+  // If it’s already 4 letters (KMDT), use as-is.
+  if (c.length === 3) return "K" + c;
+  return c;
+}
+
+function getEmbeddedMetarText(code){
+  const st = (LAST_AIRPORTS || {})[code] || {};
+  return (
+    st.metar_raw ||
+    st.metar ||
+    st.raw_metar ||
+    st.metar_text ||
+    st.metar_utc ||
+    st.metar_string ||
+    ""
+  );
+}
+
+/*
+  LIVE METAR fetch:
+  Uses aviationweather.gov API which is the most likely to work from a browser.
+  If CORS is blocked in your environment, the modal will tell you to proxy it server-side.
+*/
+async function fetchLiveMetar(station){
+  const now = Date.now();
+  const cached = METAR_CACHE.get(station);
+  if (cached && (now - cached.ts) < METAR_CACHE_TTL_MS) return cached.text;
+
+  // Raw METAR string (most recent). Hours=2 gives a little buffer.
+  const url = `https://aviationweather.gov/api/data/metar?ids=${encodeURIComponent(station)}&format=raw&hours=2&taf=false`;
+
+  const resp = await fetch(url, { cache: "no-store" });
+  if (!resp.ok) throw new Error(`METAR fetch failed: HTTP ${resp.status}`);
+
+  const text = (await resp.text()).trim();
+  if (!text) throw new Error("No METAR returned.");
+
+  METAR_CACHE.set(station, { ts: now, text });
+  return text;
+}
+
+async function openMetar(code){
+  const name = LAST_NAME_BY_CODE[code] || "";
+  const st = (LAST_AIRPORTS || {})[code] || {};
+  const fc = ((st.flight_category || "UNK") + "").toUpperCase();
+  const status = ((st.status || "OK") + "").toUpperCase();
+
+  metarTitle.textContent = `METAR – ${code}`;
+  metarSub.textContent = `${name ? name + " • " : ""}Status: ${status} • Flight: ${fc}`;
+  metarBody.textContent = "Loading…";
+  metarHint.textContent = "";
+
+  metarOverlay.style.display = "flex";
+  metarOverlay.setAttribute("aria-hidden", "false");
+  metarCloseBtn.focus();
+
+  // 1) Prefer embedded METAR in status.json (fastest, no internet calls)
+  const embedded = getEmbeddedMetarText(code);
+  if (embedded) {
+    metarBody.textContent = embedded;
+    metarHint.innerHTML = `Source: <code>status.json</code>`;
+    return;
+  }
+
+  // 2) Otherwise try live fetch
+  const station = stationFromCode(code);
+
+  try {
+    const live = await fetchLiveMetar(station);
+    metarBody.textContent = live;
+    metarHint.innerHTML =
+      `Source: <code>aviationweather.gov</code> • Station: <code>${esc(station)}</code>`;
+  } catch (err) {
+    metarBody.textContent =
+      `Could not load live METAR for ${station}.\n\n` +
+      `Reason: ${err && err.message ? err.message : "Unknown error"}\n\n` +
+      `Fix options:\n` +
+      `1) Best: add a METAR field into status.json under airports["${code}"] (metar_raw recommended).\n` +
+      `2) Or: run a small server-side proxy endpoint (same origin) that fetches METAR and returns it with CORS allowed.`;
+
+    metarHint.innerHTML =
+      `If you see a CORS error in DevTools, that’s the browser blocking cross-site fetch.`;
+  }
+}
 
 // Event delegation: click or Enter/Space on flight pill
 document.getElementById("grid").addEventListener("click", (e) => {
@@ -609,7 +670,6 @@ async function load(){
       )
       .addTo(markers);
 
-      // Table rows
       rows += `
         <tr>
           <td><b>${esc(a.code)}</b><br><span class="small muted">${esc(a.name)}</span></td>
