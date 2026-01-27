@@ -1,5 +1,5 @@
 {
-  "generated_utc": "2026-01-27 15:38:14Z",
+  "generated_utc": "2026-01-27 15:58:08Z",
   "regions": {
     "Western": [
       {
@@ -179,7 +179,7 @@
       "closed": false,
       "closure_reason": "",
       "events": [],
-      "flight_category": "MVFR"
+      "flight_category": "VFR"
     },
     "IPT": {
       "code": "IPT",
