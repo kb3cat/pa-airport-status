@@ -48,18 +48,65 @@
     .dot-impact { background:#f1c40f; }
     .dot-closed { background:#e74c3c; }
 
-    /* Cloud overlay control */
-    #satCtl {
+    /* Toggle switches */
+    .toggles {
       margin-top: 8px;
-      display: flex;
-      align-items: center;
-      gap: 10px;
+      display:flex;
       flex-wrap: wrap;
+      gap: 14px 18px;
+      align-items: center;
       font-size: 0.95rem;
     }
-    #satCtl label { font-weight: 800; }
-    #satOpacity { width: 220px; }
-    #satPct { font-variant-numeric: tabular-nums; font-weight: 800; }
+    .toggle {
+      display:flex;
+      align-items:center;
+      gap:10px;
+      border:1px solid #333;
+      border-radius: 12px;
+      padding: 8px 10px;
+      background:#fff;
+    }
+    .toggle .label { font-weight: 800; }
+    .switch {
+      position: relative;
+      display: inline-block;
+      width: 44px;
+      height: 24px;
+      flex: 0 0 auto;
+    }
+    .switch input { opacity: 0; width: 0; height: 0; }
+    .slider {
+      position: absolute; cursor: pointer;
+      top: 0; left: 0; right: 0; bottom: 0;
+      background: #ddd;
+      border: 1px solid #333;
+      transition: .15s;
+      border-radius: 999px;
+    }
+    .slider:before {
+      position: absolute; content: "";
+      height: 18px; width: 18px;
+      left: 3px; top: 2px;
+      background: #fff;
+      border: 1px solid #333;
+      transition: .15s;
+      border-radius: 999px;
+    }
+    .switch input:checked + .slider { background: #d4edda; }
+    .switch input:checked + .slider:before { transform: translateX(19px); }
+
+    /* Overlay opacity control */
+    .opacityCtl {
+      display:flex;
+      align-items:center;
+      gap: 10px;
+      flex-wrap: wrap;
+      margin-top: 8px;
+      font-size: 0.95rem;
+    }
+    .opacityCtl label { font-weight: 800; }
+    #overlayOpacity { width: 240px; }
+    #overlayPct { font-variant-numeric: tabular-nums; font-weight: 900; }
 
     .grid { display:grid; grid-template-columns: repeat(auto-fit, minmax(440px, 1fr)); gap: 12px; margin-top: 12px; }
     .card { border:1px solid #333; border-radius: 12px; padding: 10px; }
@@ -91,6 +138,21 @@
 
     .muted { color:#666; }
     .small { font-size: 0.9rem; color:#444; }
+
+    /* Flight rules map label */
+    .fr-label {
+      font-weight: 900;
+      font-size: 0.85rem;
+      border: 1px solid #333;
+      border-radius: 10px;
+      padding: 2px 6px;
+      background: rgba(255,255,255,0.92);
+      color:#111;
+      box-shadow: 0 1px 0 rgba(0,0,0,0.10);
+      user-select: none;
+      pointer-events: none;
+      white-space: nowrap;
+    }
   </style>
 </head>
 
@@ -119,11 +181,37 @@
   <span><span class="dot dot-ok"></span> OK</span>
 </div>
 
-<div id="satCtl">
-  <label><input type="checkbox" id="cloudToggle" /> Cloud satellite overlay</label>
-  <label for="satOpacity">Opacity</label>
-  <input id="satOpacity" type="range" min="0" max="100" value="55" />
-  <span id="satPct">55%</span>
+<!-- Toggle switches -->
+<div class="toggles">
+  <div class="toggle">
+    <span class="label">Cloud overlay</span>
+    <label class="switch" title="Toggle cloud satellite overlay">
+      <input type="checkbox" id="cloudToggle">
+      <span class="slider"></span>
+    </label>
+  </div>
+
+  <div class="toggle">
+    <span class="label">Radar overlay</span>
+    <label class="switch" title="Toggle radar overlay">
+      <input type="checkbox" id="radarToggle">
+      <span class="slider"></span>
+    </label>
+  </div>
+
+  <div class="toggle">
+    <span class="label">Flight rules on map</span>
+    <label class="switch" title="Show VFR/MVFR/IFR labels on markers">
+      <input type="checkbox" id="flightRulesToggle">
+      <span class="slider"></span>
+    </label>
+  </div>
+</div>
+
+<div class="opacityCtl">
+  <label for="overlayOpacity">Overlay opacity</label>
+  <input id="overlayOpacity" type="range" min="0" max="100" value="55" />
+  <span id="overlayPct">55%</span>
 </div>
 
 <div class="grid" id="grid"></div>
@@ -178,26 +266,16 @@ function updateOverallBar(airportsObj){
     else unknown++;
   }
 
-  // Determine overall severity
   let overall = "OK";
   if (closed > 0) overall = "CLOSED";
   else if (impact > 0) overall = "IMPACT";
-  else overall = "OK";
 
-  // Reset classes
   bar.classList.remove("overall-ok","overall-impact","overall-closed");
   dot.classList.remove("dot-ok","dot-impact","dot-closed");
 
-  if (overall === "CLOSED") {
-    bar.classList.add("overall-closed");
-    dot.classList.add("dot-closed");
-  } else if (overall === "IMPACT") {
-    bar.classList.add("overall-impact");
-    dot.classList.add("dot-impact");
-  } else {
-    bar.classList.add("overall-ok");
-    dot.classList.add("dot-ok");
-  }
+  if (overall === "CLOSED") { bar.classList.add("overall-closed"); dot.classList.add("dot-closed"); }
+  else if (overall === "IMPACT") { bar.classList.add("overall-impact"); dot.classList.add("dot-impact"); }
+  else { bar.classList.add("overall-ok"); dot.classList.add("dot-ok"); }
 
   text.textContent = overall;
 
@@ -218,35 +296,39 @@ function updateOverallBar(airportsObj){
 const map = L.map("map").setView([40.9, -77.7], 7);
 
 // Base map (always on)
-const base = L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
+L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
   maxZoom: 19,
   attribution: "&copy; OpenStreetMap"
 }).addTo(map);
 
-// Cloud satellite overlay (toggle + opacity)
-// (NO ground imagery layer)
+// Overlays
 const clouds = L.tileLayer(
   "https://mesonet.agron.iastate.edu/cache/tile.py/1.0.0/sat/{z}/{x}/{y}.png",
-  {
-    maxZoom: 8,
-    opacity: 0.55,
-    attribution: "NOAA GOES-East"
-  }
+  { maxZoom: 8, opacity: 0.55, attribution: "NOAA GOES-East (IEM)" }
+);
+
+const radar = L.tileLayer(
+  "https://mesonet.agron.iastate.edu/cache/tile.py/1.0.0/nexrad-n0q-900913/{z}/{x}/{y}.png",
+  { maxZoom: 12, opacity: 0.55, attribution: "NEXRAD (IEM)" }
 );
 
 const markers = L.layerGroup().addTo(map);
 
 // UI wiring
 const cloudToggle = document.getElementById("cloudToggle");
-const satOpacity = document.getElementById("satOpacity");
-const satPct = document.getElementById("satPct");
+const radarToggle = document.getElementById("radarToggle");
+const flightRulesToggle = document.getElementById("flightRulesToggle");
+const overlayOpacity = document.getElementById("overlayOpacity");
+const overlayPct = document.getElementById("overlayPct");
 const refreshBtn = document.getElementById("refreshBtn");
 const meta = document.getElementById("meta");
 
 function applyOpacity(){
-  const v = Math.max(0, Math.min(100, Number(satOpacity.value)));
-  satPct.textContent = v + "%";
-  clouds.setOpacity(v / 100);
+  const v = Math.max(0, Math.min(100, Number(overlayOpacity.value)));
+  overlayPct.textContent = v + "%";
+  const op = v / 100;
+  clouds.setOpacity(op);
+  radar.setOpacity(op);
 }
 
 cloudToggle.addEventListener("change", () => {
@@ -254,7 +336,12 @@ cloudToggle.addEventListener("change", () => {
   else map.removeLayer(clouds);
 });
 
-satOpacity.addEventListener("input", applyOpacity);
+radarToggle.addEventListener("change", () => {
+  if (radarToggle.checked) radar.addTo(map);
+  else map.removeLayer(radar);
+});
+
+overlayOpacity.addEventListener("input", applyOpacity);
 applyOpacity();
 
 // -----------------------------
@@ -267,23 +354,24 @@ async function load(){
 
   meta.textContent = `Last update: ${d.generated_utc} UTC`;
 
-  // Cards by region
   const regions = d.regions || {};
   const airports = d.airports || {};
 
-  // Update overall bar (NEW)
   updateOverallBar(airports);
 
   // Map markers
   markers.clearLayers();
+
+  const showFR = !!flightRulesToggle.checked;
 
   // Add markers first so popups work even if a region is missing
   for (const regionName of Object.keys(regions)) {
     for (const a of (regions[regionName] || [])) {
       const st = airports[a.code] || {};
       const col = markerColor(st.status);
+      const fr = (st.flight_category || "UNK").toUpperCase();
 
-      L.circleMarker([a.lat, a.lon], {
+      const m = L.circleMarker([a.lat, a.lon], {
         radius: 7,
         weight: 2,
         color: "#000",
@@ -296,6 +384,20 @@ async function load(){
         `Flight: ${esc(st.flight_category || "UNK")}`
       )
       .addTo(markers);
+
+      // Flight rules labels on map (toggle)
+      if (showFR) {
+        m.bindTooltip(fr, {
+          permanent: true,
+          direction: "right",
+          offset: [10, 0],
+          opacity: 0.95,
+          className: "fr-label"
+        });
+      } else {
+        // Ensure no stale tooltips if toggled off between refreshes
+        m.unbindTooltip();
+      }
     }
   }
 
@@ -337,6 +439,9 @@ async function refresh(){
 }
 
 refreshBtn.addEventListener("click", refresh);
+
+// Re-render markers immediately when toggling flight rules
+flightRulesToggle.addEventListener("change", refresh);
 
 refresh();
 setInterval(refresh, REFRESH_MS);
