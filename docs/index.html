@@ -95,7 +95,6 @@
     .switch input:checked + .slider { background: #d4edda; }
     .switch input:checked + .slider:before { transform: translateX(19px); }
 
-    /* Overlay opacity control */
     .opacityCtl {
       display:flex;
       align-items:center;
@@ -126,9 +125,6 @@
       line-height: 1.4;
       white-space: nowrap;
     }
-    .pill-ok { background: #d4edda; }
-    .pill-impact { background: #fff3cd; }
-    .pill-closed { background: #f8d7da; }
 
     .pill-vfr { background:#d4edda; }
     .pill-mvfr { background:#fff3cd; }
@@ -146,13 +142,17 @@
       border: 1px solid #333;
       border-radius: 10px;
       padding: 2px 6px;
-      background: rgba(255,255,255,0.92);
+      background: rgba(255,255,255,0.95);
       color:#111;
       box-shadow: 0 1px 0 rgba(0,0,0,0.10);
       user-select: none;
       pointer-events: none;
       white-space: nowrap;
+      z-index: 300 !important;
     }
+
+    /* Keep dots above labels */
+    .leaflet-interactive { z-index: 500 !important; }
   </style>
 </head>
 
@@ -163,10 +163,9 @@
   <div class="meta" id="meta">Loading…</div>
 </header>
 
-<!-- OVERALL STATUS BAR -->
-<div id="overallBar" class="overall overall-ok" role="status" aria-live="polite">
+<div id="overallBar" class="overall overall-ok">
   <div class="overall-left">
-    <span id="overallDot" class="overall-dot dot-ok" aria-hidden="true"></span>
+    <span id="overallDot" class="overall-dot dot-ok"></span>
     <span class="overall-title">Overall:</span>
     <span id="overallText" class="overall-text">OK</span>
   </div>
@@ -181,30 +180,20 @@
   <span><span class="dot dot-ok"></span> OK</span>
 </div>
 
-<!-- Toggle switches -->
 <div class="toggles">
   <div class="toggle">
     <span class="label">Cloud overlay</span>
-    <label class="switch" title="Toggle cloud satellite overlay">
-      <input type="checkbox" id="cloudToggle">
-      <span class="slider"></span>
-    </label>
+    <label class="switch"><input type="checkbox" id="cloudToggle"><span class="slider"></span></label>
   </div>
 
   <div class="toggle">
     <span class="label">Radar overlay</span>
-    <label class="switch" title="Toggle radar overlay">
-      <input type="checkbox" id="radarToggle">
-      <span class="slider"></span>
-    </label>
+    <label class="switch"><input type="checkbox" id="radarToggle"><span class="slider"></span></label>
   </div>
 
   <div class="toggle">
     <span class="label">Flight rules on map</span>
-    <label class="switch" title="Show VFR/MVFR/IFR labels on markers">
-      <input type="checkbox" id="flightRulesToggle">
-      <span class="slider"></span>
-    </label>
+    <label class="switch"><input type="checkbox" id="flightRulesToggle"><span class="slider"></span></label>
   </div>
 </div>
 
@@ -219,112 +208,26 @@
 <script>
 const REFRESH_MS = 5 * 60 * 1000;
 
-function esc(s){
-  return (s ?? "").toString().replace(/[&<>"']/g, c => ({
-    "&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"
-  }[c]));
-}
-
-function statusPill(status){
-  const s = (status || "OK").toUpperCase();
-  if (s === "CLOSED") return '<span class="pill pill-closed">CLOSED</span>';
-  if (s === "IMPACT") return '<span class="pill pill-impact">IMPACT</span>';
-  return '<span class="pill pill-ok">OK</span>';
-}
-
-function flightPill(cat){
-  const c = (cat || "UNK").toUpperCase();
-  if (c === "VFR") return '<span class="pill pill-vfr">VFR</span>';
-  if (c === "MVFR") return '<span class="pill pill-mvfr">MVFR</span>';
-  if (c === "IFR") return '<span class="pill pill-ifr">IFR</span>';
-  if (c === "LIFR") return '<span class="pill pill-lifr">LIFR</span>';
-  return '<span class="pill pill-unk">UNK</span>';
-}
-
-function markerColor(status){
-  const s = (status || "OK").toUpperCase();
-  if (s === "CLOSED") return "red";
-  if (s === "IMPACT") return "orange";
-  return "green";
-}
-
-/* NEW: Flight rules marker colors (when flight rules toggle is ON) */
 function flightRuleColor(cat){
   const c = (cat || "UNK").toUpperCase();
-  if (c === "VFR") return "#2ecc71";   // green
-  if (c === "MVFR") return "#f1c40f";  // yellow
-  if (c === "IFR") return "#e74c3c";   // red
-  if (c === "LIFR") return "#9b59b6";  // purple
-  return "#95a5a6";                    // gray
+  if (c === "VFR") return "#2ecc71";
+  if (c === "MVFR") return "#f1c40f";
+  if (c === "IFR") return "#e74c3c";
+  if (c === "LIFR") return "#9b59b6";
+  return "#95a5a6";
 }
 
-/* OVERALL BAR UPDATE (fast: computed from airports object) */
-function updateOverallBar(airportsObj){
-  const bar = document.getElementById("overallBar");
-  const dot = document.getElementById("overallDot");
-  const text = document.getElementById("overallText");
-  const countsEl = document.getElementById("overallCounts");
-
-  let ok = 0, impact = 0, closed = 0, unknown = 0, total = 0;
-
-  for (const code of Object.keys(airportsObj || {})) {
-    total++;
-    const st = ((airportsObj[code] || {}).status || "OK").toUpperCase();
-    if (st === "CLOSED") closed++;
-    else if (st === "IMPACT") impact++;
-    else if (st === "OK") ok++;
-    else unknown++;
-  }
-
-  let overall = "OK";
-  if (closed > 0) overall = "CLOSED";
-  else if (impact > 0) overall = "IMPACT";
-
-  bar.classList.remove("overall-ok","overall-impact","overall-closed");
-  dot.classList.remove("dot-ok","dot-impact","dot-closed");
-
-  if (overall === "CLOSED") { bar.classList.add("overall-closed"); dot.classList.add("dot-closed"); }
-  else if (overall === "IMPACT") { bar.classList.add("overall-impact"); dot.classList.add("dot-impact"); }
-  else { bar.classList.add("overall-ok"); dot.classList.add("dot-ok"); }
-
-  text.textContent = overall;
-
-  const parts = [
-    `Closed: ${closed}`,
-    `Impact: ${impact}`,
-    `OK: ${ok}`,
-    (unknown ? `Unknown: ${unknown}` : null),
-    `Total: ${total}`
-  ].filter(Boolean);
-
-  countsEl.textContent = parts.join("  |  ");
-}
-
-// -----------------------------
-// Map setup
-// -----------------------------
 const map = L.map("map").setView([40.9, -77.7], 7);
 
-// Base map (always on)
 L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
-  maxZoom: 19,
-  attribution: "&copy; OpenStreetMap"
+  maxZoom: 19
 }).addTo(map);
 
-// Overlays
-const clouds = L.tileLayer(
-  "https://mesonet.agron.iastate.edu/cache/tile.py/1.0.0/sat/{z}/{x}/{y}.png",
-  { maxZoom: 8, opacity: 0.55, attribution: "NOAA GOES-East (IEM)" }
-);
-
-const radar = L.tileLayer(
-  "https://mesonet.agron.iastate.edu/cache/tile.py/1.0.0/nexrad-n0q-900913/{z}/{x}/{y}.png",
-  { maxZoom: 12, opacity: 0.55, attribution: "NEXRAD (IEM)" }
-);
+const clouds = L.tileLayer("https://mesonet.agron.iastate.edu/cache/tile.py/1.0.0/sat/{z}/{x}/{y}.png",{maxZoom:8,opacity:0.55});
+const radar = L.tileLayer("https://mesonet.agron.iastate.edu/cache/tile.py/1.0.0/nexrad-n0q-900913/{z}/{x}/{y}.png",{maxZoom:12,opacity:0.55});
 
 const markers = L.layerGroup().addTo(map);
 
-// UI wiring
 const cloudToggle = document.getElementById("cloudToggle");
 const radarToggle = document.getElementById("radarToggle");
 const flightRulesToggle = document.getElementById("flightRulesToggle");
@@ -334,130 +237,58 @@ const refreshBtn = document.getElementById("refreshBtn");
 const meta = document.getElementById("meta");
 
 function applyOpacity(){
-  const v = Math.max(0, Math.min(100, Number(overlayOpacity.value)));
+  const v = overlayOpacity.value;
   overlayPct.textContent = v + "%";
-  const op = v / 100;
-  clouds.setOpacity(op);
-  radar.setOpacity(op);
+  clouds.setOpacity(v/100);
+  radar.setOpacity(v/100);
 }
 
-cloudToggle.addEventListener("change", () => {
-  if (cloudToggle.checked) clouds.addTo(map);
-  else map.removeLayer(clouds);
-});
-
-radarToggle.addEventListener("change", () => {
-  if (radarToggle.checked) radar.addTo(map);
-  else map.removeLayer(radar);
-});
-
-overlayOpacity.addEventListener("input", applyOpacity);
+cloudToggle.onchange = () => cloudToggle.checked ? clouds.addTo(map) : map.removeLayer(clouds);
+radarToggle.onchange = () => radarToggle.checked ? radar.addTo(map) : map.removeLayer(radar);
+overlayOpacity.oninput = applyOpacity;
 applyOpacity();
 
-// -----------------------------
-// Data load + render
-// -----------------------------
 async function load(){
-  const r = await fetch("status.json?ts=" + Date.now());
-  if (!r.ok) throw new Error("Failed to load status.json: HTTP " + r.status);
+  const r = await fetch("status.json?ts="+Date.now());
   const d = await r.json();
-
   meta.textContent = `Last update: ${d.generated_utc} UTC`;
 
   const regions = d.regions || {};
   const airports = d.airports || {};
-
-  updateOverallBar(airports);
-
-  // Map markers
   markers.clearLayers();
 
-  const showFR = !!flightRulesToggle.checked;
+  const showFR = flightRulesToggle.checked;
 
-  // Add markers first so popups work even if a region is missing
-  for (const regionName of Object.keys(regions)) {
-    for (const a of (regions[regionName] || [])) {
+  for(const region of Object.values(regions)){
+    for(const a of region){
       const st = airports[a.code] || {};
-      const fr = (st.flight_category || "UNK").toUpperCase();
+      const col = showFR ? flightRuleColor(st.flight_category) : flightRuleColor(st.status);
 
-      // NEW: Marker color changes when flight rules toggle is ON
-      const col = showFR
-        ? flightRuleColor(st.flight_category)
-        : markerColor(st.status);
+      const m = L.circleMarker([a.lat,a.lon],{
+        radius:8,
+        weight:3,
+        color:"#000",
+        fillColor:col,
+        fillOpacity:0.95
+      }).addTo(markers);
 
-      const m = L.circleMarker([a.lat, a.lon], {
-        radius: 7,
-        weight: 2,
-        color: "#000",
-        fillColor: col,
-        fillOpacity: 0.85
-      })
-      .bindPopup(
-        `<b>${esc(a.code)}</b><br>${esc(a.name)}<br>` +
-        `Status: ${esc(st.status || "OK")}<br>` +
-        `Flight: ${esc(st.flight_category || "UNK")}`
-      )
-      .addTo(markers);
-
-      // Flight rules labels on map (toggle)
-      if (showFR) {
-        m.bindTooltip(fr, {
-          permanent: true,
-          direction: "right",
-          offset: [10, 0],
-          opacity: 0.95,
-          className: "fr-label"
+      if(showFR){
+        m.bindTooltip((st.flight_category||"UNK").toUpperCase(),{
+          permanent:true,
+          direction:"right",
+          offset:[14,0],
+          className:"fr-label"
         });
-      } else {
-        m.unbindTooltip();
       }
     }
   }
-
-  // Build region tables
-  let html = "";
-  for (const regionName of Object.keys(regions)) {
-    let rows = "";
-    for (const a of (regions[regionName] || [])) {
-      const st = airports[a.code] || {};
-      rows += `
-        <tr>
-          <td><b>${esc(a.code)}</b><br><span class="small muted">${esc(a.name)}</span></td>
-          <td>${statusPill(st.status || "OK")}</td>
-          <td>${flightPill(st.flight_category || "UNK")}</td>
-        </tr>
-      `;
-    }
-
-    html += `
-      <div class="card">
-        <h2>${esc(regionName)}</h2>
-        <table>
-          <tr><th>Airport</th><th>Status</th><th>Flight Rules</th></tr>
-          ${rows}
-        </table>
-      </div>
-    `;
-  }
-
-  document.getElementById("grid").innerHTML = html;
 }
 
-async function refresh(){
-  try {
-    await load();
-  } catch (e) {
-    meta.textContent = "Error: " + (e && e.message ? e.message : "Unknown error");
-  }
-}
+refreshBtn.onclick = load;
+flightRulesToggle.onchange = load;
 
-refreshBtn.addEventListener("click", refresh);
-
-// Re-render markers immediately when toggling flight rules
-flightRulesToggle.addEventListener("change", refresh);
-
-refresh();
-setInterval(refresh, REFRESH_MS);
+load();
+setInterval(load, REFRESH_MS);
 </script>
 
 </body>
