@@ -1,43 +1,197 @@
 {
-  "generated_utc": "2026-01-27 05:20:00Z",
+  "generated_utc": "2026-01-27 07:57:25Z",
   "regions": {
     "Western": [
-      { "code": "PIT", "name": "Pittsburgh Intl", "lat": 40.491, "lon": -80.233 },
-      { "code": "LBE", "name": "Arnold Palmer Regional", "lat": 40.276, "lon": -79.404 },
-      { "code": "FKL", "name": "Venango Regional", "lat": 41.377, "lon": -79.860 },
-      { "code": "ERI", "name": "Erie Intl", "lat": 42.083, "lon": -80.173 }
+      {
+        "code": "PIT",
+        "name": "Pittsburgh Intl",
+        "lat": 40.491,
+        "lon": -80.233
+      },
+      {
+        "code": "LBE",
+        "name": "Arnold Palmer Regional",
+        "lat": 40.276,
+        "lon": -79.404
+      },
+      {
+        "code": "FKL",
+        "name": "Venango Regional",
+        "lat": 41.377,
+        "lon": -79.86
+      },
+      {
+        "code": "ERI",
+        "name": "Erie Intl",
+        "lat": 42.083,
+        "lon": -80.173
+      }
     ],
     "Central": [
-      { "code": "MDT", "name": "Harrisburg Intl", "lat": 40.193, "lon": -76.763 },
-      { "code": "CXY", "name": "Capital City", "lat": 40.217, "lon": -76.852 },
-      { "code": "IPT", "name": "Williamsport Regional", "lat": 41.242, "lon": -76.921 },
-      { "code": "AOO", "name": "Altoona Blair County", "lat": 40.296, "lon": -78.320 },
-      { "code": "UNV", "name": "University Park", "lat": 40.849, "lon": -77.849 }
+      {
+        "code": "MDT",
+        "name": "Harrisburg Intl",
+        "lat": 40.193,
+        "lon": -76.763
+      },
+      {
+        "code": "CXY",
+        "name": "Capital City",
+        "lat": 40.217,
+        "lon": -76.852
+      },
+      {
+        "code": "IPT",
+        "name": "Williamsport Regional",
+        "lat": 41.242,
+        "lon": -76.921
+      },
+      {
+        "code": "AOO",
+        "name": "Altoona Blair County",
+        "lat": 40.296,
+        "lon": -78.32
+      },
+      {
+        "code": "UNV",
+        "name": "University Park",
+        "lat": 40.849,
+        "lon": -77.849
+      }
     ],
     "Eastern": [
-      { "code": "PHL", "name": "Philadelphia Intl", "lat": 39.872, "lon": -75.243 },
-      { "code": "ABE", "name": "Lehigh Valley Intl", "lat": 40.651, "lon": -75.440 },
-      { "code": "AVP", "name": "Wilkes-Barre Scranton Intl", "lat": 41.338, "lon": -75.724 },
-      { "code": "RDG", "name": "Reading Regional", "lat": 40.379, "lon": -75.965 },
-      { "code": "LNS", "name": "Lancaster", "lat": 40.121, "lon": -76.297 }
+      {
+        "code": "PHL",
+        "name": "Philadelphia Intl",
+        "lat": 39.872,
+        "lon": -75.243
+      },
+      {
+        "code": "ABE",
+        "name": "Lehigh Valley Intl",
+        "lat": 40.651,
+        "lon": -75.44
+      },
+      {
+        "code": "AVP",
+        "name": "Wilkes-Barre Scranton Intl",
+        "lat": 41.338,
+        "lon": -75.724
+      },
+      {
+        "code": "RDG",
+        "name": "Reading Regional",
+        "lat": 40.379,
+        "lon": -75.965
+      },
+      {
+        "code": "LNS",
+        "name": "Lancaster",
+        "lat": 40.121,
+        "lon": -76.297
+      }
     ]
   },
   "airports": {
-    "PIT": { "status": "OK", "flight_category": "VFR" },
-    "LBE": { "status": "IMPACT", "flight_category": "IFR", "impact_reason": "Low ceilings / visibility" },
-    "FKL": { "status": "OK", "flight_category": "VFR" },
-    "ERI": { "status": "OK", "flight_category": "VFR" },
-
-    "MDT": { "status": "OK", "flight_category": "VFR" },
-    "CXY": { "status": "OK", "flight_category": "VFR" },
-    "IPT": { "status": "OK", "flight_category": "VFR" },
-    "AOO": { "status": "OK", "flight_category": "VFR" },
-    "UNV": { "status": "OK", "flight_category": "VFR" },
-
-    "PHL": { "status": "OK", "flight_category": "VFR" },
-    "ABE": { "status": "OK", "flight_category": "VFR" },
-    "AVP": { "status": "OK", "flight_category": "VFR" },
-    "RDG": { "status": "OK", "flight_category": "VFR" },
-    "LNS": { "status": "OK", "flight_category": "VFR" }
+    "PIT": {
+      "status": "OK",
+      "flight_category": "VFR",
+      "metar_icao": "KPIT",
+      "metar_ts": 1769500642,
+      "metar_raw": "METAR KPIT 270751Z 23008G18KT 10SM FEW020 M16/M22 A3017 RMK AO2 SLP250 T11611222\nMETAR KPIT 270651Z 23013G21KT 10SM FEW009 FEW020 M16/M21 A3017 RMK AO2 SNE27 SLP250 P0000 T11561211\nSPECI KPIT 270628Z 23010G22KT 10SM FEW009 SCT020 M15/M19 A3017 RMK AO2 SNE27 P0000 T11501194"
+    },
+    "LBE": {
+      "status": "IMPACT",
+      "flight_category": "IFR",
+      "impact_reason": "Flight rules IFR",
+      "metar_icao": "KLBE",
+      "metar_ts": 1769500642,
+      "metar_raw": "METAR KLBE 270735Z AUTO 22013G18KT 9SM OVC027 M13/M17 A3020 RMK AO2\nMETAR KLBE 270715Z AUTO 23016KT 7SM -SN OVC026 M13/M16 A3020 RMK AO2\nMETAR KLBE 270655Z AUTO 23015KT 6SM -SN HZ OVC023 M13/M16 A3020 RMK AO2\nMETAR KLBE 270635Z AUTO 23013G21KT 5SM -SN HZ OVC021 M13/M16 A3020 RMK AO2\nMETAR KLBE 270615Z AUTO 21018G25KT 4SM -SN HZ OVC022 M13/M16 A3019 RMK AO2",
+      "impact_detail": "Lower ceilings/visibility than VFR"
+    },
+    "FKL": {
+      "status": "OK",
+      "flight_category": "VFR",
+      "metar_icao": "KFKL",
+      "metar_ts": 1769500642,
+      "metar_raw": "SPECI KFKL 270732Z AUTO 23014G19KT 9SM -SN SCT015 M17/M19 A3007 RMK AO2 P0000 FZRANO\nSPECI KFKL 270725Z AUTO 23014G19KT 7SM -SN BKN015 M17/M19 A3007 RMK AO2 P0000 FZRANO\nMETAR KFKL 270656Z AUTO 24011KT 8SM -SN M16/M18 RMK AO2 SLPNO P0000 T11611183 FZRANO $\nSPECI KFKL 270637Z AUTO 4SM -SN RMK AO2 P0000 FZRANO $\nSPECI KFKL 270625Z AUTO 2SM -SN A3008 RMK AO2 P0000 FZRANO\nSPECI KFKL 270613Z AUTO 4SM -SN RMK AO2 P0000 FZRANO $"
+    },
+    "ERI": {
+      "status": "OK",
+      "flight_category": "VFR",
+      "metar_icao": "KERI",
+      "metar_ts": 1769500643,
+      "metar_raw": "METAR KERI 270751Z AUTO 21014G21KT 10SM CLR M16/M21 A3010 RMK AO2 SLP210 T11611211\nMETAR KERI 270651Z AUTO 21014G24KT 10SM FEW020 M16/M19 A3011 RMK AO2 SLP214 T11561189"
+    },
+    "MDT": {
+      "status": "OK",
+      "flight_category": "VFR",
+      "metar_icao": "KMDT",
+      "metar_ts": 1769500643,
+      "metar_raw": "METAR KMDT 270656Z 30010KT 10SM SCT047 M09/M17 A3013 RMK AO2 SLP211 T10941167"
+    },
+    "CXY": {
+      "status": "OK",
+      "flight_category": "VFR",
+      "metar_icao": "KCXY",
+      "metar_ts": 1769500643,
+      "metar_raw": "METAR KCXY 270656Z AUTO 26004KT 10SM SCT033 M09/M17 A3014 RMK AO2 SLP214 T10891167"
+    },
+    "IPT": {
+      "status": "OK",
+      "flight_category": "VFR",
+      "metar_icao": "KIPT",
+      "metar_ts": 1769500643,
+      "metar_raw": "METAR KIPT 270754Z AUTO 32004KT 10SM FEW043 M12/M17 A3010 RMK AO2 SLP203 T11171172 $\nMETAR KIPT 270654Z AUTO 26005KT 10SM CLR M11/M17 A3009 RMK AO2 SLP197 T11111172 $"
+    },
+    "AOO": {
+      "status": "OK",
+      "flight_category": "VFR",
+      "metar_icao": "KAOO",
+      "metar_ts": 1769500644,
+      "metar_raw": "METAR KAOO 270753Z AUTO 27016G23KT 10SM OVC024 M13/M18 A3008 RMK AO2 SLP217 T11331183\nMETAR KAOO 270653Z AUTO 28013KT 10SM BKN023 OVC028 M13/M18 A3007 RMK AO2 SLP213 T11281178"
+    },
+    "UNV": {
+      "status": "OK",
+      "flight_category": "VFR",
+      "metar_icao": "KUNV",
+      "metar_ts": 1769500644,
+      "metar_raw": "METAR KUNV 270735Z AUTO 26013KT 10SM OVC025 M12/M17 A3008 RMK AO2 T11211170\nMETAR KUNV 270715Z AUTO 25012G18KT 10SM OVC025 M12/M17 A3008 RMK AO2 T11241172\nMETAR KUNV 270655Z AUTO 25010KT 10SM OVC025 M12/M17 A3008 RMK AO2 T11241174\nMETAR KUNV 270635Z AUTO 26008G20KT 7SM OVC025 M12/M17 A3007 RMK AO2 T11201171\nMETAR KUNV 270615Z AUTO 25010G15KT 10SM OVC025 M12/M16 A3007 RMK AO2 T11161164"
+    },
+    "PHL": {
+      "status": "OK",
+      "flight_category": "VFR",
+      "metar_icao": "KPHL",
+      "metar_ts": 1769500644,
+      "metar_raw": "METAR KPHL 270654Z 29009KT 10SM CLR M07/M16 A3015 RMK SLP208 T10721156"
+    },
+    "ABE": {
+      "status": "OK",
+      "flight_category": "VFR",
+      "metar_icao": "KABE",
+      "metar_ts": 1769500644,
+      "metar_raw": "METAR KABE 270751Z AUTO 28007KT 10SM CLR M10/M18 A3010 RMK AO2 SLP199 T11001183\nMETAR KABE 270651Z AUTO 29010G18KT 10SM CLR M10/M18 A3008 RMK AO2 SLP193 T11001183"
+    },
+    "AVP": {
+      "status": "OK",
+      "flight_category": "VFR",
+      "metar_icao": "KAVP",
+      "metar_ts": 1769500645,
+      "metar_raw": "METAR KAVP 270754Z 23004KT 10SM CLR M13/M19 A3003 RMK AO2 SLP185 T11281189\nMETAR KAVP 270654Z 26008KT 10SM CLR M13/M19 A3002 RMK AO2 SLP182 T11281189"
+    },
+    "RDG": {
+      "status": "OK",
+      "flight_category": "VFR",
+      "metar_icao": "KRDG",
+      "metar_ts": 1769500645,
+      "metar_raw": "METAR KRDG 270754Z AUTO 27007KT 10SM CLR M09/M18 A3013 RMK AO2 SLP214 T10891178 PNO $\nMETAR KRDG 270654Z AUTO 29009KT 10SM CLR M09/M17 A3012 RMK AO2 SLP208 T10891172 PNO $"
+    },
+    "LNS": {
+      "status": "OK",
+      "flight_category": "VFR",
+      "metar_icao": "KLNS",
+      "metar_ts": 1769500645,
+      "metar_raw": "METAR KLNS 270753Z AUTO 29009KT 10SM CLR M10/M17 A3014 RMK AO2 SLP213 T11001172\nMETAR KLNS 270653Z AUTO 28008KT 10SM OVC040 M09/M17 A3013 RMK AO2 SLP210 T10941167"
+    }
   }
 }
