@@ -1,5 +1,5 @@
 {
-  "generated_utc": "2026-01-27T08:34:08Z",
+  "generated_utc": "2026-01-27 08:36:51Z",
   "regions": {
     "West": [
       {
@@ -58,7 +58,7 @@
       },
       {
         "code": "FIG",
-        "name": "Clearfield\u2013Lawrence Apt",
+        "name": "Clearfield–Lawrence Apt",
         "lat": 41.0467,
         "lon": -78.4117
       },
@@ -198,7 +198,7 @@
       },
       {
         "code": "XIF",
-        "name": "Liberty \u2013 Raven Rock",
+        "name": "Liberty – Raven Rock",
         "lat": 39.729,
         "lon": -77.43
       }
@@ -312,402 +312,552 @@
     "22N": {
       "status": "CLOSED",
       "flight_category": "UNK",
-      "impact_reason": "No METAR returned",
-      "metar_raw": "",
+      "impact_reason": "Airport closed",
+      "metar_raw": "METAR K22N 270815Z AUTO 26003KT 10SM CLR M12/M18 A3010 RMK AO2\nMETAR K22N 270755Z AUTO 24004KT 10SM CLR M11/M18 A3010 RMK AO2\nMETAR K22N 270735Z AUTO 26004KT 10SM CLR M10/M18 A3009 RMK AO2\nMETAR K22N 270715Z AUTO 27005KT 10SM CLR M10/M18 A3009 RMK AO2\nMETAR K22N 270655Z AUTO 27005KT 10SM CLR M10/M18 A3009 RMK AO2",
       "metar_time_utc": "",
-      "updated_utc": "2026-01-27T08:34:08Z"
+      "updated_utc": "2026-01-27T08:34:08Z",
+      "metar_icao": "K22N",
+      "metar_ts": 1769503000,
+      "impact_detail": "Status CLOSED"
     },
     "2G9": {
       "status": "CLOSED",
       "flight_category": "UNK",
-      "impact_reason": "No METAR returned",
-      "metar_raw": "",
+      "impact_reason": "Airport closed",
+      "metar_raw": "METAR K2G9 270815Z AUTO 26015G21KT 5SM -SN SCT011 BKN017 OVC021 M16/M20 A3005 RMK AO2\nMETAR K2G9 270755Z AUTO 26012G17KT 3SM -SN SCT009 BKN015 OVC022 M16/M19 A3005 RMK AO2\nMETAR K2G9 270735Z AUTO 26010KT 2 1/2SM -SN SCT009 OVC016 M16/M18 A3005 RMK AO2\nMETAR K2G9 270715Z AUTO 26012G19KT 3SM -SN SCT010 OVC016 M16/M18 A3005 RMK AO2\nMETAR K2G9 270655Z AUTO 27015G27KT 2SM -SN SCT009 OVC016 M16/M18 A3005 RMK AO2",
       "metar_time_utc": "",
-      "updated_utc": "2026-01-27T08:34:08Z"
+      "updated_utc": "2026-01-27T08:34:08Z",
+      "metar_icao": "K2G9",
+      "metar_ts": 1769503000,
+      "impact_detail": "Status CLOSED"
     },
     "AFJ": {
       "status": "CLOSED",
       "flight_category": "UNK",
-      "impact_reason": "No METAR returned",
-      "metar_raw": "",
+      "impact_reason": "Airport closed",
+      "metar_raw": "METAR KAFJ 270756Z AUTO 21007KT 10SM CLR M16/M22 A3023 RMK AO2 SLP262 T11611217 FZRANO $\nMETAR KAFJ 270656Z AUTO 24007G15KT 10SM CLR M16/M20 A3024 RMK AO2 SLP264 T11561200 FZRANO $",
       "metar_time_utc": "",
-      "updated_utc": "2026-01-27T08:34:08Z"
+      "updated_utc": "2026-01-27T08:34:08Z",
+      "metar_icao": "KAFJ",
+      "metar_ts": 1769503000,
+      "impact_detail": "Status CLOSED"
     },
     "AGC": {
       "status": "CLOSED",
       "flight_category": "UNK",
-      "impact_reason": "No METAR returned",
-      "metar_raw": "",
+      "impact_reason": "Airport closed",
+      "metar_raw": "METAR KAGC 270753Z 23009G18KT 10SM CLR M16/M22 A3017 RMK AO2 PK WND 23028/0710 SLP248 T11611217 $\nMETAR KAGC 270653Z 25014G25KT 8SM SCT022 M15/M20 A3017 RMK AO2 SLP246 T11501200 $",
       "metar_time_utc": "",
-      "updated_utc": "2026-01-27T08:34:08Z"
+      "updated_utc": "2026-01-27T08:34:08Z",
+      "metar_icao": "KAGC",
+      "metar_ts": 1769503000,
+      "impact_detail": "Status CLOSED"
     },
     "BFD": {
       "status": "CLOSED",
       "flight_category": "UNK",
-      "impact_reason": "No METAR returned",
-      "metar_raw": "",
+      "impact_reason": "Airport closed",
+      "metar_raw": "SPECI KBFD 270820Z AUTO VRB03KT 2SM -SN OVC016 M15/M18 A2994 RMK AO2 P0000 T11501178\nMETAR KBFD 270753Z AUTO VRB05G21KT 3SM -SN OVC017 M15/M18 A2994 RMK AO2 PK WND 23026/0705 SLP181 P0000 T11501178\nSPECI KBFD 270751Z AUTO 25007G21KT 3SM -SN OVC017 M15/M18 A2994 RMK AO2 PK WND 23026/0705 P0000\nSPECI KBFD 270739Z AUTO 25007G17KT 2 1/2SM -SN OVC017 M15/M18 A2994 RMK AO2 PK WND 23026/0705 P0000 T11501178\nSPECI KBFD 270727Z AUTO VRB06KT 1 3/4SM -SN OVC017 M15/M18 A2994 RMK AO2 PK WND 23026/0705 P0000 T11501178\nMETAR KBFD 270653Z AUTO 25009G14KT 220V290 4SM -SN OVC019 M14/M18 A2994 RMK AO2 SLP182 P0000 T11441178\nSPECI KBFD 270648Z AUTO 25006G15KT 4SM -SN OVC019 M14/M17 A2994 RMK AO2 P0000\nSPECI KBFD 270640Z AUTO 2 1/2SM -SN OVC019 M14/M17 A2994 RMK AO2 P0000 T11441172",
       "metar_time_utc": "",
-      "updated_utc": "2026-01-27T08:34:08Z"
+      "updated_utc": "2026-01-27T08:34:08Z",
+      "metar_icao": "KBFD",
+      "metar_ts": 1769503001,
+      "impact_detail": "Status CLOSED"
     },
     "BTP": {
       "status": "CLOSED",
       "flight_category": "UNK",
-      "impact_reason": "No METAR returned",
-      "metar_raw": "",
+      "impact_reason": "Airport closed",
+      "metar_raw": "METAR KBTP 270756Z AUTO 23013G18KT 9SM CLR M16/M21 A3016 RMK AO2 SNE54 SLP245 P0000 T11611206 FZRANO $\nSPECI KBTP 270730Z AUTO 24012KT 6SM -SN SCT019 M16/M20 A3015 RMK AO2 P0000 FZRANO $\nMETAR KBTP 270656Z AUTO 24009KT 9SM -SN OVC021 M14/M17 A3015 RMK AO2 SLP239 P0000 T11391172 FZRANO $",
       "metar_time_utc": "",
-      "updated_utc": "2026-01-27T08:34:08Z"
+      "updated_utc": "2026-01-27T08:34:08Z",
+      "metar_icao": "KBTP",
+      "metar_ts": 1769503001,
+      "impact_detail": "Status CLOSED"
     },
     "BVI": {
       "status": "CLOSED",
       "flight_category": "UNK",
-      "impact_reason": "No METAR returned",
-      "metar_raw": "",
+      "impact_reason": "Airport closed",
+      "metar_raw": "METAR KBVI 270815Z AUTO 24007KT 10SM CLR M15/M21 A3014 RMK AO2 T11551215\nMETAR KBVI 270755Z AUTO 24008KT 10SM CLR M15/M21 A3014 RMK AO2 T11511212\nMETAR KBVI 270735Z AUTO 25010KT 10SM CLR M15/M21 A3016 RMK AO2 T11501208\nMETAR KBVI 270715Z AUTO 25008KT 10SM CLR M15/M21 A3016 RMK AO2 T11461206\nMETAR KBVI 270655Z AUTO 26008KT 10SM CLR M14/M20 A3015 RMK AO2 T11441203",
       "metar_time_utc": "",
-      "updated_utc": "2026-01-27T08:34:08Z"
+      "updated_utc": "2026-01-27T08:34:08Z",
+      "metar_icao": "KBVI",
+      "metar_ts": 1769503001,
+      "impact_detail": "Status CLOSED"
     },
     "DUJ": {
       "status": "CLOSED",
       "flight_category": "UNK",
-      "impact_reason": "No METAR returned",
-      "metar_raw": "",
+      "impact_reason": "Airport closed",
+      "metar_raw": "SPECI KDUJ 270804Z AUTO 25012KT 4SM -SN OVC016 M15/M18 A3002 RMK AO2 SNB01 P0000 T11501183\nMETAR KDUJ 270753Z AUTO 25016G23KT 7SM OVC014 M15/M18 A3002 RMK AO2 PK WND 23026/0731 SNB0659E18 SLP202 P0000 T11501183\nMETAR KDUJ 270653Z AUTO 25015KT 3SM HZ OVC014 M15/M18 A3003 RMK AO2 SNE10 SLP206 P0000 T11501178",
       "metar_time_utc": "",
-      "updated_utc": "2026-01-27T08:34:08Z"
+      "updated_utc": "2026-01-27T08:34:08Z",
+      "metar_icao": "KDUJ",
+      "metar_ts": 1769503002,
+      "impact_detail": "Status CLOSED"
     },
     "ERI": {
       "status": "CLOSED",
       "flight_category": "UNK",
-      "impact_reason": "No METAR returned",
-      "metar_raw": "",
+      "impact_reason": "Airport closed",
+      "metar_raw": "METAR KERI 270751Z AUTO 21014G21KT 10SM CLR M16/M21 A3010 RMK AO2 SLP210 T11611211\nMETAR KERI 270651Z AUTO 21014G24KT 10SM FEW020 M16/M19 A3011 RMK AO2 SLP214 T11561189",
       "metar_time_utc": "",
-      "updated_utc": "2026-01-27T08:34:08Z"
+      "updated_utc": "2026-01-27T08:34:08Z",
+      "metar_icao": "KERI",
+      "metar_ts": 1769503002,
+      "impact_detail": "Status CLOSED"
     },
     "FIG": {
       "status": "CLOSED",
       "flight_category": "UNK",
-      "impact_reason": "No METAR returned",
-      "metar_raw": "",
+      "impact_reason": "Airport closed",
+      "metar_raw": "METAR KFIG 270754Z AUTO 25009G21KT 6SM HZ OVC023 M14/M18 A3006 RMK AO2 PK WND 25026/0742 SNE50 SLP212 P0000 T11391178 $\nMETAR KFIG 270654Z AUTO 25010G19KT 8SM -SN BKN016 OVC022 M14/M17 A3005 RMK AO2 SNB0556E17B49 SLP208 P0000 T11391172 $",
       "metar_time_utc": "",
-      "updated_utc": "2026-01-27T08:34:08Z"
+      "updated_utc": "2026-01-27T08:34:08Z",
+      "metar_icao": "KFIG",
+      "metar_ts": 1769503002,
+      "impact_detail": "Status CLOSED"
     },
     "FKL": {
       "status": "CLOSED",
       "flight_category": "UNK",
-      "impact_reason": "No METAR returned",
-      "metar_raw": "",
+      "impact_reason": "Airport closed",
+      "metar_raw": "METAR KFKL 270756Z AUTO 9SM -SN RMK AO2 SLPNO P0000 FZRANO $\nSPECI KFKL 270732Z AUTO 23014G19KT 9SM -SN SCT015 M17/M19 A3007 RMK AO2 P0000 FZRANO\nSPECI KFKL 270725Z AUTO 23014G19KT 7SM -SN BKN015 M17/M19 A3007 RMK AO2 P0000 FZRANO\nMETAR KFKL 270656Z AUTO 24011KT 8SM -SN M16/M18 RMK AO2 SLPNO P0000 T11611183 FZRANO $\nSPECI KFKL 270637Z AUTO 4SM -SN RMK AO2 P0000 FZRANO $",
       "metar_time_utc": "",
-      "updated_utc": "2026-01-27T08:34:08Z"
+      "updated_utc": "2026-01-27T08:34:08Z",
+      "metar_icao": "KFKL",
+      "metar_ts": 1769503002,
+      "impact_detail": "Status CLOSED"
     },
     "GKJ": {
       "status": "CLOSED",
       "flight_category": "UNK",
-      "impact_reason": "No METAR returned",
-      "metar_raw": "",
+      "impact_reason": "Airport closed",
+      "metar_raw": "METAR KGKJ 270753Z AUTO 22010G19KT 10SM CLR M18/M23 A3006 RMK AO2 SLP210 T11831233\nMETAR KGKJ 270653Z AUTO 21007G18KT 10SM FEW016 M17/M21 A3006 RMK AO2 SLP211 T11721206",
       "metar_time_utc": "",
-      "updated_utc": "2026-01-27T08:34:08Z"
+      "updated_utc": "2026-01-27T08:34:08Z",
+      "metar_icao": "KGKJ",
+      "metar_ts": 1769503002,
+      "impact_detail": "Status CLOSED"
     },
     "IDI": {
       "status": "CLOSED",
       "flight_category": "UNK",
-      "impact_reason": "No METAR returned",
-      "metar_raw": "",
+      "impact_reason": "Airport closed",
+      "metar_raw": "METAR KIDI 270815Z AUTO 25014G22KT 10SM SCT014 OVC022 M14/M17 A3013 RMK A01\nMETAR KIDI 270755Z AUTO 25012G21KT 6SM HZ FEW011 BKN022 OVC028 M14/M17 A3013 RMK A01\nMETAR KIDI 270735Z AUTO 24012KT 6SM HZ FEW008 SCT017 OVC022 M14/M16 A3013 RMK A01\nMETAR KIDI 270715Z AUTO 24015G20KT 5SM HZ OVC019 M13/M16 A3013 RMK A01\nMETAR KIDI 270655Z AUTO 25013G20KT 5SM HZ FEW005 SCT012 OVC019 M13/M15 A3013 RMK A01",
       "metar_time_utc": "",
-      "updated_utc": "2026-01-27T08:34:08Z"
+      "updated_utc": "2026-01-27T08:34:08Z",
+      "metar_icao": "KIDI",
+      "metar_ts": 1769503003,
+      "impact_detail": "Status CLOSED"
     },
     "JST": {
       "status": "CLOSED",
       "flight_category": "UNK",
-      "impact_reason": "No METAR returned",
-      "metar_raw": "",
+      "impact_reason": "Airport closed",
+      "metar_raw": "SPECI KJST 270805Z AUTO 26017G24KT 3SM -SN OVC016 M16/M19 A3001 RMK AO2 P0000 T11611189\nMETAR KJST 270754Z AUTO 27018G27KT 2SM -SN OVC014 M16/M19 A3001 RMK AO2 PK WND 27032/0724 SLP214 P0004 T11611189\nSPECI KJST 270750Z AUTO 25016G25KT 2 1/2SM -SN OVC014 M16/M19 A3002 RMK AO2 PK WND 27032/0724 P0004\nMETAR KJST 270654Z AUTO 25015G23KT 1 1/2SM -SN BR OVC013 M15/M17 A3001 RMK AO2 PK WND 23026/0607 SNB44 SLP212 P0000 T11501172\nSPECI KJST 270652Z AUTO 25016G23KT 1 3/4SM -SN BR OVC013 M15/M17 A3001 RMK AO2 PK WND 23026/0607 SNB44 P0000",
       "metar_time_utc": "",
-      "updated_utc": "2026-01-27T08:34:08Z"
+      "updated_utc": "2026-01-27T08:34:08Z",
+      "metar_icao": "KJST",
+      "metar_ts": 1769503003,
+      "impact_detail": "Status CLOSED"
     },
     "LBE": {
       "status": "CLOSED",
       "flight_category": "UNK",
-      "impact_reason": "No METAR returned",
-      "metar_raw": "",
+      "impact_reason": "Airport closed",
+      "metar_raw": "METAR KLBE 270815Z AUTO 23013KT 10SM FEW018 FEW025 FEW032 M14/M18 A3019 RMK AO2\nMETAR KLBE 270755Z AUTO 22014G19KT 9SM FEW013 SCT025 BKN029 M14/M17 A3020 RMK AO2\nMETAR KLBE 270735Z AUTO 22013G18KT 9SM OVC027 M13/M17 A3020 RMK AO2\nMETAR KLBE 270715Z AUTO 23016KT 7SM -SN OVC026 M13/M16 A3020 RMK AO2\nMETAR KLBE 270655Z AUTO 23015KT 6SM -SN HZ OVC023 M13/M16 A3020 RMK AO2",
       "metar_time_utc": "",
-      "updated_utc": "2026-01-27T08:34:08Z"
+      "updated_utc": "2026-01-27T08:34:08Z",
+      "metar_icao": "KLBE",
+      "metar_ts": 1769503003,
+      "impact_detail": "Status CLOSED"
     },
     "OYM": {
       "status": "CLOSED",
       "flight_category": "UNK",
-      "impact_reason": "No METAR returned",
-      "metar_raw": "",
+      "impact_reason": "Airport closed",
+      "metar_raw": "METAR KOYM 270815Z AUTO 25009KT 3SM OVC018 M13/M16 A3002 RMK AO2 PWINO\nMETAR KOYM 270755Z AUTO 27014G20KT 4SM OVC016 M13/M16 A3003 RMK AO2 PWINO\nMETAR KOYM 270735Z AUTO 25013G20KT 4SM OVC018 M12/M16 A3003 RMK AO2 PWINO\nMETAR KOYM 270715Z AUTO 24009G15KT 210V270 4SM SCT015 OVC020 M12/M16 A3003 RMK AO2 PWINO\nMETAR KOYM 270655Z AUTO 27014G19KT 7SM OVC020 M12/M16 A3002 RMK AO2 PWINO",
       "metar_time_utc": "",
-      "updated_utc": "2026-01-27T08:34:08Z"
+      "updated_utc": "2026-01-27T08:34:08Z",
+      "metar_icao": "KOYM",
+      "metar_ts": 1769503003,
+      "impact_detail": "Status CLOSED"
     },
     "PIT": {
       "status": "CLOSED",
       "flight_category": "UNK",
-      "impact_reason": "No METAR returned",
-      "metar_raw": "",
+      "impact_reason": "Airport closed",
+      "metar_raw": "METAR KPIT 270751Z 23008G18KT 10SM FEW020 M16/M22 A3017 RMK AO2 SLP250 T11611222\nMETAR KPIT 270651Z 23013G21KT 10SM FEW009 FEW020 M16/M21 A3017 RMK AO2 SNE27 SLP250 P0000 T11561211",
       "metar_time_utc": "",
-      "updated_utc": "2026-01-27T08:34:08Z"
+      "updated_utc": "2026-01-27T08:34:08Z",
+      "metar_icao": "KPIT",
+      "metar_ts": 1769503004,
+      "impact_detail": "Status CLOSED"
     },
     "PJC": {
       "status": "CLOSED",
       "flight_category": "UNK",
-      "impact_reason": "No METAR returned",
-      "metar_raw": "",
+      "impact_reason": "Airport closed",
+      "metar_raw": "METAR KPJC 270815Z AUTO 22004KT 10SM CLR M15/M21 A3019 RMK AO2\nMETAR KPJC 270755Z AUTO 20005KT 10SM CLR M15/M20 A3020 RMK AO2\nMETAR KPJC 270735Z AUTO 24008KT 222V292 10SM CLR M15/M20 A3019 RMK AO2\nMETAR KPJC 270715Z AUTO 24004KT 10SM CLR M13/M19 A3019 RMK AO2\nMETAR KPJC 270655Z AUTO 24007KT 10SM CLR M13/M18 A3019 RMK AO2",
       "metar_time_utc": "",
-      "updated_utc": "2026-01-27T08:34:08Z"
+      "updated_utc": "2026-01-27T08:34:08Z",
+      "metar_icao": "KPJC",
+      "metar_ts": 1769503004,
+      "impact_detail": "Status CLOSED"
     },
     "UCP": {
       "status": "CLOSED",
       "flight_category": "UNK",
-      "impact_reason": "No METAR returned",
-      "metar_raw": "",
+      "impact_reason": "Airport closed",
+      "metar_raw": "METAR KUCP 270756Z AUTO 22007KT 180V250 10SM CLR M18/M22 A3016 RMK AO2 SNE04 SLP252 P0000 T11781222\nMETAR KUCP 270656Z AUTO 23012G17KT 10SM -SN CLR M17/M21 A3017 RMK AO2 SNB54 SLP255 P0000 T11671211",
       "metar_time_utc": "",
-      "updated_utc": "2026-01-27T08:34:08Z"
+      "updated_utc": "2026-01-27T08:34:08Z",
+      "metar_icao": "KUCP",
+      "metar_ts": 1769503004,
+      "impact_detail": "Status CLOSED"
     },
     "VVS": {
       "status": "CLOSED",
       "flight_category": "UNK",
-      "impact_reason": "No METAR returned",
-      "metar_raw": "",
+      "impact_reason": "Airport closed",
+      "metar_raw": "METAR KVVS 270815Z AUTO 24011G18KT 10SM CLR M15/M21 A3021 RMK AO2 T11551210\nMETAR KVVS 270755Z AUTO 24010G15KT 10SM CLR M15/M21 A3022 RMK AO2 T11521207\nMETAR KVVS 270735Z AUTO 23011G20KT 10SM SCT022 SCT028 M15/M20 A3021 RMK AO2 T11471198\nMETAR KVVS 270715Z AUTO 23013G17KT 10SM BKN022 OVC028 M14/M18 A3021 RMK AO2 T11411183\nMETAR KVVS 270655Z AUTO 24011G19KT 10SM OVC022 M13/M18 A3020 RMK AO2 T11341178",
       "metar_time_utc": "",
-      "updated_utc": "2026-01-27T08:34:08Z"
+      "updated_utc": "2026-01-27T08:34:08Z",
+      "metar_icao": "KVVS",
+      "metar_ts": 1769503005,
+      "impact_detail": "Status CLOSED"
     },
     "AOO": {
       "status": "CLOSED",
       "flight_category": "UNK",
-      "impact_reason": "No METAR returned",
-      "metar_raw": "",
+      "impact_reason": "Airport closed",
+      "metar_raw": "METAR KAOO 270753Z AUTO 27016G23KT 10SM OVC024 M13/M18 A3008 RMK AO2 SLP217 T11331183\nMETAR KAOO 270653Z AUTO 28013KT 10SM BKN023 OVC028 M13/M18 A3007 RMK AO2 SLP213 T11281178",
       "metar_time_utc": "",
-      "updated_utc": "2026-01-27T08:34:08Z"
+      "updated_utc": "2026-01-27T08:34:08Z",
+      "metar_icao": "KAOO",
+      "metar_ts": 1769503005,
+      "impact_detail": "Status CLOSED"
     },
     "CXY": {
       "status": "CLOSED",
       "flight_category": "UNK",
-      "impact_reason": "No METAR returned",
-      "metar_raw": "",
+      "impact_reason": "Airport closed",
+      "metar_raw": "METAR KCXY 270756Z AUTO 27004KT 10SM CLR M11/M17 A3015 RMK AO2 SLP218 T11061172\nMETAR KCXY 270656Z AUTO 26004KT 10SM SCT033 M09/M17 A3014 RMK AO2 SLP214 T10891167",
       "metar_time_utc": "",
-      "updated_utc": "2026-01-27T08:34:08Z"
+      "updated_utc": "2026-01-27T08:34:08Z",
+      "metar_icao": "KCXY",
+      "metar_ts": 1769503005,
+      "impact_detail": "Status CLOSED"
     },
     "HMZ": {
       "status": "CLOSED",
       "flight_category": "UNK",
-      "impact_reason": "No METAR returned",
-      "metar_raw": "",
+      "impact_reason": "Airport closed",
+      "metar_raw": "METAR KHMZ 270815Z AUTO 28010G18KT 10SM OVC022 M13/M20 A3014 RMK AO2 T11301198\nMETAR KHMZ 270755Z AUTO 29012G18KT 10SM OVC020 M13/M19 A3014 RMK AO2 T11301195\nMETAR KHMZ 270735Z AUTO 28017G22KT 10SM OVC022 M12/M19 A3012 RMK AO2 T11251189\nMETAR KHMZ 270715Z AUTO 27009G18KT 10SM OVC024 M12/M18 A3012 RMK AO2 T11201183\nMETAR KHMZ 270655Z AUTO 29010G14KT 10SM OVC024 M12/M18 A3012 RMK AO2 T11181182",
       "metar_time_utc": "",
-      "updated_utc": "2026-01-27T08:34:08Z"
+      "updated_utc": "2026-01-27T08:34:08Z",
+      "metar_icao": "KHMZ",
+      "metar_ts": 1769503005,
+      "impact_detail": "Status CLOSED"
     },
     "IPT": {
       "status": "CLOSED",
       "flight_category": "UNK",
-      "impact_reason": "No METAR returned",
-      "metar_raw": "",
+      "impact_reason": "Airport closed",
+      "metar_raw": "METAR KIPT 270754Z AUTO 32004KT 10SM FEW043 M12/M17 A3010 RMK AO2 SLP203 T11171172 $\nMETAR KIPT 270654Z AUTO 26005KT 10SM CLR M11/M17 A3009 RMK AO2 SLP197 T11111172 $",
       "metar_time_utc": "",
-      "updated_utc": "2026-01-27T08:34:08Z"
+      "updated_utc": "2026-01-27T08:34:08Z",
+      "metar_icao": "KIPT",
+      "metar_ts": 1769503006,
+      "impact_detail": "Status CLOSED"
     },
     "LNS": {
       "status": "CLOSED",
       "flight_category": "UNK",
-      "impact_reason": "No METAR returned",
-      "metar_raw": "",
+      "impact_reason": "Airport closed",
+      "metar_raw": "METAR KLNS 270753Z AUTO 29009KT 10SM CLR M10/M17 A3014 RMK AO2 SLP213 T11001172\nMETAR KLNS 270653Z AUTO 28008KT 10SM OVC040 M09/M17 A3013 RMK AO2 SLP210 T10941167",
       "metar_time_utc": "",
-      "updated_utc": "2026-01-27T08:34:08Z"
+      "updated_utc": "2026-01-27T08:34:08Z",
+      "metar_icao": "KLNS",
+      "metar_ts": 1769503006,
+      "impact_detail": "Status CLOSED"
     },
     "MDT": {
       "status": "CLOSED",
       "flight_category": "UNK",
-      "impact_reason": "No METAR returned",
-      "metar_raw": "",
+      "impact_reason": "Airport closed",
+      "metar_raw": "METAR KMDT 270756Z 26007KT 10SM CLR M11/M16 A3015 RMK AO2 SLP217 T11061161\nMETAR KMDT 270656Z 30010KT 10SM SCT047 M09/M17 A3013 RMK AO2 SLP211 T10941167",
       "metar_time_utc": "",
-      "updated_utc": "2026-01-27T08:34:08Z"
+      "updated_utc": "2026-01-27T08:34:08Z",
+      "metar_icao": "KMDT",
+      "metar_ts": 1769503006,
+      "impact_detail": "Status CLOSED"
     },
     "MUI": {
       "status": "CLOSED",
       "flight_category": "UNK",
-      "impact_reason": "No METAR returned",
-      "metar_raw": "",
+      "impact_reason": "Airport closed",
+      "metar_raw": "METAR KMUI 270755Z AUTO 26011KT 10SM SCT027 SCT039 M09/M16 A3011 RMK AO2 SNB05E17 SLP207 P0000 T10901160 $\nSPECI KMUI 270749Z AUTO 26007KT 10SM FEW023 SCT029 BKN039 M09/M16 A3011 RMK AO2 SNB05E17 SLP207 $\nSPECI KMUI 270717Z AUTO 26008KT 9SM FEW011 BKN022 BKN029 OVC038 M09/M16 A3009 RMK AO2 SNB05E17 CIG 022V037 SLP201 $\nSPECI KMUI 270713Z AUTO 26007KT 9SM -SN FEW011 SCT023 BKN033 BKN041 M09/M16 A3009 RMK AO2 SNB05 SLP201 $\nSPECI KMUI 270705Z AUTO 27010KT 10SM -SN FEW011 FEW020 SCT026 OVC037 M09/M16 A3009 RMK AO2 SNB05 SLP201 $\nMETAR KMUI 270655Z AUTO 26012KT 10SM SCT029 BKN038 M09/M17 A3009 RMK AO2 SLP201 T10871168 $",
       "metar_time_utc": "",
-      "updated_utc": "2026-01-27T08:34:08Z"
+      "updated_utc": "2026-01-27T08:34:08Z",
+      "metar_icao": "KMUI",
+      "metar_ts": 1769503006,
+      "impact_detail": "Status CLOSED"
     },
     "N38": {
       "status": "CLOSED",
       "flight_category": "UNK",
-      "impact_reason": "No METAR returned",
-      "metar_raw": "",
+      "impact_reason": "Airport closed",
+      "metar_raw": "METAR KN38 270815Z AUTO 24010G16KT 10SM BKN020 BKN029 M14/M18 A2993 RMK AO2\nMETAR KN38 270755Z AUTO 26011KT 10SM BKN018 BKN022 OVC030 M14/M18 A2993 RMK AO2\nMETAR KN38 270735Z AUTO 25009G18KT 10SM BKN022 OVC030 M14/M18 A2994 RMK AO2\nMETAR KN38 270715Z AUTO 26012G18KT 230V290 10SM BKN022 BKN027 M14/M18 A2994 RMK AO2\nMETAR KN38 270655Z AUTO 25009KT 10SM BKN020 BKN027 M14/M18 A2993 RMK AO2",
       "metar_time_utc": "",
-      "updated_utc": "2026-01-27T08:34:08Z"
+      "updated_utc": "2026-01-27T08:34:08Z",
+      "metar_icao": "KN38",
+      "metar_ts": 1769503006,
+      "impact_detail": "Status CLOSED"
     },
     "RVL": {
       "status": "CLOSED",
       "flight_category": "UNK",
-      "impact_reason": "No METAR returned",
-      "metar_raw": "",
+      "impact_reason": "Airport closed",
+      "metar_raw": "METAR KRVL 270815Z AUTO 19012G20KT 10SM OVC030 M11/M16 A3011 RMK AO2\nMETAR KRVL 270755Z AUTO 22010G20KT 10SM OVC031 M11/M16 A3011 RMK AO2\nMETAR KRVL 270735Z AUTO 22007G18KT 9SM -SN BKN031 M11/M16 A3011 RMK AO2\nMETAR KRVL 270715Z AUTO 22010G17KT 9SM BKN030 M11/M16 A3011 RMK AO2\nMETAR KRVL 270655Z AUTO 23006G12KT 10SM BKN032 BKN038 M11/M16 A3011 RMK AO2",
       "metar_time_utc": "",
-      "updated_utc": "2026-01-27T08:34:08Z"
+      "updated_utc": "2026-01-27T08:34:08Z",
+      "metar_icao": "KRVL",
+      "metar_ts": 1769503007,
+      "impact_detail": "Status CLOSED"
     },
     "SEG": {
       "status": "CLOSED",
       "flight_category": "UNK",
-      "impact_reason": "No METAR returned",
-      "metar_raw": "",
+      "impact_reason": "Airport closed",
+      "metar_raw": "METAR KSEG 270753Z AUTO VRB03KT 10SM SCT031 OVC042 M11/M15 A3013 RMK AO2 SLP212 T11061150\nMETAR KSEG 270653Z AUTO 29008G17KT 10SM OVC045 M09/M17 A3012 RMK AO2 SLP208 T10941172",
       "metar_time_utc": "",
-      "updated_utc": "2026-01-27T08:34:08Z"
+      "updated_utc": "2026-01-27T08:34:08Z",
+      "metar_icao": "KSEG",
+      "metar_ts": 1769503007,
+      "impact_detail": "Status CLOSED"
     },
     "THV": {
       "status": "CLOSED",
       "flight_category": "UNK",
-      "impact_reason": "No METAR returned",
-      "metar_raw": "",
+      "impact_reason": "Airport closed",
+      "metar_raw": "METAR KTHV 270753Z AUTO 27004KT 10SM CLR M12/M18 A3015 RMK AO2 SLP220 T11171183\nMETAR KTHV 270653Z AUTO 28007KT 10SM CLR M10/M17 A3014 RMK AO2 SLP216 T11001172",
       "metar_time_utc": "",
-      "updated_utc": "2026-01-27T08:34:08Z"
+      "updated_utc": "2026-01-27T08:34:08Z",
+      "metar_icao": "KTHV",
+      "metar_ts": 1769503007,
+      "impact_detail": "Status CLOSED"
     },
     "UNV": {
       "status": "CLOSED",
       "flight_category": "UNK",
-      "impact_reason": "No METAR returned",
-      "metar_raw": "",
+      "impact_reason": "Airport closed",
+      "metar_raw": "METAR KUNV 270815Z AUTO 27016G24KT 4SM HZ OVC025 M12/M17 A3008 RMK AO2 T11211169\nMETAR KUNV 270755Z AUTO 27015G20KT 10SM OVC025 M12/M17 A3008 RMK AO2 T11211170\nMETAR KUNV 270735Z AUTO 26013KT 10SM OVC025 M12/M17 A3008 RMK AO2 T11211170\nMETAR KUNV 270715Z AUTO 25012G18KT 10SM OVC025 M12/M17 A3008 RMK AO2 T11241172\nMETAR KUNV 270655Z AUTO 25010KT 10SM OVC025 M12/M17 A3008 RMK AO2 T11241174",
       "metar_time_utc": "",
-      "updated_utc": "2026-01-27T08:34:08Z"
+      "updated_utc": "2026-01-27T08:34:08Z",
+      "metar_icao": "KUNV",
+      "metar_ts": 1769503007,
+      "impact_detail": "Status CLOSED"
     },
     "XIF": {
       "status": "CLOSED",
       "flight_category": "UNK",
-      "impact_reason": "No METAR returned",
-      "metar_raw": "",
+      "impact_reason": "Airport closed",
+      "metar_raw": "METAR KXIF 270755Z AUTO 22004KT 10SM CLR M10/M18 A3011 RMK AO2 SLP216 T11051176 $\nMETAR KXIF 270655Z AUTO 00000KT 10SM CLR M10/M17 A3010 RMK AO2 SLP213 T11051174 $",
       "metar_time_utc": "",
-      "updated_utc": "2026-01-27T08:34:08Z"
+      "updated_utc": "2026-01-27T08:34:08Z",
+      "metar_icao": "KXIF",
+      "metar_ts": 1769503007,
+      "impact_detail": "Status CLOSED"
     },
     "ABE": {
       "status": "CLOSED",
       "flight_category": "UNK",
-      "impact_reason": "No METAR returned",
-      "metar_raw": "",
+      "impact_reason": "Airport closed",
+      "metar_raw": "METAR KABE 270751Z AUTO 28007KT 10SM CLR M10/M18 A3010 RMK AO2 SLP199 T11001183\nMETAR KABE 270651Z AUTO 29010G18KT 10SM CLR M10/M18 A3008 RMK AO2 SLP193 T11001183",
       "metar_time_utc": "",
-      "updated_utc": "2026-01-27T08:34:08Z"
+      "updated_utc": "2026-01-27T08:34:08Z",
+      "metar_icao": "KABE",
+      "metar_ts": 1769503008,
+      "impact_detail": "Status CLOSED"
     },
     "AVP": {
       "status": "CLOSED",
       "flight_category": "UNK",
-      "impact_reason": "No METAR returned",
-      "metar_raw": "",
+      "impact_reason": "Airport closed",
+      "metar_raw": "METAR KAVP 270754Z 23004KT 10SM CLR M13/M19 A3003 RMK AO2 SLP185 T11281189\nMETAR KAVP 270654Z 26008KT 10SM CLR M13/M19 A3002 RMK AO2 SLP182 T11281189",
       "metar_time_utc": "",
-      "updated_utc": "2026-01-27T08:34:08Z"
+      "updated_utc": "2026-01-27T08:34:08Z",
+      "metar_icao": "KAVP",
+      "metar_ts": 1769503008,
+      "impact_detail": "Status CLOSED"
     },
     "CKZ": {
       "status": "CLOSED",
       "flight_category": "UNK",
-      "impact_reason": "No METAR returned",
-      "metar_raw": "",
+      "impact_reason": "Airport closed",
+      "metar_raw": "METAR KCKZ 270815Z AUTO 29009KT 10SM CLR M10/M18 A3009 RMK AO2\nMETAR KCKZ 270755Z AUTO 28006G15KT 10SM CLR M10/M18 A3009 RMK AO2\nMETAR KCKZ 270735Z AUTO 30011G16KT 10SM CLR M10/M18 A3009 RMK AO2\nMETAR KCKZ 270715Z AUTO 29008G14KT 10SM CLR M10/M18 A3009 RMK AO2\nMETAR KCKZ 270655Z AUTO 30009G16KT 10SM CLR M10/M18 A3008 RMK AO2",
       "metar_time_utc": "",
-      "updated_utc": "2026-01-27T08:34:08Z"
+      "updated_utc": "2026-01-27T08:34:08Z",
+      "metar_icao": "KCKZ",
+      "metar_ts": 1769503008,
+      "impact_detail": "Status CLOSED"
     },
     "DYL": {
       "status": "CLOSED",
       "flight_category": "UNK",
-      "impact_reason": "No METAR returned",
-      "metar_raw": "",
+      "impact_reason": "Airport closed",
+      "metar_raw": "METAR KDYL 270754Z AUTO 29007KT 10SM CLR M09/M17 A3009 RMK AO2 SLP202 T10941172\nMETAR KDYL 270654Z AUTO 30009KT 10SM CLR M09/M17 A3008 RMK AO2 SLP199 T10891172",
       "metar_time_utc": "",
-      "updated_utc": "2026-01-27T08:34:08Z"
+      "updated_utc": "2026-01-27T08:34:08Z",
+      "metar_icao": "KDYL",
+      "metar_ts": 1769503008,
+      "impact_detail": "Status CLOSED"
     },
     "HZL": {
       "status": "CLOSED",
       "flight_category": "UNK",
-      "impact_reason": "No METAR returned",
-      "metar_raw": "",
+      "impact_reason": "Airport closed",
+      "metar_raw": "METAR KHZL 270815Z AUTO 26004KT 10SM M12/M18 A3002 RMK AO2\nMETAR KHZL 270755Z AUTO 28004KT 10SM M12/M18 A3001 RMK AO2\nMETAR KHZL 270735Z AUTO 31003KT 10SM M12/M18 A3000 RMK AO2\nMETAR KHZL 270715Z AUTO 30004KT 10SM M12/M18 A3000 RMK AO2\nMETAR KHZL 270655Z AUTO 29003KT 10SM M12/M18 A3000 RMK AO2",
       "metar_time_utc": "",
-      "updated_utc": "2026-01-27T08:34:08Z"
+      "updated_utc": "2026-01-27T08:34:08Z",
+      "metar_icao": "KHZL",
+      "metar_ts": 1769503008,
+      "impact_detail": "Status CLOSED"
     },
     "LOM": {
       "status": "CLOSED",
       "flight_category": "UNK",
-      "impact_reason": "No METAR returned",
-      "metar_raw": "",
+      "impact_reason": "Airport closed",
+      "metar_raw": "METAR KLOM 270815Z AUTO 29005KT 10SM CLR M10/M18 A3013 RMK AO2 T10961179\nMETAR KLOM 270755Z AUTO 26007KT 10SM CLR M10/M18 A3013 RMK AO2 T10961178\nMETAR KLOM 270735Z AUTO 30007KT 10SM CLR M09/M18 A3012 RMK AO2 T10941179\nMETAR KLOM 270715Z AUTO 30007KT 10SM CLR M09/M18 A3012 RMK AO2 T10931178\nMETAR KLOM 270655Z AUTO 29006KT 10SM CLR M09/M18 A3011 RMK AO2 T10931175",
       "metar_time_utc": "",
-      "updated_utc": "2026-01-27T08:34:08Z"
+      "updated_utc": "2026-01-27T08:34:08Z",
+      "metar_icao": "KLOM",
+      "metar_ts": 1769503008,
+      "impact_detail": "Status CLOSED"
     },
     "MPO": {
       "status": "CLOSED",
       "flight_category": "UNK",
-      "impact_reason": "No METAR returned",
-      "metar_raw": "",
+      "impact_reason": "Airport closed",
+      "metar_raw": "METAR KMPO 270753Z AUTO 28012G21KT 10SM M14/M20 A2990 RMK AO2 PK WND 28026/0656 SLP164 T11441200\nMETAR KMPO 270653Z AUTO 28018G32KT 10SM M14/M19 A2988 RMK AO2 PK WND 28032/0653 SLP159 T11441189",
       "metar_time_utc": "",
-      "updated_utc": "2026-01-27T08:34:08Z"
+      "updated_utc": "2026-01-27T08:34:08Z",
+      "metar_icao": "KMPO",
+      "metar_ts": 1769503009,
+      "impact_detail": "Status CLOSED"
     },
     "MQS": {
       "status": "CLOSED",
       "flight_category": "UNK",
-      "impact_reason": "No METAR returned",
-      "metar_raw": "",
+      "impact_reason": "Airport closed",
+      "metar_raw": "METAR KMQS 270815Z AUTO 30011KT 10SM FEW026 BKN035 M11/M18 A3010 RMK AO2 T11121176\nMETAR KMQS 270755Z AUTO 28005KT 10SM SCT024 BKN029 OVC036 M11/M18 A3010 RMK AO2 T11081176\nMETAR KMQS 270735Z AUTO 31009KT 10SM SCT028 BKN037 M10/M18 A3010 RMK AO2 T11051176\nMETAR KMQS 270715Z AUTO 29008KT 10SM SCT037 M10/M18 A3011 RMK AO2 T11031177\nMETAR KMQS 270655Z AUTO 31012G18KT 10SM FEW042 M10/M18 A3010 RMK AO2 T10991177",
       "metar_time_utc": "",
-      "updated_utc": "2026-01-27T08:34:08Z"
+      "updated_utc": "2026-01-27T08:34:08Z",
+      "metar_icao": "KMQS",
+      "metar_ts": 1769503009,
+      "impact_detail": "Status CLOSED"
     },
     "N79": {
       "status": "CLOSED",
       "flight_category": "UNK",
-      "impact_reason": "No METAR returned",
-      "metar_raw": "",
+      "impact_reason": "Airport closed",
+      "metar_raw": "METAR KN79 270815Z AUTO 28005KT 10SM BKN037 M12/M17 A3006 RMK AO2 T11151171 $\nMETAR KN79 270755Z AUTO 26007KT 10SM BKN039 M11/M17 A3007 RMK AO2 T11131170 $\nMETAR KN79 270735Z AUTO 27007KT 10SM CLR M12/M18 A3006 RMK AO2 T11191176 $\nMETAR KN79 270715Z AUTO 26004KT 10SM FEW041 M11/M18 A3005 RMK AO2 T11151177 $\nMETAR KN79 270655Z AUTO 27005KT 10SM OVC040 M11/M17 A3005 RMK AO2 T11101173 $",
       "metar_time_utc": "",
-      "updated_utc": "2026-01-27T08:34:08Z"
+      "updated_utc": "2026-01-27T08:34:08Z",
+      "metar_icao": "KN79",
+      "metar_ts": 1769503009,
+      "impact_detail": "Status CLOSED"
     },
     "OQN": {
       "status": "CLOSED",
       "flight_category": "UNK",
-      "impact_reason": "No METAR returned",
-      "metar_raw": "",
+      "impact_reason": "Airport closed",
+      "metar_raw": "METAR KOQN 270815Z AUTO 30006KT 10SM CLR M08/M16 A3013 RMK AO2\nMETAR KOQN 270755Z AUTO 30010G14KT 10SM CLR M08/M15 A3013 RMK AO2\nMETAR KOQN 270735Z AUTO 28006KT 10SM CLR M08/M15 A3013 RMK AO2\nMETAR KOQN 270715Z AUTO 30009KT 10SM CLR M08/M15 A3013 RMK AO2\nMETAR KOQN 270655Z AUTO 30011G15KT 10SM CLR M08/M15 A3013 RMK AO2",
       "metar_time_utc": "",
-      "updated_utc": "2026-01-27T08:34:08Z"
+      "updated_utc": "2026-01-27T08:34:08Z",
+      "metar_icao": "KOQN",
+      "metar_ts": 1769503009,
+      "impact_detail": "Status CLOSED"
     },
     "PHL": {
       "status": "CLOSED",
       "flight_category": "UNK",
-      "impact_reason": "No METAR returned",
-      "metar_raw": "",
+      "impact_reason": "Airport closed",
+      "metar_raw": "METAR KPHL 270754Z 29008G18KT 10SM CLR M07/M16 A3015 RMK SLP211 T10721161\nMETAR KPHL 270654Z 29009KT 10SM CLR M07/M16 A3015 RMK SLP208 T10721156",
       "metar_time_utc": "",
-      "updated_utc": "2026-01-27T08:34:08Z"
+      "updated_utc": "2026-01-27T08:34:08Z",
+      "metar_icao": "KPHL",
+      "metar_ts": 1769503009,
+      "impact_detail": "Status CLOSED"
     },
     "PNE": {
       "status": "CLOSED",
       "flight_category": "UNK",
-      "impact_reason": "No METAR returned",
-      "metar_raw": "",
+      "impact_reason": "Airport closed",
+      "metar_raw": "METAR KPNE 270754Z AUTO 29011KT 10SM CLR M08/M17 A3015 RMK AO2 SLP210 T10831172 TSNO\nMETAR KPNE 270654Z AUTO 29011G18KT 10SM CLR M08/M17 A3012 RMK AO2 SLP202 T10831167 TSNO",
       "metar_time_utc": "",
-      "updated_utc": "2026-01-27T08:34:08Z"
+      "updated_utc": "2026-01-27T08:34:08Z",
+      "metar_icao": "KPNE",
+      "metar_ts": 1769503010,
+      "impact_detail": "Status CLOSED"
     },
     "PTW": {
       "status": "CLOSED",
       "flight_category": "UNK",
-      "impact_reason": "No METAR returned",
-      "metar_raw": "",
+      "impact_reason": "Airport closed",
+      "metar_raw": "METAR KPTW 270754Z AUTO 29008KT 10SM CLR M10/M18 A3013 RMK AO2 SLP206 T11001178 $\nMETAR KPTW 270654Z AUTO 28009G17KT 240V310 10SM CLR M09/M18 A3013 RMK AO2 SLP204 T10941178 $",
       "metar_time_utc": "",
-      "updated_utc": "2026-01-27T08:34:08Z"
+      "updated_utc": "2026-01-27T08:34:08Z",
+      "metar_icao": "KPTW",
+      "metar_ts": 1769503010,
+      "impact_detail": "Status CLOSED"
     },
     "RDG": {
       "status": "CLOSED",
       "flight_category": "UNK",
-      "impact_reason": "No METAR returned",
-      "metar_raw": "",
+      "impact_reason": "Airport closed",
+      "metar_raw": "METAR KRDG 270754Z AUTO 27007KT 10SM CLR M09/M18 A3013 RMK AO2 SLP214 T10891178 PNO $\nMETAR KRDG 270654Z AUTO 29009KT 10SM CLR M09/M17 A3012 RMK AO2 SLP208 T10891172 PNO $",
       "metar_time_utc": "",
-      "updated_utc": "2026-01-27T08:34:08Z"
+      "updated_utc": "2026-01-27T08:34:08Z",
+      "metar_icao": "KRDG",
+      "metar_ts": 1769503010,
+      "impact_detail": "Status CLOSED"
     },
     "UKT": {
       "status": "CLOSED",
       "flight_category": "UNK",
-      "impact_reason": "No METAR returned",
-      "metar_raw": "",
+      "impact_reason": "Airport closed",
+      "metar_raw": "METAR KUKT 270815Z AUTO VRB06KT 10SM CLR M11/M18 A3010 RMK AO2\nMETAR KUKT 270755Z AUTO VRB04KT 10SM CLR M10/M18 A3010 RMK AO2\nMETAR KUKT 270735Z AUTO VRB05G11KT 10SM CLR M10/M18 A3009 RMK AO2\nMETAR KUKT 270715Z AUTO VRB07G15KT 10SM CLR M10/M18 A3008 RMK AO2\nMETAR KUKT 270655Z AUTO 21008G13KT 120V290 10SM CLR M10/M18 A3008 RMK AO2",
       "metar_time_utc": "",
-      "updated_utc": "2026-01-27T08:34:08Z"
+      "updated_utc": "2026-01-27T08:34:08Z",
+      "metar_icao": "KUKT",
+      "metar_ts": 1769503010,
+      "impact_detail": "Status CLOSED"
     },
     "XLL": {
       "status": "CLOSED",
       "flight_category": "UNK",
-      "impact_reason": "No METAR returned",
-      "metar_raw": "",
+      "impact_reason": "Airport closed",
+      "metar_raw": "METAR KXLL 270815Z AUTO 00000KT 10SM CLR M10/M17 A3012 RMK AO2 TSNO\nMETAR KXLL 270755Z AUTO 00000KT 10SM CLR M09/M17 A3012 RMK AO2 TSNO\nMETAR KXLL 270735Z AUTO 29007G18KT 10SM CLR M08/M17 A3012 RMK AO2 TSNO\nMETAR KXLL 270715Z AUTO 28008KT 10SM CLR M08/M17 A3012 RMK AO2 TSNO\nMETAR KXLL 270655Z AUTO 28010G14KT 10SM CLR M08/M17 A3011 RMK AO2 TSNO",
       "metar_time_utc": "",
-      "updated_utc": "2026-01-27T08:34:08Z"
+      "updated_utc": "2026-01-27T08:34:08Z",
+      "metar_icao": "KXLL",
+      "metar_ts": 1769503011,
+      "impact_detail": "Status CLOSED"
     },
     "ZER": {
       "status": "CLOSED",
       "flight_category": "UNK",
-      "impact_reason": "No METAR returned",
-      "metar_raw": "",
+      "impact_reason": "Airport closed",
+      "metar_raw": "METAR KZER 270815Z AUTO 27009G19KT 10SM OVC032 M12/M18 A3000 RMK AO2\nMETAR KZER 270755Z AUTO 29014G20KT 10SM SCT032 M13/M18 A3000 RMK AO2\nMETAR KZER 270735Z AUTO 28009G16KT 10SM SCT034 M13/M18 A2999 RMK AO2\nMETAR KZER 270715Z AUTO 30011G16KT 10SM BKN034 M12/M18 A2998 RMK AO2\nMETAR KZER 270655Z AUTO 30011G20KT 10SM OVC034 M12/M18 A2998 RMK AO2",
       "metar_time_utc": "",
-      "updated_utc": "2026-01-27T08:34:08Z"
+      "updated_utc": "2026-01-27T08:34:08Z",
+      "metar_icao": "KZER",
+      "metar_ts": 1769503011,
+      "impact_detail": "Status CLOSED"
     }
   }
 }
