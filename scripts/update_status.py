@@ -90,6 +90,10 @@ def main():
         sys.exit(2)
 
     airports = data.get("airports", {})
+    if not isinstance(airports, dict) or not airports:
+        print("ERROR: docs/status.json missing airports object or it's empty.", file=sys.stderr)
+        sys.exit(3)
+
     updated_utc = now_utc_iso_z()
 
     for code in sorted(airports.keys()):
@@ -103,7 +107,7 @@ def main():
                 airports[code].update({
                     "status": "CLOSED",
                     "flight_category": "UNK",
-                    "impact_reason": "no METAR",
+                    "impact_reason": "No METAR returned",
                     "metar_raw": "",
                     "metar_time_utc": "",
                     "updated_utc": updated_utc
@@ -115,7 +119,7 @@ def main():
 
             impact_reason = ""
             if st == "IMPACT":
-                impact_reason = f"{fc}: {fc_reason}" if fc_reason else "Flight rules degraded"
+                impact_reason = f"{fc}: {fc_reason}" if fc_reason else f"{fc}"
 
             airports[code].update({
                 "status": st,
@@ -126,7 +130,7 @@ def main():
                 "updated_utc": updated_utc
             })
 
-        except (HTTPError, URLError):
+        except (HTTPError, URLError) as e:
             airports[code].update({
                 "status": "CLOSED",
                 "flight_category": "UNK",
