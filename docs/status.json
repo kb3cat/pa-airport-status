@@ -1,5 +1,5 @@
 {
-  "generated_utc": "2026-01-27 22:59:24Z",
+  "generated_utc": "2026-01-27 23:31:56Z",
   "regions": {
     "Western": [
       {
@@ -147,7 +147,7 @@
       "closed": false,
       "closure_reason": "",
       "events": [],
-      "flight_category": "IFR"
+      "flight_category": "LIFR"
     },
     "DUJ": {
       "code": "DUJ",
