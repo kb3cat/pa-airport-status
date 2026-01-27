@@ -1,160 +1,228 @@
 #!/usr/bin/env python3
 import json
-import time
+import os
 import re
-import urllib.request
-import xml.etree.ElementTree as ET
+import sys
 from datetime import datetime, timezone
-from pathlib import Path
+import xml.etree.ElementTree as ET
 
-# Server-rendered “Active Airport Events” list (reliably contains closures)
-NASS_LIST_URL = "https://nasstatus.faa.gov/list"
-# Secondary: XML feed
-FAA_XML_URL = "https://nasstatus.faa.gov/api/airport-status-information"
+import requests
 
-OUT_PATH = Path("docs/status.json")
 
-# NOTE: lat/lon are in decimal degrees (W is negative lon)
-AIRPORTS = {
-  "Western": [
-    {"code":"PIT","name":"Pittsburgh Intl",              "lat":40.4920, "lon":-80.2327},
-    {"code":"ERI","name":"Erie Intl",                    "lat":42.0831, "lon":-80.1739},
-    {"code":"LBE","name":"Arnold Palmer Regional",       "lat":40.2759, "lon":-79.4048},
-    {"code":"JST","name":"Johnstown–Cambria County",     "lat":40.3161, "lon":-78.8339},
-    {"code":"DUJ","name":"DuBois Regional",              "lat":41.1783, "lon":-78.8987},
-  ],
-  "Central": [
-    {"code":"MDT","name":"Harrisburg Intl",              "lat":40.1931, "lon":-76.7633},
-    {"code":"CXY","name":"Capital City",                 "lat":40.2171, "lon":-76.8515},
-    {"code":"SCE","name":"State College Regional",       "lat":40.8493, "lon":-77.8487},
-    {"code":"IPT","name":"Williamsport Regional",        "lat":41.2421, "lon":-76.9211},
-    {"code":"AOO","name":"Altoona–Blair County",         "lat":40.2964, "lon":-78.3200},
-    {"code":"BFD","name":"Bradford Regional",            "lat":41.8031, "lon":-78.6401},
-  ],
-  "Eastern": [
-    {"code":"PHL","name":"Philadelphia Intl",            "lat":39.8729, "lon":-75.2437},
-    # Your closure code is ABP, but the field is Northeast Philadelphia (IATA: PNE).
-    # We’re using the physical location of Northeast Philadelphia Airport for the marker.
-    {"code":"ABP","name":"Northeast Philadelphia",       "lat":40.0819, "lon":-75.0106},
-    {"code":"ABE","name":"Lehigh Valley Intl",           "lat":40.6521, "lon":-75.4408},
-    {"code":"AVP","name":"Wilkes-Barre/Scranton Intl",   "lat":41.3385, "lon":-75.7234},
-    {"code":"RDG","name":"Reading Regional",             "lat":40.3785, "lon":-75.9652},
-    {"code":"LNS","name":"Lancaster",                    "lat":40.1217, "lon":-76.2961},
-    {"code":"MPO","name":"Pocono Mountains Municipal",   "lat":41.1375, "lon":-75.3789},
-  ],
-}
+# -----------------------------
+# Airport list (PA regions)
+# -----------------------------
+# Notes:
+# - ABP (Northeast Philadelphia) uses KPNE for METAR.
+# - SCE (State College) uses KUNV for METAR.
+AIRPORTS = [
+  # Western
+  {"code":"PIT","name":"Pittsburgh Intl","region":"Western","lat":40.4920,"lon":-80.2327,"metar":"KPIT"},
+  {"code":"ERI","name":"Erie Intl","region":"Western","lat":42.0831,"lon":-80.1739,"metar":"KERI"},
+  {"code":"LBE","name":"Arnold Palmer Regional","region":"Western","lat":40.2759,"lon":-79.4048,"metar":"KLBE"},
+  {"code":"JST","name":"Johnstown–Cambria County","region":"Western","lat":40.3161,"lon":-78.8339,"metar":"KJST"},
+  {"code":"DUJ","name":"DuBois Regional","region":"Western","lat":41.1783,"lon":-78.8987,"metar":"KDUJ"},
 
-def fetch_text(url: str, timeout=30, retries=3) -> str:
-    last = None
-    headers = {
-        "User-Agent": "PA-Airport-StatusBoard/3.1",
-        "Accept": "text/html,*/*;q=0.8",
-    }
-    for _ in range(retries):
-        try:
-            req = urllib.request.Request(url, headers=headers, method="GET")
-            with urllib.request.urlopen(req, timeout=timeout) as r:
-                return r.read().decode("utf-8", errors="replace")
-        except Exception as e:
-            last = e
-            time.sleep(2)
-    raise RuntimeError(f"Failed to fetch {url}: {last}")
+  # Central
+  {"code":"MDT","name":"Harrisburg Intl","region":"Central","lat":40.1931,"lon":-76.7633,"metar":"KMDT"},
+  {"code":"CXY","name":"Capital City","region":"Central","lat":40.2171,"lon":-76.8515,"metar":"KCXY"},
+  {"code":"SCE","name":"State College Regional","region":"Central","lat":40.8493,"lon":-77.8487,"metar":"KUNV"},
+  {"code":"IPT","name":"Williamsport Regional","region":"Central","lat":41.2421,"lon":-76.9211,"metar":"KIPT"},
+  {"code":"AOO","name":"Altoona–Blair County","region":"Central","lat":40.2964,"lon":-78.3200,"metar":"KAOO"},
+  {"code":"BFD","name":"Bradford Regional","region":"Central","lat":41.8031,"lon":-78.6401,"metar":"KBFD"},
 
-def fetch_bytes(url: str, timeout=30, retries=3) -> bytes:
-    last = None
-    headers = {
-        "User-Agent": "PA-Airport-StatusBoard/3.1",
-        "Accept": "application/xml,text/xml,*/*;q=0.9",
-    }
-    for _ in range(retries):
-        try:
-            req = urllib.request.Request(url, headers=headers, method="GET")
-            with urllib.request.urlopen(req, timeout=timeout) as r:
-                return r.read()
-        except Exception as e:
-            last = e
-            time.sleep(2)
-    raise RuntimeError(f"Failed to fetch {url}: {last}")
+  # Eastern
+  {"code":"PHL","name":"Philadelphia Intl","region":"Eastern","lat":39.8729,"lon":-75.2437,"metar":"KPHL"},
+  {"code":"ABP","name":"Northeast Philadelphia","region":"Eastern","lat":40.0819,"lon":-75.0106,"metar":"KPNE"},
+  {"code":"ABE","name":"Lehigh Valley Intl","region":"Eastern","lat":40.6521,"lon":-75.4408,"metar":"KABE"},
+  {"code":"AVP","name":"Wilkes-Barre/Scranton Intl","region":"Eastern","lat":41.3385,"lon":-75.7234,"metar":"KAVP"},
+  {"code":"RDG","name":"Reading Regional","region":"Eastern","lat":40.3785,"lon":-75.9652,"metar":"KRDG"},
+  {"code":"LNS","name":"Lancaster","region":"Eastern","lat":40.1217,"lon":-76.2961,"metar":"KLNS"},
+  {"code":"MPO","name":"Pocono Mountains Municipal","region":"Eastern","lat":41.1375,"lon":-75.3789,"metar":"KMPO"},
+]
 
-def _t(el):
-    return (el.text or "").strip() if el is not None else ""
+REGION_ORDER = ["Western", "Central", "Eastern"]
 
-def parse_list_closures(list_html: str) -> dict:
+PA_CODES = [a["code"] for a in AIRPORTS]
+PA_SET = set(PA_CODES)
+
+
+# -----------------------------
+# FAA NAS Status parsing
+# -----------------------------
+FAA_AIRPORT_STATUS_XML = "https://nasstatus.faa.gov/api/airport-status-information"
+
+def _strip_ns(tag: str) -> str:
+    return tag.split("}", 1)[-1] if "}" in tag else tag
+
+def _iter_elements(root):
+    for el in root.iter():
+        el.tag = _strip_ns(el.tag)
+        yield el
+
+def fetch_airport_status_information():
     """
-    Parse https://nasstatus.faa.gov/list for Airport Closure occurrences.
-    We search for an airport code near the text 'Airport Closure'.
+    Returns two dicts:
+      closures: { "ABE": "<Reason string>" }
+      impacts:  { "ABE": "<Reason string>" }   # delays/ground stops/other active airport events
     """
     closures = {}
-    h = re.sub(r"\s+", " ", list_html)
+    impacts = {}
 
-    # Typical pattern includes >CODE< somewhere near 'Airport Closure'
-    for m in re.finditer(r">([A-Z0-9]{3,4})<[^>]*>[^<]*Airport Closure", h):
-        code = m.group(1).upper()
-        closures[code] = "Airport Closure"
-    return closures
+    r = requests.get(FAA_AIRPORT_STATUS_XML, timeout=30)
+    r.raise_for_status()
 
-def parse_xml_closures(xml_bytes: bytes) -> dict:
-    """
-    Secondary: XML feed closure list.
-    Returns dict: { "ABE": "reason..." }
-    """
-    closures = {}
-    root = ET.fromstring(xml_bytes)
-    for dt in root.iterfind(".//Delay_type"):
-        name = _t(dt.find("./Name"))
-        if name != "Airport Closures":
+    text = r.text.strip()
+    # Sometimes content may include a leading BOM or whitespace
+    text = re.sub(r"^\ufeff", "", text)
+
+    root = ET.fromstring(text)
+    # normalize tags (strip namespaces)
+    for _ in _iter_elements(root):
+        pass
+
+    # Common structure includes lists like:
+    #  <Airport_Closure_List><Airport><ARPT>ABE</ARPT><Reason>...</Reason></Airport>...
+    # and delay lists / ground stop lists etc.
+    #
+    # We'll scan for any "*_List" elements containing <Airport> children with <ARPT>.
+    # If list name contains "Closure" => closures, else impacts.
+    for list_el in root.iter():
+        tag = list_el.tag or ""
+        if not tag.endswith("_List"):
             continue
-        for a in dt.findall(".//Airport_Closure_List//Airport"):
-            code = _t(a.find("./ARPT")).upper()
-            reason = _t(a.find("./Reason"))
-            if code:
-                closures[code] = reason or "Airport Closure"
-    return closures
+
+        is_closure_list = ("Closure" in tag) or ("Closures" in tag)
+        for ap in list_el.findall(".//Airport"):
+            arpt = ap.findtext("ARPT") or ap.findtext("Airport") or ap.findtext("ARPT_ID")
+            if not arpt:
+                continue
+            arpt = arpt.strip().upper()
+            if arpt not in PA_SET:
+                continue
+
+            reason = (ap.findtext("Reason") or ap.findtext("REASON") or "").strip()
+
+            # If no explicit reason, try to capture the full text of the Airport node
+            if not reason:
+                reason = " ".join((ap.itertext() or [])).strip()
+                reason = re.sub(r"\s+", " ", reason)
+
+            if is_closure_list:
+                closures[arpt] = reason
+            else:
+                # impacts can overlap; keep first if already populated
+                impacts.setdefault(arpt, reason)
+
+    return closures, impacts
+
+
+# -----------------------------
+# AviationWeather.gov METAR flight category
+# -----------------------------
+def fetch_flight_categories(metar_ids):
+    """
+    Returns dict like {"KABE":"VFR","KAVP":"IFR",...}
+    Uses AWC Data API XML.
+    """
+    if not metar_ids:
+        return {}
+
+    ids_param = ",".join(metar_ids)
+    url = f"https://aviationweather.gov/api/data/metar?format=xml&ids={ids_param}"
+
+    r = requests.get(url, timeout=30)
+    r.raise_for_status()
+
+    cats = {}
+    root = ET.fromstring(r.text)
+
+    for metar in root.findall(".//METAR"):
+        sid = metar.findtext("station_id")
+        fc = metar.findtext("flight_category")
+        if sid and fc:
+            cats[sid.strip().upper()] = fc.strip().upper()
+
+    return cats
+
+
+# -----------------------------
+# Build output JSON
+# -----------------------------
+def utc_now_str():
+    return datetime.now(timezone.utc).strftime("%Y-%m-%d %H:%M:%SZ")
+
+def build_regions():
+    regions = {r: [] for r in REGION_ORDER}
+    for a in AIRPORTS:
+        regions[a["region"]].append({
+            "code": a["code"],
+            "name": a["name"],
+            "lat": a["lat"],
+            "lon": a["lon"],
+        })
+    return regions
 
 def main():
-    # Primary: server-rendered list page
-    list_html = fetch_text(NASS_LIST_URL)
-    list_closures = parse_list_closures(list_html)
+    generated_utc = utc_now_str()
 
-    # Secondary: XML feed closures
-    xml_bytes = fetch_bytes(FAA_XML_URL)
-    xml_closures = parse_xml_closures(xml_bytes)
-
-    codes = {a["code"] for region in AIRPORTS.values() for a in region}
-    airports_out = {}
-
-    for code in sorted(codes):
-        # Authority order: list page > xml feed
-        closed_reason = ""
-        closed = False
-
-        if code in list_closures:
-            closed = True
-            closed_reason = list_closures[code]
-        elif code in xml_closures:
-            closed = True
-            closed_reason = xml_closures[code]
-
-        status = "CLOSED" if closed else "OK"
-
-        airports_out[code] = {
-            "code": code,
-            "status": status,
-            "closed": closed,
-            "closure_reason": closed_reason,
-            "events": []  # (future) parse impacts from XML if you want
-        }
-
-    payload = {
-        "generated_utc": datetime.now(timezone.utc).strftime("%Y-%m-%d %H:%M:%SZ"),
-        "regions": AIRPORTS,     # <-- this includes lat/lon now
-        "airports": airports_out,
-        "source": "nasstatus.faa.gov/list + airport-status-information",
-        "note": "Temporary closures sourced from NAS Status list page first, with XML as fallback. Regions include lat/lon for map markers.",
+    # Default status objects
+    airports_status = {
+        code: {"code": code, "status": "OK", "closed": False, "closure_reason": "", "events": []}
+        for code in PA_CODES
     }
 
-    OUT_PATH.parent.mkdir(parents=True, exist_ok=True)
-    OUT_PATH.write_text(json.dumps(payload, indent=2), encoding="utf-8")
+    # FAA closures/impacts
+    try:
+        closures, impacts = fetch_airport_status_information()
+    except Exception as e:
+        # If FAA fetch fails, still emit status.json (page will show OK + categories)
+        closures, impacts = {}, {}
+        print(f"[WARN] FAA airport-status-information fetch failed: {e}", file=sys.stderr)
+
+    for code, reason in closures.items():
+        st = airports_status[code]
+        st["status"] = "CLOSED"
+        st["closed"] = True
+        st["closure_reason"] = reason
+
+    for code, reason in impacts.items():
+        # If closed, keep it closed
+        st = airports_status[code]
+        if st.get("closed"):
+            continue
+        st["status"] = "IMPACT"
+        st["closed"] = False
+        # Keep in events (more future-proof)
+        st["events"] = [{"type": "Impact", "reason": reason}]
+
+    # METAR flight categories
+    metar_ids = [a["metar"] for a in AIRPORTS if a.get("metar")]
+    try:
+        fc_map = fetch_flight_categories(metar_ids)
+    except Exception as e:
+        fc_map = {}
+        print(f"[WARN] METAR fetch failed: {e}", file=sys.stderr)
+
+    for a in AIRPORTS:
+        code = a["code"]
+        metar = (a.get("metar") or "").upper()
+        airports_status[code]["flight_category"] = fc_map.get(metar, "UNK")
+
+    out = {
+        "generated_utc": generated_utc,
+        "regions": build_regions(),
+        "airports": airports_status,
+        "source": "nasstatus.faa.gov/api/airport-status-information + aviationweather.gov METAR flight_category",
+        "note": "Temporary closures/impacts from FAA NAS Status; flight categories from METAR.",
+    }
+
+    os.makedirs("docs", exist_ok=True)
+    out_path = os.path.join("docs", "status.json")
+    with open(out_path, "w", encoding="utf-8") as f:
+        json.dump(out, f, indent=2)
+
+    print(f"Wrote {out_path} ({generated_utc})")
 
 if __name__ == "__main__":
     main()
