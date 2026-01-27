@@ -1,5 +1,5 @@
 {
-  "generated_utc": "2026-01-27 04:33:16Z",
+  "generated_utc": "2026-01-27 04:42:27Z",
   "regions": {
     "Western": [
       {
@@ -123,7 +123,7 @@
       "closed": false,
       "closure_reason": "",
       "events": [],
-      "flight_category": "UNK"
+      "flight_category": "MVFR"
     },
     "ERI": {
       "code": "ERI",
@@ -131,7 +131,7 @@
       "closed": false,
       "closure_reason": "",
       "events": [],
-      "flight_category": "UNK"
+      "flight_category": "VFR"
     },
     "LBE": {
       "code": "LBE",
@@ -139,7 +139,7 @@
       "closed": false,
       "closure_reason": "",
       "events": [],
-      "flight_category": "UNK"
+      "flight_category": "VFR"
     },
     "JST": {
       "code": "JST",
@@ -147,7 +147,7 @@
       "closed": false,
       "closure_reason": "",
       "events": [],
-      "flight_category": "UNK"
+      "flight_category": "MVFR"
     },
     "DUJ": {
       "code": "DUJ",
@@ -155,7 +155,7 @@
       "closed": false,
       "closure_reason": "",
       "events": [],
-      "flight_category": "UNK"
+      "flight_category": "MVFR"
     },
     "MDT": {
       "code": "MDT",
@@ -163,7 +163,7 @@
       "closed": false,
       "closure_reason": "",
       "events": [],
-      "flight_category": "UNK"
+      "flight_category": "VFR"
     },
     "CXY": {
       "code": "CXY",
@@ -171,7 +171,7 @@
       "closed": false,
       "closure_reason": "",
       "events": [],
-      "flight_category": "UNK"
+      "flight_category": "VFR"
     },
     "SCE": {
       "code": "SCE",
@@ -179,7 +179,7 @@
       "closed": false,
       "closure_reason": "",
       "events": [],
-      "flight_category": "UNK"
+      "flight_category": "VFR"
     },
     "IPT": {
       "code": "IPT",
@@ -187,7 +187,7 @@
       "closed": false,
       "closure_reason": "",
       "events": [],
-      "flight_category": "UNK"
+      "flight_category": "VFR"
     },
     "AOO": {
       "code": "AOO",
@@ -195,7 +195,7 @@
       "closed": false,
       "closure_reason": "",
       "events": [],
-      "flight_category": "UNK"
+      "flight_category": "MVFR"
     },
     "BFD": {
       "code": "BFD",
@@ -203,7 +203,7 @@
       "closed": false,
       "closure_reason": "",
       "events": [],
-      "flight_category": "UNK"
+      "flight_category": "MVFR"
     },
     "PHL": {
       "code": "PHL",
@@ -211,7 +211,7 @@
       "closed": false,
       "closure_reason": "",
       "events": [],
-      "flight_category": "UNK"
+      "flight_category": "VFR"
     },
     "ABP": {
       "code": "ABP",
@@ -219,7 +219,7 @@
       "closed": false,
       "closure_reason": "",
       "events": [],
-      "flight_category": "UNK"
+      "flight_category": "VFR"
     },
     "ABE": {
       "code": "ABE",
@@ -227,7 +227,7 @@
       "closed": false,
       "closure_reason": "",
       "events": [],
-      "flight_category": "UNK"
+      "flight_category": "VFR"
     },
     "AVP": {
       "code": "AVP",
@@ -235,7 +235,7 @@
       "closed": false,
       "closure_reason": "",
       "events": [],
-      "flight_category": "UNK"
+      "flight_category": "VFR"
     },
     "RDG": {
       "code": "RDG",
@@ -243,7 +243,7 @@
       "closed": false,
       "closure_reason": "",
       "events": [],
-      "flight_category": "UNK"
+      "flight_category": "VFR"
     },
     "LNS": {
       "code": "LNS",
@@ -251,7 +251,7 @@
       "closed": false,
       "closure_reason": "",
       "events": [],
-      "flight_category": "UNK"
+      "flight_category": "VFR"
     },
     "MPO": {
       "code": "MPO",
@@ -262,6 +262,6 @@
       "flight_category": "UNK"
     }
   },
-  "source": "nasstatus.faa.gov + aviationweather.gov ADDS XML",
-  "note": "Closures from FAA NAS Status. Flight categories from NOAA ADDS METAR feed."
+  "source": "nasstatus.faa.gov + aviationweather.gov Data API (metar)",
+  "note": "Temporary closures from FAA NAS Status; flight categories from AWC Data API METAR feed."
 }
