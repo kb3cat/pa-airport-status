@@ -8,6 +8,10 @@ on:
 permissions:
   contents: write
 
+concurrency:
+  group: pa-airport-status
+  cancel-in-progress: true
+
 jobs:
   update:
     runs-on: ubuntu-latest
@@ -20,14 +24,19 @@ jobs:
         with:
           python-version: "3.11"
 
-      - name: Update status.json
-        run: |
-          python scripts/update_status.py
+      - name: Run updater
+        run: python3 scripts/update_status.py
 
-      - name: Commit changes (if any)
+      - name: Commit and push if changed
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
+
+          if git diff --quiet; then
+            echo "No changes to commit."
+            exit 0
+          fi
+
           git add docs/status.json
-          git diff --cached --quiet || git commit -m "Update airport status.json"
+          git commit -m "Update airport status.json"
           git push
