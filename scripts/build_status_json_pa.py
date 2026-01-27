@@ -2,53 +2,28 @@
 import csv
 import io
 import json
-import sys
+import re
 from datetime import datetime, timezone
 from urllib.request import Request, urlopen
 
 OUT_PATH = "docs/status.json"
 UA = "PA-Airport-Status-GitHub/1.0"
 
+# Pull *all* PA stations from AviationWeather's stations dataset (CSV)
+# We filter state=PA and then keep likely airport METAR stations.
+STATIONS_PA_CSV_URL = (
+    "https://aviationweather.gov/adds/dataserver_current/httpparam"
+    "?dataSource=stations&requestType=retrieve&format=csv"
+    "&stationString=~&state=PA"
+)
+
 def now_utc_iso_z() -> str:
     return datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ")
 
-def fetch_text(url: str, timeout: int = 20) -> str:
+def fetch_text(url: str, timeout: int = 25) -> str:
     req = Request(url, headers={"User-Agent": UA})
     with urlopen(req, timeout=timeout) as resp:
         return resp.read().decode("utf-8", errors="replace")
-
-def to_icao(code: str) -> str:
-    code = code.strip().upper()
-    if len(code) == 3:
-        return "K" + code
-    return code
-
-# =========================
-# FULL PA METAR LIST
-# (3-letter IDs; we auto-map to ICAO "Kxxx")
-# =========================
-# Note: This list is intentionally "METAR-reporting airports" (ASOS/AWOS/contract obs).
-# If a station ever stops reporting, update_status.py will mark it fetch-error/UNK.
-
-REGIONS = {
-    "Western": [
-        "PIT","AGC","BVI","BTP","LBE","FWQ","AFJ","DUJ","FKL","GKJ","JST","AOO","ERI","IDI"
-    ],
-    "Central": [
-        "MDT","CXY","MUI","THV","LNS","SEG","PTW","IPT","UNV","BFD","PSB","FIG","HZL","WBW"
-    ],
-    "Eastern": [
-        "PHL","PNE","ABE","RDG","AVP","MPO","LOM","DYL","CKZ","UKT","MQS","NXX"
-    ]
-}
-
-# AviationWeather "ADDS" stations dataset (CSV).
-# This is a long-standing endpoint used for station metadata.
-STATIONS_CSV_URL = (
-    "https://aviationweather.gov/adds/dataserver_current/httpparam"
-    "?dataSource=stations&requestType=retrieve&format=csv"
-    "&stationString={stations}"
-)
 
 def parse_stations_csv(csv_text: str):
     # Strip comment lines starting with '#'
@@ -63,86 +38,121 @@ def parse_stations_csv(csv_text: str):
         return []
 
     reader = csv.DictReader(io.StringIO("\n".join(lines)))
-    rows = []
-    for r in reader:
-        rows.append(r)
-    return rows
+    return list(reader)
+
+def as_float(x, default=None):
+    try:
+        return float(x)
+    except Exception:
+        return default
+
+def looks_like_airport_station(row: dict) -> bool:
+    """
+    Stations dataset includes airports + non-airport sites.
+    We keep entries that look like an airport METAR station.
+
+    Heuristics (safe + practical):
+      - station_id is 4 chars (ICAO) OR 3 chars (some FAA IDs)
+      - has latitude/longitude
+      - NOT obviously marine buoy / mesonet / etc (usually not in PA list anyway)
+    """
+    sid = (row.get("station_id") or "").strip().upper()
+    if not sid:
+        return False
+
+    # Keep ICAO-like (Kxxx) and a few others if present
+    if len(sid) not in (3, 4):
+        return False
+
+    lat = as_float(row.get("latitude"))
+    lon = as_float(row.get("longitude"))
+    if lat is None or lon is None:
+        return False
+
+    # Most PA airports are Kxxx; keep them.
+    # If we get some 3-letter IDs, keep them too.
+    return True
+
+def code_from_station_id(station_id: str) -> str:
+    sid = station_id.strip().upper()
+    # If ICAO starts with K, use 3-letter code for your UI consistency
+    if len(sid) == 4 and sid.startswith("K"):
+        return sid[1:]
+    return sid
+
+def region_from_lon(lon: float) -> str:
+    """
+    Auto-split into PEMA-ish West/Central/East using longitude bands.
+    (Not perfect, but works well visually + operationally.)
+    Adjust thresholds any time.
+    """
+    # PA roughly spans ~ -80.6 (west) to ~ -74.7 (east)
+    if lon <= -78.5:
+        return "Western"
+    if lon <= -76.5:
+        return "Central"
+    return "Eastern"
 
 def main():
-    # Flatten unique codes
-    codes3 = []
-    for region, lst in REGIONS.items():
-        for c in lst:
-            c = c.strip().upper()
-            if c and c not in codes3:
-                codes3.append(c)
-
-    icaos = [to_icao(c) for c in codes3]
-    station_param = ",".join(icaos)
-
-    url = STATIONS_CSV_URL.format(stations=station_param)
-    text = fetch_text(url)
+    text = fetch_text(STATIONS_PA_CSV_URL)
     rows = parse_stations_csv(text)
 
-    # Build a lookup keyed by station_id (ICAO)
-    by_id = {}
+    # Filter to airport-like stations
+    kept = []
     for r in rows:
+        st = (r.get("state") or "").strip().upper()
+        if st != "PA":
+            continue
+        if looks_like_airport_station(r):
+            kept.append(r)
+
+    # Build regions + airports structures
+    regions = {"Western": [], "Central": [], "Eastern": []}
+    airports = {}
+
+    for r in kept:
         sid = (r.get("station_id") or "").strip().upper()
-        if sid:
-            by_id[sid] = r
+        name = (r.get("station_name") or sid).strip()
+        lat = as_float(r.get("latitude"), 40.9)
+        lon = as_float(r.get("longitude"), -77.7)
 
-    # Build regions array with {code,name,lat,lon}
-    regions_out = {}
-    airports_out = {}
+        code = code_from_station_id(sid)
+        region = region_from_lon(lon)
 
-    missing = []
+        # De-dupe by code (rare, but possible)
+        if code in airports:
+            continue
 
-    for region_name, lst in REGIONS.items():
-        regions_out[region_name] = []
-        for code3 in lst:
-            icao = to_icao(code3)
-            r = by_id.get(icao)
-            if not r:
-                # Keep it anyway so you see it on tables; it just won't have coordinates
-                missing.append(icao)
-                # Put a placeholder at PA center so it doesn't crash leaflet if used
-                lat, lon = 40.9, -77.7
-                name = f"{icao} (station metadata missing)"
-            else:
-                try:
-                    lat = float(r.get("latitude"))
-                    lon = float(r.get("longitude"))
-                except Exception:
-                    lat, lon = 40.9, -77.7
-                name = (r.get("station_name") or icao).strip()
+        regions[region].append({
+            "code": code,
+            "icao": sid if len(sid) == 4 else (("K" + sid) if len(sid) == 3 else sid),
+            "name": name,
+            "lat": lat,
+            "lon": lon
+        })
 
-            regions_out[region_name].append({
-                "code": code3,
-                "icao": icao,
-                "name": name,
-                "lat": lat,
-                "lon": lon
-            })
+        airports[code] = {
+            "icao": sid if len(sid) == 4 else (("K" + sid) if len(sid) == 3 else sid),
+            "status": "OK",
+            "flight_category": "UNK",
+            "impact_reason": ""
+        }
 
-            airports_out[code3] = {
-                "icao": icao,
-                "status": "OK",
-                "flight_category": "UNK",
-                "impact_reason": ""
-            }
+    # Sort each region by code for readability
+    for k in regions.keys():
+        regions[k].sort(key=lambda x: x["code"])
 
     out = {
         "generated_utc": now_utc_iso_z(),
-        "regions": regions_out,
-        "airports": airports_out
+        "regions": regions,
+        "airports": airports
     }
 
     with open(OUT_PATH, "w", encoding="utf-8") as f:
         json.dump(out, f, indent=2)
         f.write("\n")
 
-    if missing:
-        print("WARNING: Missing station metadata for:", ", ".join(missing), file=sys.stderr)
+    print(f"Wrote {OUT_PATH} with {len(airports)} PA stations.")
 
 if __name__ == "__main__":
     main()
