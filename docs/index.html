@@ -16,26 +16,36 @@
     .meta { font-size: 0.9rem; color:#333; }
     .btn { padding: 6px 10px; border-radius: 10px; border:1px solid #333; background:#fff; cursor:pointer; }
 
-    /* OVERALL STATUS BAR */
-    .overall {
-      display:flex;
-      align-items:center;
-      justify-content:space-between;
-      gap: 12px;
-      margin: 10px 0 10px 0;
-      padding: 10px 12px;
+    /* Overall status bar */
+    #overallBar {
       border: 1px solid #333;
       border-radius: 12px;
+      padding: 10px;
+      margin: 10px 0 12px 0;
+      background: #fff;
+      display: flex;
       flex-wrap: wrap;
+      gap: 10px 14px;
+      align-items: center;
     }
-    .overall-left { display:flex; align-items:center; gap:10px; flex-wrap:wrap; }
-    .overall-dot { width: 12px; height: 12px; border-radius: 999px; border:1px solid #333; display:inline-block; }
-    .overall-title { font-weight: 900; }
-    .overall-text { font-weight: 900; }
-    .overall-counts { font-size: 0.95rem; color:#222; font-variant-numeric: tabular-nums; }
-    .overall-ok { background:#d4edda; }
-    .overall-impact { background:#fff3cd; }
-    .overall-closed { background:#f8d7da; }
+    #overallBar .big {
+      font-weight: 900;
+      font-size: 1.05rem;
+      margin-right: 8px;
+    }
+    .chip {
+      display:inline-flex;
+      align-items:center;
+      gap: 8px;
+      border:1px solid #333;
+      border-radius: 999px;
+      padding: 4px 10px;
+      font-weight: 900;
+      font-size: 0.9rem;
+      white-space: nowrap;
+      background:#f6f6f6;
+    }
+    .dot { width: 10px; height: 10px; border-radius: 999px; display:inline-block; border:1px solid #333; }
     .dot-ok { background:#2ecc71; }
     .dot-impact { background:#f1c40f; }
     .dot-closed { background:#e74c3c; }
@@ -43,105 +53,86 @@
     #map { height: 360px; border: 1px solid #333; border-radius: 12px; overflow:hidden; background:#fafafa; }
 
     .legend { display:flex; gap: 12px; align-items:center; margin-top: 8px; font-size: 0.9rem; color:#222; flex-wrap:wrap; }
-    .dot { width: 10px; height: 10px; border-radius: 999px; display:inline-block; border:1px solid #333; }
-    .dot-ok { background:#2ecc71; }
-    .dot-impact { background:#f1c40f; }
-    .dot-closed { background:#e74c3c; }
 
-    /* Toggle switches */
-    .toggles {
-      margin-top: 8px;
+    /* Toggle row */
+    .ctlRow {
+      margin-top: 10px;
       display:flex;
+      gap: 14px;
       flex-wrap: wrap;
-      gap: 14px 18px;
       align-items: center;
       font-size: 0.95rem;
     }
-    .toggle {
-      display:flex;
-      align-items:center;
-      gap:10px;
-      border:1px solid #333;
-      border-radius: 12px;
-      padding: 8px 10px;
-      background:#fff;
-    }
-    .toggle .label { font-weight: 800; }
-    .switch {
-      position: relative;
-      display: inline-block;
-      width: 44px;
-      height: 24px;
-      flex: 0 0 auto;
-    }
-    .switch input { opacity: 0; width: 0; height: 0; }
-    .slider {
-      position: absolute; cursor: pointer;
-      top: 0; left: 0; right: 0; bottom: 0;
-      background: #ddd;
-      border: 1px solid #333;
-      transition: .15s;
-      border-radius: 999px;
-    }
-    .slider:before {
-      position: absolute; content: "";
-      height: 18px; width: 18px;
-      left: 3px; top: 2px;
-      background: #fff;
-      border: 1px solid #333;
-      transition: .15s;
-      border-radius: 999px;
-    }
-    .switch input:checked + .slider { background: #d4edda; }
-    .switch input:checked + .slider:before { transform: translateX(19px); }
 
-    /* Opacity controls (only visible when toggle is ON) */
-    .opacityCtl {
-      display:flex;
-      align-items:center;
-      gap: 14px 18px;
-      flex-wrap: wrap;
-      margin-top: 8px;
-      font-size: 0.95rem;
-    }
-    .opacityGroup{
-      display:none; /* toggled by JS */
+    /* Switch */
+    .switch {
+      display:inline-flex;
       align-items:center;
       gap: 10px;
       border: 1px solid #333;
-      border-radius: 12px;
-      padding: 8px 10px;
-      background:#fff;
-      flex-wrap: wrap;
+      border-radius: 999px;
+      padding: 6px 10px;
+      background: #fff;
+      user-select:none;
     }
-    .opacityGroup label { font-weight: 900; }
-    .opacityGroup input[type="range"] { width: 220px; }
-    .pct { font-variant-numeric: tabular-nums; font-weight: 900; min-width: 46px; }
+    .switch input { display:none; }
+    .pillSwitch {
+      width: 44px;
+      height: 24px;
+      border-radius: 999px;
+      border: 1px solid #333;
+      background: #ddd;
+      position: relative;
+      flex: 0 0 auto;
+    }
+    .pillSwitch::after {
+      content:"";
+      position:absolute;
+      top: 2px; left: 2px;
+      width: 18px; height: 18px;
+      border-radius: 999px;
+      background: #fff;
+      border: 1px solid #333;
+      transition: transform 140ms ease;
+    }
+    .switch input:checked + .pillSwitch { background: #cfe9ff; }
+    .switch input:checked + .pillSwitch::after { transform: translateX(20px); }
+    .switch span.labelTxt { font-weight: 900; }
 
-    /* Flight Rules Key (only shown when toggle on) */
-    #frKey {
-      display: none;
+    .sliderWrap {
+      display:flex;
+      align-items:center;
+      gap: 10px;
+      border: 1px solid #333;
+      border-radius: 999px;
+      padding: 6px 10px;
+      background:#fff;
+    }
+    .sliderWrap label { font-weight: 900; }
+    input[type="range"] { width: 180px; }
+    .pct { font-variant-numeric: tabular-nums; font-weight: 900; }
+
+    /* Flight legend (shows only when flight toggle on) */
+    #flightKey {
       margin-top: 8px;
+      display:none;
       border: 1px solid #333;
       border-radius: 12px;
       padding: 8px 10px;
-      background: #fff;
-      font-size: 0.95rem;
-      align-items: center;
-      gap: 14px;
+      background:#fff;
+      font-size: 0.9rem;
       flex-wrap: wrap;
+      gap: 12px;
+      align-items: center;
     }
-    #frKey .title { font-weight: 900; margin-right: 6px; }
-    .keyItem { display:flex; align-items:center; gap:8px; }
-    .keyDot { width: 12px; height: 12px; border-radius: 999px; border:1px solid #333; display:inline-block; }
-    .k-vfr { background:#2ecc71; }
-    .k-mvfr { background:#f1c40f; }
-    .k-ifr { background:#e74c3c; }
-    .k-lifr { background:#9b59b6; }
-    .k-unk { background:#95a5a6; }
+    .dot-vfr { background:#2ecc71; }
+    .dot-mvfr { background:#f1c40f; }
+    .dot-ifr { background:#e74c3c; }
+    .dot-lifr { background:#7d3cff; }
+    .dot-unk { background:#999; }
 
     .grid { display:grid; grid-template-columns: repeat(auto-fit, minmax(440px, 1fr)); gap: 12px; margin-top: 12px; }
-    .card { border:1px solid #333; border-radius: 12px; padding: 10px; }
+    .card { border:1px solid #333; border-radius: 12px; padding: 10px; background:#fff; }
     .card h2 { margin: 0 0 8px 0; font-size: 1.05rem; }
 
     table { width:100%; border-collapse: collapse; }
@@ -157,86 +148,69 @@
       font-weight: 900;
       line-height: 1.4;
       white-space: nowrap;
+      cursor: default;
     }
-    .pill-ok { background: #d4edda; }
-    .pill-impact { background: #fff3cd; }
-    .pill-closed { background: #f8d7da; }
+    .pill.ok { background: #d4edda; }
+    .pill.impact { background: #fff3cd; }
+    .pill.closed { background: #f8d7da; }
 
-    .pill-vfr { background:#d4edda; }
-    .pill-mvfr { background:#fff3cd; }
-    .pill-ifr { background:#f8d7da; }
-    .pill-lifr { background:#e6d6ff; }
-    .pill-unk { background:#eee; }
-
-    .metar-pill { cursor:pointer; }
-    .metar-pill:focus { outline: 2px solid #000; outline-offset: 2px; }
+    .pill.flight { cursor:pointer; }
+    .pill.vfr { background:#d4edda; }
+    .pill.mvfr { background:#fff3cd; }
+    .pill.ifr { background:#f8d7da; }
+    .pill.lifr { background:#e6d6ff; }
+    .pill.unk { background:#eee; }
 
     .muted { color:#666; }
     .small { font-size: 0.9rem; color:#444; }
 
-    .impact-line {
-      margin-top: 4px;
-      font-size: 0.85rem;
-      color: #333;
-    }
-    .impact-line b { font-weight: 900; }
-
-    /* METAR MODAL */
-    #metarOverlay {
+    /* Modal */
+    #modalBackdrop {
       position: fixed;
       inset: 0;
-      background: rgba(0,0,0,0.35);
-      display: none;
-      align-items: center;
-      justify-content: center;
-      padding: 18px;
-      z-index: 5000;
+      background: rgba(0,0,0,0.45);
+      display:none;
+      align-items:center;
+      justify-content:center;
+      padding: 16px;
+      z-index: 9999;
     }
-    #metarModal {
-      width: min(860px, 100%);
+    #modalBox {
+      width: min(860px, 96vw);
       background: #fff;
-      border: 2px solid #111;
       border-radius: 14px;
-      padding: 12px;
-      box-shadow: 0 10px 30px rgba(0,0,0,0.25);
+      border: 1px solid #333;
+      box-shadow: 0 12px 40px rgba(0,0,0,0.25);
+      overflow:hidden;
     }
-    .modalHdr {
+    #modalHead {
       display:flex;
-      align-items: flex-start;
-      justify-content: space-between;
+      align-items:center;
+      justify-content:space-between;
+      padding: 10px 12px;
+      border-bottom: 1px solid #ddd;
       gap: 12px;
-      margin-bottom: 10px;
     }
-    .modalTitle { font-size: 1.05rem; font-weight: 900; margin: 0; }
-    .modalSub { font-size: 0.9rem; color:#333; margin-top: 2px; }
-    .modalClose {
-      border: 1px solid #111;
+    #modalTitle { font-weight: 900; }
+    #modalClose {
+      border:1px solid #333;
       background:#fff;
       border-radius: 10px;
       padding: 6px 10px;
-      cursor: pointer;
-      font-weight: 800;
-      white-space: nowrap;
+      cursor:pointer;
+      font-weight: 900;
     }
-    pre.metarBox {
-      margin: 0;
-      border: 1px solid #333;
-      border-radius: 12px;
-      padding: 10px;
-      background: #fafafa;
-      overflow: auto;
+    #modalBody { padding: 12px; }
+    #metarText {
       white-space: pre-wrap;
-      word-break: break-word;
+      font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, "Liberation Mono", monospace;
       font-size: 0.95rem;
-      line-height: 1.35;
-      min-height: 140px;
+      margin: 0;
+      padding: 10px;
+      border: 1px solid #ddd;
+      border-radius: 12px;
+      background: #fafafa;
     }
-    .metarHint {
-      margin-top: 10px;
-      font-size: 0.9rem;
-      color:#333;
-    }
-    .metarHint code { font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, "Liberation Mono", monospace; }
   </style>
 </head>
 
@@ -247,13 +221,12 @@
   <div class="meta" id="meta">Loading…</div>
 </header>
 
-<div id="overallBar" class="overall overall-ok" role="status" aria-live="polite">
-  <div class="overall-left">
-    <span id="overallDot" class="overall-dot dot-ok" aria-hidden="true"></span>
-    <span class="overall-title">Overall:</span>
-    <span id="overallText" class="overall-text">OK</span>
-  </div>
-  <div id="overallCounts" class="overall-counts"></div>
+<div id="overallBar">
+  <span class="big">Overall:</span>
+  <span class="chip"><span class="dot dot-ok"></span> OK: <span id="cntOk">–</span></span>
+  <span class="chip"><span class="dot dot-impact"></span> IMPACT: <span id="cntImpact">–</span></span>
+  <span class="chip"><span class="dot dot-closed"></span> CLOSED: <span id="cntClosed">–</span></span>
+  <span class="chip"><span class="dot dot-ifr"></span> IFR/LIFR: <span id="cntIFR">–</span></span>
 </div>
 
 <div id="map"></div>
@@ -264,387 +237,318 @@
   <span><span class="dot dot-ok"></span> OK</span>
 </div>
 
-<div class="toggles">
-  <div class="toggle">
-    <span class="label">Cloud overlay</span>
-    <label class="switch"><input type="checkbox" id="cloudToggle"><span class="slider"></span></label>
-  </div>
+<div class="ctlRow">
+  <label class="switch" title="Toggle GOES cloud overlay">
+    <input type="checkbox" id="cloudToggle">
+    <span class="pillSwitch"></span>
+    <span class="labelTxt">Clouds</span>
+  </label>
 
-  <div class="toggle">
-    <span class="label">Radar overlay</span>
-    <label class="switch"><input type="checkbox" id="radarToggle"><span class="slider"></span></label>
-  </div>
-
-  <div class="toggle">
-    <span class="label">Flight rules colors</span>
-    <label class="switch"><input type="checkbox" id="flightRulesToggle"><span class="slider"></span></label>
-  </div>
-</div>
-
-<div id="frKey">
-  <span class="title">Flight Rules Key:</span>
-  <span class="keyItem"><span class="keyDot k-vfr"></span> VFR</span>
-  <span class="keyItem"><span class="keyDot k-mvfr"></span> MVFR</span>
-  <span class="keyItem"><span class="keyDot k-ifr"></span> IFR</span>
-  <span class="keyItem"><span class="keyDot k-lifr"></span> LIFR</span>
-  <span class="keyItem"><span class="keyDot k-unk"></span> UNK</span>
-</div>
-
-<div class="opacityCtl">
-  <div class="opacityGroup" id="cloudOpacityGroup">
+  <div class="sliderWrap" id="cloudOpacityWrap" style="display:none">
     <label for="cloudOpacity">Cloud opacity</label>
     <input id="cloudOpacity" type="range" min="0" max="100" value="55" />
     <span class="pct" id="cloudPct">55%</span>
   </div>
 
-  <div class="opacityGroup" id="radarOpacityGroup">
+  <label class="switch" title="Toggle radar overlay">
+    <input type="checkbox" id="radarToggle">
+    <span class="pillSwitch"></span>
+    <span class="labelTxt">Radar</span>
+  </label>
+
+  <div class="sliderWrap" id="radarOpacityWrap" style="display:none">
     <label for="radarOpacity">Radar opacity</label>
     <input id="radarOpacity" type="range" min="0" max="100" value="55" />
     <span class="pct" id="radarPct">55%</span>
   </div>
+
+  <label class="switch" title="When ON, dots color by flight rules (VFR/MVFR/IFR/LIFR)">
+    <input type="checkbox" id="flightToggle">
+    <span class="pillSwitch"></span>
+    <span class="labelTxt">Flight rules on map</span>
+  </label>
+</div>
+
+<div id="flightKey" class="legend">
+  <span><span class="dot dot-vfr"></span> VFR</span>
+  <span><span class="dot dot-mvfr"></span> MVFR</span>
+  <span><span class="dot dot-ifr"></span> IFR</span>
+  <span><span class="dot dot-lifr"></span> LIFR</span>
+  <span><span class="dot dot-unk"></span> UNK</span>
 </div>
 
 <div class="grid" id="grid"></div>
 
-<div id="metarOverlay" aria-hidden="true">
-  <div id="metarModal" role="dialog" aria-modal="true" aria-labelledby="metarTitle">
-    <div class="modalHdr">
-      <div>
-        <div id="metarTitle" class="modalTitle">METAR</div>
-        <div id="metarSub" class="modalSub"></div>
-      </div>
-      <button class="modalClose" id="metarCloseBtn" type="button">Close</button>
+<!-- METAR Modal -->
+<div id="modalBackdrop" role="dialog" aria-modal="true" aria-label="METAR">
+  <div id="modalBox">
+    <div id="modalHead">
+      <div id="modalTitle">METAR</div>
+      <button id="modalClose">Close</button>
     </div>
-    <pre class="metarBox" id="metarBody">Loading…</pre>
-    <div class="metarHint" id="metarHint"></div>
+    <div id="modalBody">
+      <pre id="metarText">Loading…</pre>
+    </div>
   </div>
 </div>
 
 <script>
 const REFRESH_MS = 5 * 60 * 1000;
 
-let LAST_AIRPORTS = {};
-let LAST_NAME_BY_CODE = {};
-
+// --- helpers
 function esc(s){
   return (s ?? "").toString().replace(/[&<>"']/g, c => ({
     "&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"
   }[c]));
 }
 
+function normStatus(s){
+  const v = (s || "OK").toUpperCase();
+  if (v === "CLOSED") return "CLOSED";
+  if (v === "IMPACT") return "IMPACT";
+  return "OK";
+}
+function normFlight(c){
+  const v = (c || "UNK").toUpperCase();
+  if (["VFR","MVFR","IFR","LIFR"].includes(v)) return v;
+  return "UNK";
+}
+
 function statusPill(status){
-  const s = (status || "OK").toUpperCase();
-  if (s === "CLOSED") return '<span class="pill pill-closed">CLOSED</span>';
-  if (s === "IMPACT") return '<span class="pill pill-impact">IMPACT</span>';
-  return '<span class="pill pill-ok">OK</span>';
+  const s = normStatus(status);
+  if (s === "CLOSED") return '<span class="pill closed">CLOSED</span>';
+  if (s === "IMPACT") return '<span class="pill impact">IMPACT</span>';
+  return '<span class="pill ok">OK</span>';
 }
 
 function flightPill(cat, code){
-  const c = (cat || "UNK").toUpperCase();
-  let cls = "pill-unk";
-  if (c === "VFR") cls = "pill-vfr";
-  else if (c === "MVFR") cls = "pill-mvfr";
-  else if (c === "IFR") cls = "pill-ifr";
-  else if (c === "LIFR") cls = "pill-lifr";
-  return `<span class="pill ${cls} metar-pill" role="button" tabindex="0" data-code="${esc(code)}" title="Click to view METAR">${esc(c)}</span>`;
+  const c = normFlight(cat);
+  const cls = (c === "VFR") ? "vfr" :
+              (c === "MVFR") ? "mvfr" :
+              (c === "IFR") ? "ifr" :
+              (c === "LIFR") ? "lifr" : "unk";
+  // clickable: shows METAR
+  return `<span class="pill flight ${cls}" data-code="${esc(code)}" title="Click for METAR">${esc(c)}</span>`;
 }
 
-function markerColorByStatus(status){
-  const s = (status || "OK").toUpperCase();
+function colorByStatus(status){
+  const s = normStatus(status);
   if (s === "CLOSED") return "#e74c3c";
   if (s === "IMPACT") return "#f1c40f";
   return "#2ecc71";
 }
 
-function markerColorByFlight(cat){
-  const c = (cat || "UNK").toUpperCase();
+function colorByFlight(cat){
+  const c = normFlight(cat);
   if (c === "VFR") return "#2ecc71";
   if (c === "MVFR") return "#f1c40f";
   if (c === "IFR") return "#e74c3c";
-  if (c === "LIFR") return "#9b59b6";
-  return "#95a5a6";
+  if (c === "LIFR") return "#7d3cff";
+  return "#999";
 }
 
-function updateOverallBar(airportsObj){
-  const bar = document.getElementById("overallBar");
-  const dot = document.getElementById("overallDot");
-  const text = document.getElementById("overallText");
-  const countsEl = document.getElementById("overallCounts");
-
-  let ok = 0, impact = 0, closed = 0, unknown = 0, total = 0;
-
-  for (const code of Object.keys(airportsObj || {})) {
-    total++;
-    const st = ((airportsObj[code] || {}).status || "OK").toUpperCase();
-    if (st === "CLOSED") closed++;
-    else if (st === "IMPACT") impact++;
-    else if (st === "OK") ok++;
-    else unknown++;
-  }
-
-  let overall = "OK";
-  if (closed > 0) overall = "CLOSED";
-  else if (impact > 0) overall = "IMPACT";
-
-  bar.classList.remove("overall-ok","overall-impact","overall-closed");
-  dot.classList.remove("dot-ok","dot-impact","dot-closed");
-
-  if (overall === "CLOSED") { bar.classList.add("overall-closed"); dot.classList.add("dot-closed"); }
-  else if (overall === "IMPACT") { bar.classList.add("overall-impact"); dot.classList.add("dot-impact"); }
-  else { bar.classList.add("overall-ok"); dot.classList.add("dot-ok"); }
-
-  text.textContent = overall;
-
-  const parts = [
-    `Closed: ${closed}`,
-    `Impact: ${impact}`,
-    `OK: ${ok}`,
-    (unknown ? `Unknown: ${unknown}` : null),
-    `Total: ${total}`
-  ].filter(Boolean);
-
-  countsEl.textContent = parts.join("  |  ");
-}
-
-// -----------------------------
-// Map setup
-// -----------------------------
+// --- Map setup (NO labels base)
 const map = L.map("map").setView([40.9, -77.7], 7);
 
-const baseLabels = L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
-  maxZoom: 19,
-  attribution: "&copy; OpenStreetMap"
-}).addTo(map);
-
-// no-label base when flight rules are on
-const baseNoLabels = L.tileLayer(
+// label-free base tiles
+const base = L.tileLayer(
   "https://{s}.basemaps.cartocdn.com/light_nolabels/{z}/{x}/{y}{r}.png",
   { maxZoom: 19, attribution: "&copy; OpenStreetMap &copy; CARTO" }
-);
+).addTo(map);
 
-// overlays
+// panes so dots stay on top
+map.createPane("dotsPane");
+map.getPane("dotsPane").style.zIndex = 650;
+
+// Clouds overlay
 const clouds = L.tileLayer(
   "https://mesonet.agron.iastate.edu/cache/tile.py/1.0.0/sat/{z}/{x}/{y}.png",
-  { maxZoom: 8, opacity: 0.55, attribution: "NOAA GOES-East (IEM)" }
+  { maxZoom: 8, opacity: 0.55, attribution: "NOAA GOES-East" }
 );
 
+// Radar overlay (IEM NEXRAD composite)
 const radar = L.tileLayer(
   "https://mesonet.agron.iastate.edu/cache/tile.py/1.0.0/nexrad-n0q-900913/{z}/{x}/{y}.png",
-  { maxZoom: 12, opacity: 0.55, attribution: "NEXRAD (IEM)" }
+  { maxZoom: 12, opacity: 0.55, attribution: "IEM NEXRAD" }
 );
 
 const markers = L.layerGroup().addTo(map);
 
-// UI
-const cloudToggle = document.getElementById("cloudToggle");
-const radarToggle = document.getElementById("radarToggle");
-const flightRulesToggle = document.getElementById("flightRulesToggle");
-
-const cloudOpacityGroup = document.getElementById("cloudOpacityGroup");
-const radarOpacityGroup = document.getElementById("radarOpacityGroup");
-
-const cloudOpacity = document.getElementById("cloudOpacity");
-const radarOpacity = document.getElementById("radarOpacity");
-const cloudPct = document.getElementById("cloudPct");
-const radarPct = document.getElementById("radarPct");
-
+// UI refs
 const refreshBtn = document.getElementById("refreshBtn");
 const meta = document.getElementById("meta");
-const frKey = document.getElementById("frKey");
 
+const cloudToggle = document.getElementById("cloudToggle");
+const cloudOpacityWrap = document.getElementById("cloudOpacityWrap");
+const cloudOpacity = document.getElementById("cloudOpacity");
+const cloudPct = document.getElementById("cloudPct");
+
+const radarToggle = document.getElementById("radarToggle");
+const radarOpacityWrap = document.getElementById("radarOpacityWrap");
+const radarOpacity = document.getElementById("radarOpacity");
+const radarPct = document.getElementById("radarPct");
+
+const flightToggle = document.getElementById("flightToggle");
+const flightKey = document.getElementById("flightKey");
+
+// overall counts
+const cntOk = document.getElementById("cntOk");
+const cntImpact = document.getElementById("cntImpact");
+const cntClosed = document.getElementById("cntClosed");
+const cntIFR = document.getElementById("cntIFR");
+
+// modal
+const modalBackdrop = document.getElementById("modalBackdrop");
+const modalTitle = document.getElementById("modalTitle");
+const metarText = document.getElementById("metarText");
+const modalClose = document.getElementById("modalClose");
+
+function showModal(title, body){
+  modalTitle.textContent = title;
+  metarText.textContent = body;
+  modalBackdrop.style.display = "flex";
+}
+function hideModal(){
+  modalBackdrop.style.display = "none";
+}
+modalClose.addEventListener("click", hideModal);
+modalBackdrop.addEventListener("click", (e) => { if (e.target === modalBackdrop) hideModal(); });
+document.addEventListener("keydown", (e) => { if (e.key === "Escape") hideModal(); });
+
+// toggle behavior
+function setCloudUI(on){
+  cloudOpacityWrap.style.display = on ? "flex" : "none";
+  if (on) clouds.addTo(map); else map.removeLayer(clouds);
+}
+function setRadarUI(on){
+  radarOpacityWrap.style.display = on ? "flex" : "none";
+  if (on) radar.addTo(map); else map.removeLayer(radar);
+}
 function applyCloudOpacity(){
   const v = Math.max(0, Math.min(100, Number(cloudOpacity.value)));
   cloudPct.textContent = v + "%";
-  clouds.setOpacity(v / 100);
+  clouds.setOpacity(v/100);
 }
 function applyRadarOpacity(){
   const v = Math.max(0, Math.min(100, Number(radarOpacity.value)));
   radarPct.textContent = v + "%";
-  radar.setOpacity(v / 100);
+  radar.setOpacity(v/100);
 }
-function setCloudUI(){
-  cloudOpacityGroup.style.display = cloudToggle.checked ? "flex" : "none";
-  if (cloudToggle.checked) clouds.addTo(map);
-  else map.removeLayer(clouds);
-}
-function setRadarUI(){
-  radarOpacityGroup.style.display = radarToggle.checked ? "flex" : "none";
-  if (radarToggle.checked) radar.addTo(map);
-  else map.removeLayer(radar);
-}
-function syncFlightRulesKey(){
-  frKey.style.display = flightRulesToggle.checked ? "flex" : "none";
-}
-function syncBaseLayer(){
-  if (flightRulesToggle.checked) {
-    if (map.hasLayer(baseLabels)) map.removeLayer(baseLabels);
-    if (!map.hasLayer(baseNoLabels)) baseNoLabels.addTo(map);
-  } else {
-    if (map.hasLayer(baseNoLabels)) map.removeLayer(baseNoLabels);
-    if (!map.hasLayer(baseLabels)) baseLabels.addTo(map);
-  }
-}
-
-cloudToggle.addEventListener("change", setCloudUI);
-radarToggle.addEventListener("change", setRadarUI);
+cloudToggle.addEventListener("change", () => setCloudUI(cloudToggle.checked));
+radarToggle.addEventListener("change", () => setRadarUI(radarToggle.checked));
 cloudOpacity.addEventListener("input", applyCloudOpacity);
 radarOpacity.addEventListener("input", applyRadarOpacity);
 
+flightToggle.addEventListener("change", () => {
+  flightKey.style.display = flightToggle.checked ? "flex" : "none";
+  // recolor markers immediately
+  renderMarkers(lastData);
+});
+
+// init sliders
 applyCloudOpacity();
 applyRadarOpacity();
-setCloudUI();
-setRadarUI();
-syncFlightRulesKey();
-syncBaseLayer();
 
-// -----------------------------
-// METAR modal (reads from status.json)
-// -----------------------------
-const metarOverlay = document.getElementById("metarOverlay");
-const metarCloseBtn = document.getElementById("metarCloseBtn");
-const metarTitle = document.getElementById("metarTitle");
-const metarSub = document.getElementById("metarSub");
-const metarBody = document.getElementById("metarBody");
-const metarHint = document.getElementById("metarHint");
+// --- Data + render
+let lastData = null;
 
-function closeMetar(){
-  metarOverlay.style.display = "none";
-  metarOverlay.setAttribute("aria-hidden", "true");
-}
-metarCloseBtn.addEventListener("click", closeMetar);
-metarOverlay.addEventListener("click", (e) => { if (e.target === metarOverlay) closeMetar(); });
-document.addEventListener("keydown", (e) => {
-  if (e.key === "Escape" && metarOverlay.style.display === "flex") closeMetar();
-});
-
-function getEmbeddedMetarText(code){
-  const st = (LAST_AIRPORTS || {})[code] || {};
-  return (
-    st.metar_raw ||
-    st.raw_metar ||
-    st.metar_text ||
-    st.metar ||
-    ""
-  );
+async function fetchMetarRaw(station){
+  // GitHub-only approach: call AviationWeather directly.
+  // If their CORS ever changes, we can switch to a different upstream later.
+  const url = "https://aviationweather.gov/api/data/metar?ids=" + encodeURIComponent(station) + "&format=raw&hours=2&taf=false";
+  const r = await fetch(url, { cache: "no-store" });
+  if (!r.ok) throw new Error("METAR fetch failed HTTP " + r.status);
+  const t = (await r.text()).trim();
+  if (!t) throw new Error("No METAR returned.");
+  return t;
 }
 
-async function openMetar(code){
-  const name = LAST_NAME_BY_CODE[code] || "";
-  const st = (LAST_AIRPORTS || {})[code] || {};
-  const fc = ((st.flight_category || "UNK") + "").toUpperCase();
-  const status = ((st.status || "OK") + "").toUpperCase();
+function attachMetarClicks(){
+  // Flight pills in tables
+  document.querySelectorAll(".pill.flight[data-code]").forEach(el => {
+    el.addEventListener("click", async () => {
+      const code = el.getAttribute("data-code");
+      try {
+        showModal(code + " METAR", "Loading…");
+        const t = await fetchMetarRaw(code);
+        showModal(code + " METAR", t);
+      } catch (e) {
+        showModal(code + " METAR", "Error: " + (e?.message || "Unknown"));
+      }
+    });
+  });
+}
 
-  metarTitle.textContent = `METAR – ${code}`;
-  metarSub.textContent = `${name ? name + " • " : ""}Status: ${status} • Flight: ${fc}`;
-  metarBody.textContent = "Loading…";
-  metarHint.textContent = "";
+function renderOverall(d){
+  const airports = d?.airports || {};
+  let ok=0, impact=0, closed=0, ifr=0;
 
-  metarOverlay.style.display = "flex";
-  metarOverlay.setAttribute("aria-hidden", "false");
-  metarCloseBtn.focus();
+  for (const code of Object.keys(airports)){
+    const st = airports[code] || {};
+    const s = normStatus(st.status);
+    const fc = normFlight(st.flight_category);
 
-  const embedded = getEmbeddedMetarText(code);
-  if (embedded) {
-    metarBody.textContent = embedded;
-    metarHint.innerHTML = `Source: <code>status.json</code>`;
-    return;
+    if (s === "OK") ok++;
+    else if (s === "IMPACT") impact++;
+    else closed++;
+
+    if (fc === "IFR" || fc === "LIFR") ifr++;
   }
 
-  metarBody.textContent =
-    `No METAR text found in status.json for this airport.\n\n` +
-    `Expected field under airports["${code}"]:\n` +
-    `  metar_raw (recommended)\n`;
-  metarHint.innerHTML = `METAR is injected by GitHub Actions into <code>status.json</code>`;
+  cntOk.textContent = ok;
+  cntImpact.textContent = impact;
+  cntClosed.textContent = closed;
+  cntIFR.textContent = ifr;
 }
 
-document.getElementById("grid").addEventListener("click", (e) => {
-  const t = e.target.closest(".metar-pill");
-  if (!t) return;
-  const code = t.getAttribute("data-code");
-  if (code) openMetar(code);
-});
-document.getElementById("grid").addEventListener("keydown", (e) => {
-  const t = e.target.closest(".metar-pill");
-  if (!t) return;
-  if (e.key === "Enter" || e.key === " ") {
-    e.preventDefault();
-    const code = t.getAttribute("data-code");
-    if (code) openMetar(code);
-  }
-});
-
-// -----------------------------
-// Data load + render
-// -----------------------------
-async function load(){
-  const r = await fetch("status.json?ts=" + Date.now());
-  if (!r.ok) throw new Error("Failed to load status.json: HTTP " + r.status);
-  const d = await r.json();
-
-  meta.textContent = `Last update: ${d.generated_utc} UTC`;
-
+function renderMarkers(d){
+  if (!d) return;
   const regions = d.regions || {};
   const airports = d.airports || {};
 
-  LAST_AIRPORTS = airports;
-  LAST_NAME_BY_CODE = {};
-
-  updateOverallBar(airports);
-
   markers.clearLayers();
 
-  const useFlightColors = !!flightRulesToggle.checked;
-  syncFlightRulesKey();
-  syncBaseLayer();
+  const colorModeFlight = !!flightToggle.checked;
+
+  for (const regionName of Object.keys(regions)){
+    for (const a of (regions[regionName] || [])){
+      const st = airports[a.code] || {};
+      const col = colorModeFlight ? colorByFlight(st.flight_category) : colorByStatus(st.status);
+
+      const popupHtml =
+        `<b>${esc(a.code)}</b><br>${esc(a.name)}<br>` +
+        `Region: ${esc(regionName)}<br>` +
+        `Status: ${esc(normStatus(st.status))}` + (st.impact_reason ? ` <span class="small muted">(${esc(st.impact_reason)})</span>` : ``) + `<br>` +
+        `Flight: ${esc(normFlight(st.flight_category))}`;
+
+      L.circleMarker([a.lat, a.lon], {
+        pane: "dotsPane",
+        radius: 9,
+        weight: 2,
+        color: "#000",
+        fillColor: col,
+        fillOpacity: 0.92
+      })
+      .bindPopup(popupHtml)
+      .addTo(markers);
+    }
+  }
+}
+
+function renderTables(d){
+  const regions = d.regions || {};
+  const airports = d.airports || {};
 
   let html = "";
-  for (const regionName of Object.keys(regions)) {
+  for (const regionName of Object.keys(regions)){
     let rows = "";
-
-    for (const a of (regions[regionName] || [])) {
+    for (const a of (regions[regionName] || [])){
       const st = airports[a.code] || {};
-      LAST_NAME_BY_CODE[a.code] = a.name || "";
-
-      const status = ((st.status || "OK") + "").toUpperCase();
-      const fc = ((st.flight_category || "UNK") + "").toUpperCase();
-      const impactReason = (st.impact_reason || "").toString().trim();
-
-      const fill = useFlightColors ? markerColorByFlight(st.flight_category) : markerColorByStatus(st.status);
-
-      // marker halo + dot (visible over overlays)
-      const latlng = [a.lat, a.lon];
-      L.circleMarker(latlng, {
-        radius: 11, weight: 0, fillColor: "#fff", fillOpacity: 0.95, interactive: false
-      }).addTo(markers);
-
-      const popupImpactLine = (status === "IMPACT" && impactReason)
-        ? `<br><b>Impact:</b> ${esc(impactReason)}`
-        : "";
-
-      L.circleMarker(latlng, {
-        radius: 7, weight: 3, color: "#000",
-        fillColor: fill, fillOpacity: 0.95
-      })
-      .bindPopup(
-        `<b>${esc(a.code)}</b><br>${esc(a.name)}<br>` +
-        `Status: ${esc(status)}<br>` +
-        `Flight: ${esc(fc)}` +
-        popupImpactLine
-      )
-      .addTo(markers);
-
-      const impactRowLine = (status === "IMPACT" && impactReason)
-        ? `<div class="impact-line"><b>Impact:</b> ${esc(impactReason)}</div>`
-        : "";
-
       rows += `
         <tr>
           <td><b>${esc(a.code)}</b><br><span class="small muted">${esc(a.name)}</span></td>
-          <td>
-            ${statusPill(status)}
-            ${impactRowLine}
-          </td>
-          <td>${flightPill(fc, a.code)}</td>
+          <td>${statusPill(st.status || "OK")}${st.impact_reason ? `<div class="small muted">${esc(st.impact_reason)}</div>` : ""}</td>
+          <td>${flightPill(st.flight_category || "UNK", a.code)}</td>
         </tr>
       `;
     }
@@ -661,16 +565,28 @@ async function load(){
   }
 
   document.getElementById("grid").innerHTML = html;
+  attachMetarClicks();
+}
+
+async function load(){
+  const r = await fetch("status.json?ts=" + Date.now(), { cache: "no-store" });
+  if (!r.ok) throw new Error("Failed to load status.json: HTTP " + r.status);
+  const d = await r.json();
+  lastData = d;
+
+  meta.textContent = `Last update: ${d.generated_utc} UTC`;
+
+  renderOverall(d);
+  renderMarkers(d);
+  renderTables(d);
 }
 
 async function refresh(){
   try { await load(); }
-  catch (e) { meta.textContent = "Error: " + (e && e.message ? e.message : "Unknown error"); }
+  catch (e){ meta.textContent = "Error: " + (e?.message || "Unknown error"); }
 }
 
 refreshBtn.addEventListener("click", refresh);
-flightRulesToggle.addEventListener("change", refresh);
-
 refresh();
 setInterval(refresh, REFRESH_MS);
 </script>
