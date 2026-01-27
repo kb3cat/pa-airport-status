@@ -33,7 +33,6 @@
     #map { height: 360px; border: 1px solid #333; border-radius: 12px; overflow:hidden; background:#fafafa; }
 
     .legend { display:flex; gap: 12px; align-items:center; margin-top: 8px; font-size: 0.9rem; color:#222; flex-wrap:wrap; }
-
     .ctlRow { margin-top:10px; display:flex; gap:14px; flex-wrap:wrap; align-items:center; font-size:0.95rem; }
 
     .switch { display:inline-flex; align-items:center; gap:10px; border:1px solid #333; border-radius:999px; padding:6px 10px; background:#fff; user-select:none; }
@@ -197,7 +196,7 @@ function flightPill(cat, code){
 }
 
 const map = L.map("map").setView([40.9, -77.7], 7);
-const base = L.tileLayer("https://{s}.basemaps.cartocdn.com/light_nolabels/{z}/{x}/{y}{r}.png", {
+L.tileLayer("https://{s}.basemaps.cartocdn.com/light_nolabels/{z}/{x}/{y}{r}.png", {
   maxZoom: 19,
   attribution: "&copy; OpenStreetMap &copy; CARTO"
 }).addTo(map);
@@ -267,6 +266,7 @@ function applyRadarOpacity(){
   radarPct.textContent = v + "%";
   radar.setOpacity(v/100);
 }
+
 cloudToggle.addEventListener("change", ()=>setCloudUI(cloudToggle.checked));
 radarToggle.addEventListener("change", ()=>setRadarUI(radarToggle.checked));
 cloudOpacity.addEventListener("input", applyCloudOpacity);
@@ -281,24 +281,46 @@ flightToggle.addEventListener("change", ()=>{
 applyCloudOpacity();
 applyRadarOpacity();
 
-async function fetchMetarRaw(station){
-  const url = "https://aviationweather.gov/api/data/metar?ids=" + encodeURIComponent(station) + "&format=raw&hours=2&taf=false";
+function toICAO(code, airportsObj){
+  const c = (code || "").toUpperCase();
+  const rec = airportsObj?.[c];
+  const icao = rec?.icao;
+  if (icao && icao.length === 4) return icao.toUpperCase();
+  if (c.length === 3) return "K" + c;
+  return c;
+}
+
+async function fetchMetarRaw(icao){
+  const url = "https://aviationweather.gov/api/data/metar?ids=" + encodeURIComponent(icao) + "&format=raw&hours=2&taf=false";
   const r = await fetch(url, { cache: "no-store" });
   if (!r.ok) throw new Error("METAR fetch failed HTTP " + r.status);
   const t = (await r.text()).trim();
   if (!t) throw new Error("No METAR returned.");
   return t;
 }
+
 function attachMetarClicks(){
   document.querySelectorAll(".pill.flight[data-code]").forEach(el=>{
     el.addEventListener("click", async ()=>{
       const code = el.getAttribute("data-code");
+      const airports = lastData?.airports || {};
+      const icao = toICAO(code, airports);
+      const rec = airports?.[code] || {};
+
+      // Prefer stored METAR from status.json (GitHub-only reliable)
+      const stored = (rec.metar_raw || "").trim();
+      if (stored) {
+        showModal("METAR – " + icao, stored);
+        return;
+      }
+
+      // Fallback: live fetch
       try{
-        showModal("METAR – " + code, "Loading…");
-        const t = await fetchMetarRaw(code);
-        showModal("METAR – " + code, t);
+        showModal("METAR – " + icao, "Loading…");
+        const t = await fetchMetarRaw(icao);
+        showModal("METAR – " + icao, t);
       }catch(e){
-        showModal("METAR – " + code, "Error: " + (e?.message || "Unknown"));
+        showModal("METAR – " + icao, "Error: " + (e?.message || "Unknown"));
       }
     });
   });
@@ -338,7 +360,9 @@ function renderMarkers(d){
         `Flight: ${esc(normFlight(st.flight_category))}`;
       L.circleMarker([a.lat, a.lon], {
         pane:"dotsPane", radius:9, weight:2, color:"#000", fillColor:col, fillOpacity:0.92
-      }).bindPopup(popupHtml).addTo(markers);
+      })
+      .bindPopup(popupHtml)
+      .addTo(markers);
     }
   }
 }
@@ -379,7 +403,6 @@ async function load(){
   const d = await r.json();
   lastData = d;
 
-  // THIS is the line that matters:
   meta.textContent = `Last update: ${d.generated_utc || "unknown"} UTC`;
 
   renderOverall(d);
@@ -391,6 +414,7 @@ async function refresh(){
   try { await load(); }
   catch(e){ meta.textContent = "Error: " + (e?.message || "Unknown error"); }
 }
+
 refreshBtn.addEventListener("click", refresh);
 refresh();
 setInterval(refresh, REFRESH_MS);
