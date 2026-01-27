@@ -1,220 +1,551 @@
 <!doctype html>
 <html lang="en">
 <head>
-<meta charset="utf-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1" />
-<title>PA Airport Status</title>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>PA Airport Status</title>
 
-<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
-<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+  <!-- Leaflet -->
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 
-<style>
-body { font-family: system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif; margin: 16px; color:#111; }
-header { display:flex; flex-wrap:wrap; align-items:baseline; gap: 10px; margin-bottom: 10px; }
-h1 { font-size: 1.25rem; margin: 0; }
-.meta { font-size: 0.9rem; color:#333; }
-.btn { padding: 6px 10px; border-radius: 10px; border:1px solid #333; background:#fff; cursor:pointer; }
+  <style>
+    body { font-family: system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif; margin: 16px; color:#111; }
+    header { display:flex; flex-wrap:wrap; align-items:baseline; gap: 10px; margin-bottom: 10px; }
+    h1 { font-size: 1.25rem; margin: 0; }
+    .meta { font-size: 0.9rem; color:#333; }
+    .btn { padding: 6px 10px; border-radius: 10px; border:1px solid #333; background:#fff; cursor:pointer; }
 
-#map { height: 360px; border: 1px solid #333; border-radius: 12px; }
+    /* OVERALL STATUS BAR */
+    .overall {
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap: 12px;
+      margin: 10px 0 10px 0;
+      padding: 10px 12px;
+      border: 1px solid #333;
+      border-radius: 12px;
+      flex-wrap: wrap;
+    }
+    .overall-left { display:flex; align-items:center; gap:10px; flex-wrap:wrap; }
+    .overall-dot { width: 12px; height: 12px; border-radius: 999px; border:1px solid #333; display:inline-block; }
+    .overall-title { font-weight: 900; }
+    .overall-text { font-weight: 900; }
+    .overall-counts { font-size: 0.95rem; color:#222; font-variant-numeric: tabular-nums; }
+    .overall-ok { background:#d4edda; }
+    .overall-impact { background:#fff3cd; }
+    .overall-closed { background:#f8d7da; }
+    .dot-ok { background:#2ecc71; }
+    .dot-impact { background:#f1c40f; }
+    .dot-closed { background:#e74c3c; }
 
-.toggle { display:flex; align-items:center; gap:10px; border:1px solid #333; border-radius: 12px; padding: 6px 10px; background:#fff; }
-.toggles { display:flex; gap:12px; flex-wrap:wrap; margin-top:8px; }
+    #map { height: 360px; border: 1px solid #333; border-radius: 12px; overflow:hidden; background:#fafafa; }
 
-.switch { position: relative; display: inline-block; width: 44px; height: 24px; }
-.switch input { opacity: 0; width: 0; height: 0; }
-.slider { position:absolute; cursor:pointer; top:0; left:0; right:0; bottom:0; background:#ddd; border:1px solid #333; transition:.15s; border-radius:999px; }
-.slider:before { position:absolute; content:""; height:18px; width:18px; left:3px; top:2px; background:#fff; border:1px solid #333; transition:.15s; border-radius:999px; }
-.switch input:checked + .slider { background:#d4edda; }
-.switch input:checked + .slider:before { transform: translateX(19px); }
+    .legend { display:flex; gap: 12px; align-items:center; margin-top: 8px; font-size: 0.9rem; color:#222; flex-wrap:wrap; }
+    .dot { width: 10px; height: 10px; border-radius: 999px; display:inline-block; border:1px solid #333; }
+    .dot-ok { background:#2ecc71; }
+    .dot-impact { background:#f1c40f; }
+    .dot-closed { background:#e74c3c; }
 
-.opacityCtl { display:flex; gap:12px; margin-top:8px; flex-wrap:wrap; }
-.opacityGroup { display:none; align-items:center; gap:10px; border:1px solid #333; border-radius: 12px; padding: 6px 10px; background:#fff; }
+    /* Toggles */
+    .toggles { margin-top: 10px; display:flex; flex-wrap:wrap; gap: 14px; align-items:center; font-size: 0.95rem; }
+    .toggle { display:flex; align-items:center; gap:10px; border:1px solid #333; border-radius: 12px; padding: 8px 10px; background:#fff; }
+    .toggle .label { font-weight: 800; }
 
-.grid { display:grid; grid-template-columns: repeat(auto-fit, minmax(440px, 1fr)); gap: 12px; margin-top: 12px; }
-.card { border:1px solid #333; border-radius: 12px; padding: 10px; }
+    .switch { position: relative; display: inline-block; width: 44px; height: 24px; }
+    .switch input { opacity: 0; width: 0; height: 0; }
+    .slider { position:absolute; cursor:pointer; top:0; left:0; right:0; bottom:0; background:#ddd; border:1px solid #333; transition:.15s; border-radius:999px; }
+    .slider:before { position:absolute; content:""; height:18px; width:18px; left:3px; top:2px; background:#fff; border:1px solid #333; transition:.15s; border-radius:999px; }
+    .switch input:checked + .slider { background:#d4edda; }
+    .switch input:checked + .slider:before { transform: translateX(19px); }
 
-.pill { display:inline-block; padding: 2px 10px; border-radius:999px; border:1px solid #333; font-weight:900; cursor:pointer; }
-.pill-vfr { background:#d4edda; }
-.pill-mvfr { background:#fff3cd; }
-.pill-ifr { background:#f8d7da; }
-.pill-lifr { background:#e6d6ff; }
-.pill-unk { background:#eee; }
+    /* Flight Rules Key */
+    #frKey {
+      display:none;
+      margin-top:8px;
+      border:1px solid #333;
+      border-radius:12px;
+      padding:8px 10px;
+      background:#fff;
+      font-size:0.95rem;
+      align-items:center;
+      gap:14px;
+      flex-wrap:wrap;
+    }
+    #frKey .title { font-weight:900; margin-right:6px; }
+    .keyItem { display:flex; align-items:center; gap:8px; }
+    .keyDot { width:12px; height:12px; border-radius:999px; border:1px solid #333; display:inline-block; }
+    .k-vfr { background:#2ecc71; }
+    .k-mvfr { background:#f1c40f; }
+    .k-ifr { background:#e74c3c; }
+    .k-lifr { background:#9b59b6; }
+    .k-unk { background:#95a5a6; }
 
-#metarOverlay {
-  position: fixed; inset: 0;
-  background: rgba(0,0,0,0.35);
-  display: none;
-  align-items: center;
-  justify-content: center;
-  padding: 18px;
-  z-index: 5000;
-}
-#metarModal {
-  width: min(860px, 100%);
-  background: #fff;
-  border: 2px solid #111;
-  border-radius: 14px;
-  padding: 12px;
-}
-pre { border:1px solid #333; border-radius:12px; padding:10px; background:#fafafa; white-space:pre-wrap; }
-</style>
+    /* Opacity controls (only visible when toggle on) */
+    .opacityCtl { margin-top:8px; display:flex; gap:14px; flex-wrap:wrap; font-size:0.95rem; }
+    .opacityGroup {
+      display:none;
+      align-items:center;
+      gap:10px;
+      border:1px solid #333;
+      border-radius:12px;
+      padding:8px 10px;
+      background:#fff;
+      flex-wrap:wrap;
+    }
+    .opacityGroup label { font-weight:900; }
+    .opacityGroup input[type="range"] { width:220px; }
+    .pct { font-variant-numeric: tabular-nums; font-weight:900; min-width:46px; }
+
+    .grid { display:grid; grid-template-columns: repeat(auto-fit, minmax(440px, 1fr)); gap: 12px; margin-top: 12px; }
+    .card { border:1px solid #333; border-radius: 12px; padding: 10px; }
+    .card h2 { margin: 0 0 8px 0; font-size: 1.05rem; }
+
+    table { width:100%; border-collapse: collapse; }
+    th, td { text-align:left; vertical-align: top; padding: 6px; border-top: 1px solid #ddd; }
+    th { font-weight: 800; }
+
+    .pill { display:inline-block; padding:2px 10px; border-radius:999px; border:1px solid #333; font-size:0.85rem; font-weight:900; line-height:1.4; white-space:nowrap; }
+    .pill-ok { background:#d4edda; }
+    .pill-impact { background:#fff3cd; }
+    .pill-closed { background:#f8d7da; }
+    .pill-vfr { background:#d4edda; }
+    .pill-mvfr { background:#fff3cd; }
+    .pill-ifr { background:#f8d7da; }
+    .pill-lifr { background:#e6d6ff; }
+    .pill-unk { background:#eee; }
+
+    .metar-pill { cursor:pointer; }
+    .metar-pill:focus { outline:2px solid #000; outline-offset:2px; }
+
+    .muted { color:#666; }
+    .small { font-size:0.9rem; color:#444; }
+
+    /* METAR MODAL */
+    #metarOverlay { position:fixed; inset:0; background:rgba(0,0,0,0.35); display:none; align-items:center; justify-content:center; padding:18px; z-index:5000; }
+    #metarModal { width:min(860px, 100%); background:#fff; border:2px solid #111; border-radius:14px; padding:12px; box-shadow:0 10px 30px rgba(0,0,0,0.25); }
+    .modalHdr { display:flex; align-items:flex-start; justify-content:space-between; gap:12px; margin-bottom:10px; }
+    .modalTitle { font-size:1.05rem; font-weight:900; margin:0; }
+    .modalSub { font-size:0.9rem; color:#333; margin-top:2px; }
+    .modalClose { border:1px solid #111; background:#fff; border-radius:10px; padding:6px 10px; cursor:pointer; font-weight:800; white-space:nowrap; }
+    pre.metarBox { margin:0; border:1px solid #333; border-radius:12px; padding:10px; background:#fafafa; overflow:auto; white-space:pre-wrap; word-break:break-word; font-size:0.95rem; line-height:1.35; min-height:140px; }
+    .metarHint { margin-top:10px; font-size:0.9rem; color:#333; }
+    .metarHint code { font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, "Liberation Mono", monospace; }
+  </style>
 </head>
 
 <body>
-
 <header>
   <h1>PA Airport Status</h1>
   <button class="btn" id="refreshBtn">Refresh</button>
   <div class="meta" id="meta">Loading…</div>
 </header>
 
+<div id="overallBar" class="overall overall-ok" role="status" aria-live="polite">
+  <div class="overall-left">
+    <span id="overallDot" class="overall-dot dot-ok" aria-hidden="true"></span>
+    <span class="overall-title">Overall:</span>
+    <span id="overallText" class="overall-text">OK</span>
+  </div>
+  <div id="overallCounts" class="overall-counts"></div>
+</div>
+
 <div id="map"></div>
 
+<div class="legend">
+  <span><span class="dot dot-closed"></span> CLOSED</span>
+  <span><span class="dot dot-impact"></span> IMPACT</span>
+  <span><span class="dot dot-ok"></span> OK</span>
+</div>
+
 <div class="toggles">
-  <div class="toggle">Cloud
+  <div class="toggle">
+    <span class="label">Cloud overlay</span>
     <label class="switch"><input type="checkbox" id="cloudToggle"><span class="slider"></span></label>
   </div>
-  <div class="toggle">Radar
+
+  <div class="toggle">
+    <span class="label">Radar overlay</span>
     <label class="switch"><input type="checkbox" id="radarToggle"><span class="slider"></span></label>
   </div>
+
+  <div class="toggle">
+    <span class="label">Flight rules colors</span>
+    <label class="switch"><input type="checkbox" id="flightRulesToggle"><span class="slider"></span></label>
+  </div>
+</div>
+
+<div id="frKey">
+  <span class="title">Flight Rules Key:</span>
+  <span class="keyItem"><span class="keyDot k-vfr"></span> VFR</span>
+  <span class="keyItem"><span class="keyDot k-mvfr"></span> MVFR</span>
+  <span class="keyItem"><span class="keyDot k-ifr"></span> IFR</span>
+  <span class="keyItem"><span class="keyDot k-lifr"></span> LIFR</span>
+  <span class="keyItem"><span class="keyDot k-unk"></span> UNK</span>
 </div>
 
 <div class="opacityCtl">
   <div class="opacityGroup" id="cloudOpacityGroup">
-    Cloud opacity
-    <input id="cloudOpacity" type="range" min="0" max="100" value="55">
-    <span id="cloudPct">55%</span>
+    <label for="cloudOpacity">Cloud opacity</label>
+    <input id="cloudOpacity" type="range" min="0" max="100" value="55" />
+    <span class="pct" id="cloudPct">55%</span>
   </div>
+
   <div class="opacityGroup" id="radarOpacityGroup">
-    Radar opacity
-    <input id="radarOpacity" type="range" min="0" max="100" value="55">
-    <span id="radarPct">55%</span>
+    <label for="radarOpacity">Radar opacity</label>
+    <input id="radarOpacity" type="range" min="0" max="100" value="55" />
+    <span class="pct" id="radarPct">55%</span>
   </div>
 </div>
 
 <div class="grid" id="grid"></div>
 
-<div id="metarOverlay">
-  <div id="metarModal">
-    <div style="display:flex;justify-content:space-between;">
-      <div id="metarTitle"></div>
-      <button onclick="closeMetar()">Close</button>
+<div id="metarOverlay" aria-hidden="true">
+  <div id="metarModal" role="dialog" aria-modal="true" aria-labelledby="metarTitle">
+    <div class="modalHdr">
+      <div>
+        <div id="metarTitle" class="modalTitle">METAR</div>
+        <div id="metarSub" class="modalSub"></div>
+      </div>
+      <button class="modalClose" id="metarCloseBtn" type="button">Close</button>
     </div>
-    <pre id="metarBody">Loading…</pre>
-    <div id="metarHint"></div>
+    <pre class="metarBox" id="metarBody">Loading…</pre>
+    <div class="metarHint" id="metarHint"></div>
   </div>
 </div>
 
 <script>
-const map = L.map("map").setView([40.9, -77.7], 7);
-L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png",{maxZoom:19}).addTo(map);
+const REFRESH_MS = 5 * 60 * 1000;
 
-const clouds = L.tileLayer("https://mesonet.agron.iastate.edu/cache/tile.py/1.0.0/sat/{z}/{x}/{y}.png",{opacity:0.55});
-const radar  = L.tileLayer("https://mesonet.agron.iastate.edu/cache/tile.py/1.0.0/nexrad-n0q-900913/{z}/{x}/{y}.png",{opacity:0.55});
+// latest data cache (for modal)
+let LAST_AIRPORTS = {};
+let LAST_NAME_BY_CODE = {};
+
+function esc(s){
+  return (s ?? "").toString().replace(/[&<>"']/g, c => ({
+    "&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"
+  }[c]));
+}
+
+function statusPill(status){
+  const s = (status || "OK").toUpperCase();
+  if (s === "CLOSED") return '<span class="pill pill-closed">CLOSED</span>';
+  if (s === "IMPACT") return '<span class="pill pill-impact">IMPACT</span>';
+  return '<span class="pill pill-ok">OK</span>';
+}
+
+function flightPill(cat, code){
+  const c = (cat || "UNK").toUpperCase();
+  let cls = "pill-unk";
+  if (c === "VFR") cls = "pill-vfr";
+  else if (c === "MVFR") cls = "pill-mvfr";
+  else if (c === "IFR") cls = "pill-ifr";
+  else if (c === "LIFR") cls = "pill-lifr";
+  return `<span class="pill ${cls} metar-pill" role="button" tabindex="0" data-code="${esc(code)}" title="Click to view METAR">${esc(c)}</span>`;
+}
+
+function markerColor(status){
+  const s = (status || "OK").toUpperCase();
+  if (s === "CLOSED") return "#e74c3c";
+  if (s === "IMPACT") return "#f1c40f";
+  return "#2ecc71";
+}
+
+function flightRuleColor(cat){
+  const c = (cat || "UNK").toUpperCase();
+  if (c === "VFR") return "#2ecc71";
+  if (c === "MVFR") return "#f1c40f";
+  if (c === "IFR") return "#e74c3c";
+  if (c === "LIFR") return "#9b59b6";
+  return "#95a5a6";
+}
+
+function updateOverallBar(airportsObj){
+  const bar = document.getElementById("overallBar");
+  const dot = document.getElementById("overallDot");
+  const text = document.getElementById("overallText");
+  const countsEl = document.getElementById("overallCounts");
+
+  let ok = 0, impact = 0, closed = 0, unknown = 0, total = 0;
+
+  for (const code of Object.keys(airportsObj || {})) {
+    total++;
+    const st = ((airportsObj[code] || {}).status || "OK").toUpperCase();
+    if (st === "CLOSED") closed++;
+    else if (st === "IMPACT") impact++;
+    else if (st === "OK") ok++;
+    else unknown++;
+  }
+
+  let overall = "OK";
+  if (closed > 0) overall = "CLOSED";
+  else if (impact > 0) overall = "IMPACT";
+
+  bar.classList.remove("overall-ok","overall-impact","overall-closed");
+  dot.classList.remove("dot-ok","dot-impact","dot-closed");
+
+  if (overall === "CLOSED") { bar.classList.add("overall-closed"); dot.classList.add("dot-closed"); }
+  else if (overall === "IMPACT") { bar.classList.add("overall-impact"); dot.classList.add("dot-impact"); }
+  else { bar.classList.add("overall-ok"); dot.classList.add("dot-ok"); }
+
+  text.textContent = overall;
+
+  const parts = [
+    `Closed: ${closed}`,
+    `Impact: ${impact}`,
+    `OK: ${ok}`,
+    (unknown ? `Unknown: ${unknown}` : null),
+    `Total: ${total}`
+  ].filter(Boolean);
+
+  countsEl.textContent = parts.join("  |  ");
+}
+
+// ---- Map
+const map = L.map("map").setView([40.9, -77.7], 7);
+
+L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
+  maxZoom: 19,
+  attribution: "&copy; OpenStreetMap"
+}).addTo(map);
+
+const clouds = L.tileLayer(
+  "https://mesonet.agron.iastate.edu/cache/tile.py/1.0.0/sat/{z}/{x}/{y}.png",
+  { maxZoom: 8, opacity: 0.55, attribution: "NOAA GOES-East (IEM)" }
+);
+
+const radar = L.tileLayer(
+  "https://mesonet.agron.iastate.edu/cache/tile.py/1.0.0/nexrad-n0q-900913/{z}/{x}/{y}.png",
+  { maxZoom: 12, opacity: 0.55, attribution: "NEXRAD (IEM)" }
+);
+
 const markers = L.layerGroup().addTo(map);
 
+// ---- UI
 const cloudToggle = document.getElementById("cloudToggle");
 const radarToggle = document.getElementById("radarToggle");
+const flightRulesToggle = document.getElementById("flightRulesToggle");
+
 const cloudOpacityGroup = document.getElementById("cloudOpacityGroup");
 const radarOpacityGroup = document.getElementById("radarOpacityGroup");
 
-cloudToggle.addEventListener("change", ()=>{
-  cloudOpacityGroup.style.display = cloudToggle.checked ? "flex":"none";
-  cloudToggle.checked ? clouds.addTo(map) : map.removeLayer(clouds);
+const cloudOpacity = document.getElementById("cloudOpacity");
+const radarOpacity = document.getElementById("radarOpacity");
+const cloudPct = document.getElementById("cloudPct");
+const radarPct = document.getElementById("radarPct");
+
+const refreshBtn = document.getElementById("refreshBtn");
+const meta = document.getElementById("meta");
+const frKey = document.getElementById("frKey");
+
+function syncFlightRulesKey(){
+  frKey.style.display = flightRulesToggle.checked ? "flex" : "none";
+}
+
+function setCloudUI(){
+  cloudOpacityGroup.style.display = cloudToggle.checked ? "flex" : "none";
+  if (cloudToggle.checked) clouds.addTo(map);
+  else map.removeLayer(clouds);
+}
+function setRadarUI(){
+  radarOpacityGroup.style.display = radarToggle.checked ? "flex" : "none";
+  if (radarToggle.checked) radar.addTo(map);
+  else map.removeLayer(radar);
+}
+
+cloudToggle.addEventListener("change", setCloudUI);
+radarToggle.addEventListener("change", setRadarUI);
+
+cloudOpacity.addEventListener("input", () => {
+  const v = Math.max(0, Math.min(100, Number(cloudOpacity.value)));
+  cloudPct.textContent = v + "%";
+  clouds.setOpacity(v / 100);
 });
-radarToggle.addEventListener("change", ()=>{
-  radarOpacityGroup.style.display = radarToggle.checked ? "flex":"none";
-  radarToggle.checked ? radar.addTo(map) : map.removeLayer(radar);
+radarOpacity.addEventListener("input", () => {
+  const v = Math.max(0, Math.min(100, Number(radarOpacity.value)));
+  radarPct.textContent = v + "%";
+  radar.setOpacity(v / 100);
 });
 
-document.getElementById("cloudOpacity").addEventListener("input",e=>{
-  clouds.setOpacity(e.target.value/100);
-  document.getElementById("cloudPct").textContent = e.target.value+"%";
-});
-document.getElementById("radarOpacity").addEventListener("input",e=>{
-  radar.setOpacity(e.target.value/100);
-  document.getElementById("radarPct").textContent = e.target.value+"%";
-});
+// initialize
+cloudPct.textContent = cloudOpacity.value + "%";
+radarPct.textContent = radarOpacity.value + "%";
+clouds.setOpacity(Number(cloudOpacity.value) / 100);
+radar.setOpacity(Number(radarOpacity.value) / 100);
+setCloudUI();
+setRadarUI();
 
-let LAST_AIRPORTS = {};
-let LAST_NAMES = {};
+// ---- METAR Modal
+const metarOverlay = document.getElementById("metarOverlay");
+const metarCloseBtn = document.getElementById("metarCloseBtn");
+const metarTitle = document.getElementById("metarTitle");
+const metarSub = document.getElementById("metarSub");
+const metarBody = document.getElementById("metarBody");
+const metarHint = document.getElementById("metarHint");
 
-function flightPill(cat, code){
-  return `<span class="pill pill-${cat.toLowerCase()} metar-pill" data-code="${code}">${cat}</span>`;
+function closeMetar(){
+  metarOverlay.style.display = "none";
+  metarOverlay.setAttribute("aria-hidden", "true");
+}
+metarCloseBtn.addEventListener("click", closeMetar);
+metarOverlay.addEventListener("click", (e) => { if (e.target === metarOverlay) closeMetar(); });
+document.addEventListener("keydown", (e) => { if (e.key === "Escape" && metarOverlay.style.display === "flex") closeMetar(); });
+
+function stationFromCode(code){
+  const c = (code || "").toUpperCase().trim();
+  if (c.length === 3) return "K" + c;
+  return c;
+}
+
+function getEmbeddedMetarText(code){
+  const st = (LAST_AIRPORTS || {})[code] || {};
+  return (st.metar_raw || st.metar || st.raw_metar || st.metar_text || st.metar_utc || st.metar_string || "");
 }
 
 async function fetchMetarViaProxy(station){
-  const r = await fetch(`metar.php?station=${station}`, { cache:"no-store" });
-  const text = await r.text();
-  if (!r.ok) throw new Error("HTTP "+r.status);
-
-  const trimmed = text.trim();
-  if (!trimmed) throw new Error("Empty response");
-
-  if (trimmed.startsWith("{")) {
-    const j = JSON.parse(trimmed);
-    if (!j.ok || !j.metar) throw new Error(j.error || "Bad JSON");
-    return j.metar;
+  const url = `metar.php?station=${encodeURIComponent(station)}`;
+  const resp = await fetch(url, { cache: "no-store" });
+  const j = await resp.json().catch(() => null);
+  if (!resp.ok || !j || !j.ok) {
+    const msg = (j && j.error) ? j.error : `HTTP ${resp.status}`;
+    throw new Error(msg);
   }
-
-  return trimmed;
+  return j.metar;
 }
-
-function closeMetar(){ document.getElementById("metarOverlay").style.display="none"; }
 
 async function openMetar(code){
-  document.getElementById("metarOverlay").style.display="flex";
-  document.getElementById("metarTitle").textContent = "METAR - "+code;
-  document.getElementById("metarBody").textContent = "Loading…";
+  const name = LAST_NAME_BY_CODE[code] || "";
+  const st = (LAST_AIRPORTS || {})[code] || {};
+  const fc = ((st.flight_category || "UNK") + "").toUpperCase();
+  const status = ((st.status || "OK") + "").toUpperCase();
 
-  const station = code.length===3 ? "K"+code : code;
+  metarTitle.textContent = `METAR – ${code}`;
+  metarSub.textContent = `${name ? name + " • " : ""}Status: ${status} • Flight: ${fc}`;
+  metarBody.textContent = "Loading…";
+  metarHint.textContent = "";
 
-  try{
-    const m = await fetchMetarViaProxy(station);
-    document.getElementById("metarBody").textContent = m;
-  }catch(e){
-    document.getElementById("metarBody").textContent =
-      `Could not load METAR for ${station}\n\nReason: ${e.message}\n\nTry opening:\nmetar.php?station=${station}`;
+  metarOverlay.style.display = "flex";
+  metarOverlay.setAttribute("aria-hidden", "false");
+  metarCloseBtn.focus();
+
+  const embedded = getEmbeddedMetarText(code);
+  if (embedded) {
+    metarBody.textContent = embedded;
+    metarHint.innerHTML = `Source: <code>status.json</code>`;
+    return;
+  }
+
+  const station = stationFromCode(code);
+  try {
+    const metar = await fetchMetarViaProxy(station);
+    metarBody.textContent = metar;
+    metarHint.innerHTML = `Source: <code>metar.php</code> • Station: <code>${esc(station)}</code>`;
+  } catch (err) {
+    metarBody.textContent =
+      `Could not load METAR for ${station}.\n\n` +
+      `Reason: ${err && err.message ? err.message : "Unknown error"}\n\n` +
+      `Fix options:\n` +
+      `1) Confirm metar.php is in the same folder and accessible.\n` +
+      `2) Open metar.php?station=${station} in your browser and see what it returns.\n` +
+      `3) Best: add metar_raw into status.json under airports["${code}"].`;
+    metarHint.innerHTML = `Source attempted: <code>metar.php</code>`;
   }
 }
 
-document.getElementById("grid").addEventListener("click",e=>{
-  const p = e.target.closest(".metar-pill");
-  if(p) openMetar(p.dataset.code);
+// delegation for pills
+document.getElementById("grid").addEventListener("click", (e) => {
+  const t = e.target.closest(".metar-pill");
+  if (!t) return;
+  const code = t.getAttribute("data-code");
+  if (code) openMetar(code);
+});
+document.getElementById("grid").addEventListener("keydown", (e) => {
+  const t = e.target.closest(".metar-pill");
+  if (!t) return;
+  if (e.key === "Enter" || e.key === " ") {
+    e.preventDefault();
+    const code = t.getAttribute("data-code");
+    if (code) openMetar(code);
+  }
 });
 
+// ---- Data render
 async function load(){
-  const r = await fetch("status.json?ts="+Date.now());
+  const r = await fetch("status.json?ts=" + Date.now());
+  if (!r.ok) throw new Error("Failed to load status.json: HTTP " + r.status);
   const d = await r.json();
+
+  meta.textContent = `Last update: ${d.generated_utc} UTC`;
+
   const regions = d.regions || {};
   const airports = d.airports || {};
   LAST_AIRPORTS = airports;
+  LAST_NAME_BY_CODE = {};
 
+  updateOverallBar(airports);
   markers.clearLayers();
-  let html="";
 
-  for(const region of Object.keys(regions)){
-    let rows="";
-    for(const a of regions[region]){
-      const st = airports[a.code]||{};
-      const cat = (st.flight_category||"UNK").toUpperCase();
+  const showFRColors = !!flightRulesToggle.checked;
 
-      L.circleMarker([a.lat,a.lon],{
-        radius:8,weight:3,color:"#000",fillOpacity:0.95,
-        fillColor: cat==="VFR"?"#2ecc71":cat==="MVFR"?"#f1c40f":cat==="IFR"?"#e74c3c":cat==="LIFR"?"#9b59b6":"#aaa"
-      }).addTo(markers);
+  let html = "";
+  for (const regionName of Object.keys(regions)) {
+    let rows = "";
+    for (const a of (regions[regionName] || [])) {
+      const st = airports[a.code] || {};
+      LAST_NAME_BY_CODE[a.code] = a.name || "";
 
-      rows += `<tr><td><b>${a.code}</b><br>${a.name}</td><td>${flightPill(cat,a.code)}</td></tr>`;
+      const col = showFRColors ? flightRuleColor(st.flight_category) : markerColor(st.status);
+
+      L.circleMarker([a.lat, a.lon], {
+        radius: 8,
+        weight: 3,
+        color: "#000",
+        fillColor: col,
+        fillOpacity: 0.95
+      })
+      .bindPopup(
+        `<b>${esc(a.code)}</b><br>${esc(a.name)}<br>` +
+        `Status: ${esc(st.status || "OK")}<br>` +
+        `Flight: ${esc(st.flight_category || "UNK")}`
+      )
+      .addTo(markers);
+
+      rows += `
+        <tr>
+          <td><b>${esc(a.code)}</b><br><span class="small muted">${esc(a.name)}</span></td>
+          <td>${statusPill(st.status || "OK")}</td>
+          <td>${flightPill(st.flight_category || "UNK", a.code)}</td>
+        </tr>
+      `;
     }
 
-    html += `<div class="card"><h3>${region}</h3><table>${rows}</table></div>`;
+    html += `
+      <div class="card">
+        <h2>${esc(regionName)}</h2>
+        <table>
+          <tr><th>Airport</th><th>Status</th><th>Flight Rules</th></tr>
+          ${rows}
+        </table>
+      </div>
+    `;
   }
 
   document.getElementById("grid").innerHTML = html;
+  syncFlightRulesKey();
 }
 
-load();
-setInterval(load, 300000);
+async function refresh(){
+  try { await load(); }
+  catch(e){ meta.textContent = "Error: " + (e && e.message ? e.message : "Unknown error"); }
+}
+
+refreshBtn.addEventListener("click", refresh);
+flightRulesToggle.addEventListener("change", refresh);
+
+refresh();
+setInterval(refresh, REFRESH_MS);
 </script>
+
 </body>
 </html>
