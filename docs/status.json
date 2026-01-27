@@ -1,93 +1,267 @@
 {
-  "generated_utc": "2026-01-27 07:42:39Z",
+  "generated_utc": "2026-01-27 07:45:12Z",
   "regions": {
-    "Central": [
-      {
-        "code": "CXY",
-        "name": "Capital City",
-        "lat": 40.217,
-        "lon": -76.852
-      },
-      {
-        "code": "MDT",
-        "name": "Harrisburg Intl",
-        "lat": 40.193,
-        "lon": -76.763
-      }
-    ],
     "Western": [
       {
         "code": "PIT",
         "name": "Pittsburgh Intl",
-        "lat": 40.491,
-        "lon": -80.233
+        "lat": 40.492,
+        "lon": -80.2327
+      },
+      {
+        "code": "ERI",
+        "name": "Erie Intl",
+        "lat": 42.0831,
+        "lon": -80.1739
       },
       {
         "code": "LBE",
         "name": "Arnold Palmer Regional",
-        "lat": 40.276,
-        "lon": -79.404
+        "lat": 40.2759,
+        "lon": -79.4048
+      },
+      {
+        "code": "JST",
+        "name": "Johnstown\u2013Cambria County",
+        "lat": 40.3161,
+        "lon": -78.8339
+      },
+      {
+        "code": "DUJ",
+        "name": "DuBois Regional",
+        "lat": 41.1783,
+        "lon": -78.8987
+      }
+    ],
+    "Central": [
+      {
+        "code": "MDT",
+        "name": "Harrisburg Intl",
+        "lat": 40.1931,
+        "lon": -76.7633
+      },
+      {
+        "code": "CXY",
+        "name": "Capital City",
+        "lat": 40.2171,
+        "lon": -76.8515
+      },
+      {
+        "code": "SCE",
+        "name": "State College Regional",
+        "lat": 40.8493,
+        "lon": -77.8487
+      },
+      {
+        "code": "IPT",
+        "name": "Williamsport Regional",
+        "lat": 41.2421,
+        "lon": -76.9211
+      },
+      {
+        "code": "AOO",
+        "name": "Altoona\u2013Blair County",
+        "lat": 40.2964,
+        "lon": -78.32
+      },
+      {
+        "code": "BFD",
+        "name": "Bradford Regional",
+        "lat": 41.8031,
+        "lon": -78.6401
       }
     ],
     "Eastern": [
       {
-        "code": "ABE",
-        "name": "Lehigh Valley Intl",
-        "lat": 40.651,
-        "lon": -75.44
-      },
-      {
         "code": "PHL",
         "name": "Philadelphia Intl",
-        "lat": 39.872,
-        "lon": -75.243
+        "lat": 39.8729,
+        "lon": -75.2437
+      },
+      {
+        "code": "ABP",
+        "name": "Northeast Philadelphia",
+        "lat": 40.0819,
+        "lon": -75.0106
+      },
+      {
+        "code": "ABE",
+        "name": "Lehigh Valley Intl",
+        "lat": 40.6521,
+        "lon": -75.4408
+      },
+      {
+        "code": "AVP",
+        "name": "Wilkes-Barre/Scranton Intl",
+        "lat": 41.3385,
+        "lon": -75.7234
+      },
+      {
+        "code": "RDG",
+        "name": "Reading Regional",
+        "lat": 40.3785,
+        "lon": -75.9652
+      },
+      {
+        "code": "LNS",
+        "name": "Lancaster",
+        "lat": 40.1217,
+        "lon": -76.2961
+      },
+      {
+        "code": "MPO",
+        "name": "Pocono Mountains Municipal",
+        "lat": 41.1375,
+        "lon": -75.3789
       }
     ]
   },
   "airports": {
-    "CXY": {
-      "status": "OK",
-      "flight_category": "VFR",
-      "metar_raw": "METAR KCXY 270656Z AUTO 26004KT 10SM SCT033 M09/M17 A3014 RMK AO2 SLP214 T10891167\nMETAR KCXY 270556Z AUTO 29011G19KT 10SM SCT044 M08/M18 A3014 RMK AO2 SLP212 60000 T10831178 11072 21089 51019",
-      "metar_icao": "KCXY",
-      "metar_ts": 1769499757
-    },
-    "MDT": {
-      "status": "OK",
-      "flight_category": "VFR",
-      "metar_raw": "METAR KMDT 270656Z 30010KT 10SM SCT047 M09/M17 A3013 RMK AO2 SLP211 T10941167\nMETAR KMDT 270556Z 31012KT 10SM FEW039 M09/M16 A3013 RMK AO2 SLP208 4/007 T10891161 11072 21089 51019",
-      "metar_icao": "KMDT",
-      "metar_ts": 1769499758
-    },
     "PIT": {
+      "code": "PIT",
       "status": "OK",
-      "flight_category": "MVFR",
-      "metar_raw": "METAR KPIT 270651Z 23013G21KT 10SM FEW009 FEW020 M16/M21 A3017 RMK AO2 SNE27 SLP250 P0000 T11561211\nSPECI KPIT 270628Z 23010G22KT 10SM FEW009 SCT020 M15/M19 A3017 RMK AO2 SNE27 P0000 T11501194\nMETAR KPIT 270551Z 23008KT 9SM -SN SCT009 OVC018 M13/M17 A3016 RMK AO2 SLP247 P0000 60000 T11331172 11106 21133 51005",
-      "metar_icao": "KPIT",
-      "metar_ts": 1769499758
+      "closed": false,
+      "closure_reason": "",
+      "events": [],
+      "flight_category": "MVFR"
+    },
+    "ERI": {
+      "code": "ERI",
+      "status": "OK",
+      "closed": false,
+      "closure_reason": "",
+      "events": [],
+      "flight_category": "MVFR"
     },
     "LBE": {
-      "status": "IMPACT",
-      "flight_category": "IFR",
-      "metar_raw": "METAR KLBE 270735Z AUTO 22013G18KT 9SM OVC027 M13/M17 A3020 RMK AO2\nMETAR KLBE 270715Z AUTO 23016KT 7SM -SN OVC026 M13/M16 A3020 RMK AO2\nMETAR KLBE 270655Z AUTO 23015KT 6SM -SN HZ OVC023 M13/M16 A3020 RMK AO2\nMETAR KLBE 270635Z AUTO 23013G21KT 5SM -SN HZ OVC021 M13/M16 A3020 RMK AO2\nMETAR KLBE 270615Z AUTO 21018G25KT 4SM -SN HZ OVC022 M13/M16 A3019 RMK AO2\nMETAR KLBE 270555Z AUTO 24011G17KT 9SM -SN OVC022 M12/M16 A3018 RMK AO2",
-      "metar_icao": "KLBE",
-      "metar_ts": 1769499758,
-      "impact_reason": "Flight rules IFR",
-      "impact_detail": "Lower ceilings/visibility than VFR"
-    },
-    "ABE": {
+      "code": "LBE",
       "status": "OK",
-      "flight_category": "VFR",
-      "metar_raw": "METAR KABE 270651Z AUTO 29010G18KT 10SM CLR M10/M18 A3008 RMK AO2 SLP193 T11001183\nMETAR KABE 270551Z AUTO 29013G21KT 10SM CLR M09/M18 A3006 RMK AO2 SLP186 T10941178 11067 21094 51021",
-      "metar_icao": "KABE",
-      "metar_ts": 1769499759
+      "closed": false,
+      "closure_reason": "",
+      "events": [],
+      "flight_category": "VFR"
+    },
+    "JST": {
+      "code": "JST",
+      "status": "OK",
+      "closed": false,
+      "closure_reason": "",
+      "events": [],
+      "flight_category": "IFR"
+    },
+    "DUJ": {
+      "code": "DUJ",
+      "status": "OK",
+      "closed": false,
+      "closure_reason": "",
+      "events": [],
+      "flight_category": "VFR"
+    },
+    "MDT": {
+      "code": "MDT",
+      "status": "OK",
+      "closed": false,
+      "closure_reason": "",
+      "events": [],
+      "flight_category": "VFR"
+    },
+    "CXY": {
+      "code": "CXY",
+      "status": "OK",
+      "closed": false,
+      "closure_reason": "",
+      "events": [],
+      "flight_category": "VFR"
+    },
+    "SCE": {
+      "code": "SCE",
+      "status": "OK",
+      "closed": false,
+      "closure_reason": "",
+      "events": [],
+      "flight_category": "VFR"
+    },
+    "IPT": {
+      "code": "IPT",
+      "status": "OK",
+      "closed": false,
+      "closure_reason": "",
+      "events": [],
+      "flight_category": "VFR"
+    },
+    "AOO": {
+      "code": "AOO",
+      "status": "OK",
+      "closed": false,
+      "closure_reason": "",
+      "events": [],
+      "flight_category": "MVFR"
+    },
+    "BFD": {
+      "code": "BFD",
+      "status": "OK",
+      "closed": false,
+      "closure_reason": "",
+      "events": [],
+      "flight_category": "MVFR"
     },
     "PHL": {
+      "code": "PHL",
       "status": "OK",
-      "flight_category": "VFR",
-      "metar_raw": "METAR KPHL 270654Z 29009KT 10SM CLR M07/M16 A3015 RMK SLP208 T10721156\nMETAR KPHL 270554Z 27010KT 10SM CLR M08/M16 A3012 RMK SLP200 T10781156 11044 21078 51023",
-      "metar_icao": "KPHL",
-      "metar_ts": 1769499759
+      "closed": false,
+      "closure_reason": "",
+      "events": [],
+      "flight_category": "VFR"
+    },
+    "ABP": {
+      "code": "ABP",
+      "status": "OK",
+      "closed": false,
+      "closure_reason": "",
+      "events": [],
+      "flight_category": "VFR"
+    },
+    "ABE": {
+      "code": "ABE",
+      "status": "OK",
+      "closed": false,
+      "closure_reason": "",
+      "events": [],
+      "flight_category": "VFR"
+    },
+    "AVP": {
+      "code": "AVP",
+      "status": "OK",
+      "closed": false,
+      "closure_reason": "",
+      "events": [],
+      "flight_category": "VFR"
+    },
+    "RDG": {
+      "code": "RDG",
+      "status": "OK",
+      "closed": false,
+      "closure_reason": "",
+      "events": [],
+      "flight_category": "VFR"
+    },
+    "LNS": {
+      "code": "LNS",
+      "status": "OK",
+      "closed": false,
+      "closure_reason": "",
+      "events": [],
+      "flight_category": "VFR"
+    },
+    "MPO": {
+      "code": "MPO",
+      "status": "OK",
+      "closed": false,
+      "closure_reason": "",
+      "events": [],
+      "flight_category": "UNK"
     }
-  }
+  },
+  "source": "nasstatus.faa.gov + aviationweather.gov Data API (metar)",
+  "note": "Closures from FAA NAS Status; flight categories from AWC METAR feed."
 }
