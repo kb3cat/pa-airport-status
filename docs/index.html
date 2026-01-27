@@ -48,97 +48,55 @@
     .dot-impact { background:#f1c40f; }
     .dot-closed { background:#e74c3c; }
 
-    /* Toggle switches */
-    .toggles {
-      margin-top: 8px;
-      display:flex;
-      flex-wrap: wrap;
-      gap: 14px 18px;
-      align-items: center;
-      font-size: 0.95rem;
-    }
-    .toggle {
-      display:flex;
-      align-items:center;
-      gap:10px;
-      border:1px solid #333;
-      border-radius: 12px;
-      padding: 8px 10px;
-      background:#fff;
-    }
+    /* Toggles */
+    .toggles { margin-top: 10px; display:flex; flex-wrap:wrap; gap: 14px; align-items:center; font-size: 0.95rem; }
+    .toggle { display:flex; align-items:center; gap:10px; border:1px solid #333; border-radius: 12px; padding: 8px 10px; background:#fff; }
     .toggle .label { font-weight: 800; }
-    .switch {
-      position: relative;
-      display: inline-block;
-      width: 44px;
-      height: 24px;
-      flex: 0 0 auto;
-    }
+
+    .switch { position: relative; display: inline-block; width: 44px; height: 24px; }
     .switch input { opacity: 0; width: 0; height: 0; }
-    .slider {
-      position: absolute; cursor: pointer;
-      top: 0; left: 0; right: 0; bottom: 0;
-      background: #ddd;
-      border: 1px solid #333;
-      transition: .15s;
-      border-radius: 999px;
-    }
-    .slider:before {
-      position: absolute; content: "";
-      height: 18px; width: 18px;
-      left: 3px; top: 2px;
-      background: #fff;
-      border: 1px solid #333;
-      transition: .15s;
-      border-radius: 999px;
-    }
-    .switch input:checked + .slider { background: #d4edda; }
+    .slider { position:absolute; cursor:pointer; top:0; left:0; right:0; bottom:0; background:#ddd; border:1px solid #333; transition:.15s; border-radius:999px; }
+    .slider:before { position:absolute; content:""; height:18px; width:18px; left:3px; top:2px; background:#fff; border:1px solid #333; transition:.15s; border-radius:999px; }
+    .switch input:checked + .slider { background:#d4edda; }
     .switch input:checked + .slider:before { transform: translateX(19px); }
 
-    /* Opacity controls */
-    .opacityCtl {
-      display:flex;
-      align-items:center;
-      gap: 14px 18px;
-      flex-wrap: wrap;
-      margin-top: 8px;
-      font-size: 0.95rem;
-    }
-    .opacityGroup{
-      display:flex;
-      align-items:center;
-      gap: 10px;
-      border: 1px solid #333;
-      border-radius: 12px;
-      padding: 8px 10px;
-      background:#fff;
-      flex-wrap: wrap;
-    }
-    .opacityGroup label { font-weight: 900; }
-    .opacityGroup input[type="range"] { width: 220px; }
-    .pct { font-variant-numeric: tabular-nums; font-weight: 900; min-width: 46px; }
-
-    /* Flight Rules Key (only shown when toggle on) */
+    /* Flight Rules Key */
     #frKey {
-      display: none;
-      margin-top: 8px;
-      border: 1px solid #333;
-      border-radius: 12px;
-      padding: 8px 10px;
-      background: #fff;
-      font-size: 0.95rem;
-      align-items: center;
-      gap: 14px;
-      flex-wrap: wrap;
+      display:none;
+      margin-top:8px;
+      border:1px solid #333;
+      border-radius:12px;
+      padding:8px 10px;
+      background:#fff;
+      font-size:0.95rem;
+      align-items:center;
+      gap:14px;
+      flex-wrap:wrap;
     }
-    #frKey .title { font-weight: 900; margin-right: 6px; }
+    #frKey .title { font-weight:900; margin-right:6px; }
     .keyItem { display:flex; align-items:center; gap:8px; }
-    .keyDot { width: 12px; height: 12px; border-radius: 999px; border:1px solid #333; display:inline-block; }
+    .keyDot { width:12px; height:12px; border-radius:999px; border:1px solid #333; display:inline-block; }
     .k-vfr { background:#2ecc71; }
     .k-mvfr { background:#f1c40f; }
     .k-ifr { background:#e74c3c; }
     .k-lifr { background:#9b59b6; }
     .k-unk { background:#95a5a6; }
+
+    /* Opacity controls (only visible when toggle on) */
+    .opacityCtl { margin-top:8px; display:flex; gap:14px; flex-wrap:wrap; font-size:0.95rem; }
+    .opacityGroup {
+      display:none;
+      align-items:center;
+      gap:10px;
+      border:1px solid #333;
+      border-radius:12px;
+      padding:8px 10px;
+      background:#fff;
+      flex-wrap:wrap;
+    }
+    .opacityGroup label { font-weight:900; }
+    .opacityGroup input[type="range"] { width:220px; }
+    .pct { font-variant-numeric: tabular-nums; font-weight:900; min-width:46px; }
 
     .grid { display:grid; grid-template-columns: repeat(auto-fit, minmax(440px, 1fr)); gap: 12px; margin-top: 12px; }
     .card { border:1px solid #333; border-radius: 12px; padding: 10px; }
@@ -148,88 +106,31 @@
     th, td { text-align:left; vertical-align: top; padding: 6px; border-top: 1px solid #ddd; }
     th { font-weight: 800; }
 
-    .pill {
-      display:inline-block;
-      padding: 2px 10px;
-      border-radius: 999px;
-      border:1px solid #333;
-      font-size: 0.85rem;
-      font-weight: 900;
-      line-height: 1.4;
-      white-space: nowrap;
-    }
-    .pill-ok { background: #d4edda; }
-    .pill-impact { background: #fff3cd; }
-    .pill-closed { background: #f8d7da; }
-
+    .pill { display:inline-block; padding:2px 10px; border-radius:999px; border:1px solid #333; font-size:0.85rem; font-weight:900; line-height:1.4; white-space:nowrap; }
+    .pill-ok { background:#d4edda; }
+    .pill-impact { background:#fff3cd; }
+    .pill-closed { background:#f8d7da; }
     .pill-vfr { background:#d4edda; }
     .pill-mvfr { background:#fff3cd; }
     .pill-ifr { background:#f8d7da; }
     .pill-lifr { background:#e6d6ff; }
     .pill-unk { background:#eee; }
 
-    /* clickable flight pill */
-    .metar-pill { cursor: pointer; }
-    .metar-pill:focus { outline: 2px solid #000; outline-offset: 2px; }
+    .metar-pill { cursor:pointer; }
+    .metar-pill:focus { outline:2px solid #000; outline-offset:2px; }
 
     .muted { color:#666; }
-    .small { font-size: 0.9rem; color:#444; }
+    .small { font-size:0.9rem; color:#444; }
 
     /* METAR MODAL */
-    #metarOverlay {
-      position: fixed;
-      inset: 0;
-      background: rgba(0,0,0,0.35);
-      display: none;
-      align-items: center;
-      justify-content: center;
-      padding: 18px;
-      z-index: 5000;
-    }
-    #metarModal {
-      width: min(860px, 100%);
-      background: #fff;
-      border: 2px solid #111;
-      border-radius: 14px;
-      padding: 12px;
-      box-shadow: 0 10px 30px rgba(0,0,0,0.25);
-    }
-    .modalHdr {
-      display:flex;
-      align-items: flex-start;
-      justify-content: space-between;
-      gap: 12px;
-      margin-bottom: 10px;
-    }
-    .modalTitle { font-size: 1.05rem; font-weight: 900; margin: 0; }
-    .modalSub { font-size: 0.9rem; color:#333; margin-top: 2px; }
-    .modalClose {
-      border: 1px solid #111;
-      background:#fff;
-      border-radius: 10px;
-      padding: 6px 10px;
-      cursor: pointer;
-      font-weight: 800;
-      white-space: nowrap;
-    }
-    pre.metarBox {
-      margin: 0;
-      border: 1px solid #333;
-      border-radius: 12px;
-      padding: 10px;
-      background: #fafafa;
-      overflow: auto;
-      white-space: pre-wrap;
-      word-break: break-word;
-      font-size: 0.95rem;
-      line-height: 1.35;
-      min-height: 140px;
-    }
-    .metarHint {
-      margin-top: 10px;
-      font-size: 0.9rem;
-      color:#333;
-    }
+    #metarOverlay { position:fixed; inset:0; background:rgba(0,0,0,0.35); display:none; align-items:center; justify-content:center; padding:18px; z-index:5000; }
+    #metarModal { width:min(860px, 100%); background:#fff; border:2px solid #111; border-radius:14px; padding:12px; box-shadow:0 10px 30px rgba(0,0,0,0.25); }
+    .modalHdr { display:flex; align-items:flex-start; justify-content:space-between; gap:12px; margin-bottom:10px; }
+    .modalTitle { font-size:1.05rem; font-weight:900; margin:0; }
+    .modalSub { font-size:0.9rem; color:#333; margin-top:2px; }
+    .modalClose { border:1px solid #111; background:#fff; border-radius:10px; padding:6px 10px; cursor:pointer; font-weight:800; white-space:nowrap; }
+    pre.metarBox { margin:0; border:1px solid #333; border-radius:12px; padding:10px; background:#fafafa; overflow:auto; white-space:pre-wrap; word-break:break-word; font-size:0.95rem; line-height:1.35; min-height:140px; }
+    .metarHint { margin-top:10px; font-size:0.9rem; color:#333; }
     .metarHint code { font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, "Liberation Mono", monospace; }
   </style>
 </head>
@@ -241,7 +142,6 @@
   <div class="meta" id="meta">Loading…</div>
 </header>
 
-<!-- OVERALL STATUS BAR -->
 <div id="overallBar" class="overall overall-ok" role="status" aria-live="polite">
   <div class="overall-left">
     <span id="overallDot" class="overall-dot dot-ok" aria-hidden="true"></span>
@@ -259,34 +159,23 @@
   <span><span class="dot dot-ok"></span> OK</span>
 </div>
 
-<!-- Toggles -->
 <div class="toggles">
   <div class="toggle">
     <span class="label">Cloud overlay</span>
-    <label class="switch" title="Toggle cloud satellite overlay">
-      <input type="checkbox" id="cloudToggle">
-      <span class="slider"></span>
-    </label>
+    <label class="switch"><input type="checkbox" id="cloudToggle"><span class="slider"></span></label>
   </div>
 
   <div class="toggle">
     <span class="label">Radar overlay</span>
-    <label class="switch" title="Toggle radar overlay">
-      <input type="checkbox" id="radarToggle">
-      <span class="slider"></span>
-    </label>
+    <label class="switch"><input type="checkbox" id="radarToggle"><span class="slider"></span></label>
   </div>
 
   <div class="toggle">
     <span class="label">Flight rules colors</span>
-    <label class="switch" title="Color dots by flight rules (click flight pill for METAR)">
-      <input type="checkbox" id="flightRulesToggle">
-      <span class="slider"></span>
-    </label>
+    <label class="switch"><input type="checkbox" id="flightRulesToggle"><span class="slider"></span></label>
   </div>
 </div>
 
-<!-- Flight rules key: appears only when toggle on -->
 <div id="frKey">
   <span class="title">Flight Rules Key:</span>
   <span class="keyItem"><span class="keyDot k-vfr"></span> VFR</span>
@@ -296,15 +185,14 @@
   <span class="keyItem"><span class="keyDot k-unk"></span> UNK</span>
 </div>
 
-<!-- Separate opacity controls -->
 <div class="opacityCtl">
-  <div class="opacityGroup">
+  <div class="opacityGroup" id="cloudOpacityGroup">
     <label for="cloudOpacity">Cloud opacity</label>
     <input id="cloudOpacity" type="range" min="0" max="100" value="55" />
     <span class="pct" id="cloudPct">55%</span>
   </div>
 
-  <div class="opacityGroup">
+  <div class="opacityGroup" id="radarOpacityGroup">
     <label for="radarOpacity">Radar opacity</label>
     <input id="radarOpacity" type="range" min="0" max="100" value="55" />
     <span class="pct" id="radarPct">55%</span>
@@ -313,7 +201,6 @@
 
 <div class="grid" id="grid"></div>
 
-<!-- METAR Modal -->
 <div id="metarOverlay" aria-hidden="true">
   <div id="metarModal" role="dialog" aria-modal="true" aria-labelledby="metarTitle">
     <div class="modalHdr">
@@ -335,10 +222,6 @@ const REFRESH_MS = 5 * 60 * 1000;
 let LAST_AIRPORTS = {};
 let LAST_NAME_BY_CODE = {};
 
-// Cache live METAR fetches (so you don’t hammer the API)
-const METAR_CACHE = new Map(); // station -> { ts: ms, text: string }
-const METAR_CACHE_TTL_MS = 2 * 60 * 1000; // 2 minutes
-
 function esc(s){
   return (s ?? "").toString().replace(/[&<>"']/g, c => ({
     "&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"
@@ -352,7 +235,6 @@ function statusPill(status){
   return '<span class="pill pill-ok">OK</span>';
 }
 
-/* CLICKABLE flight pill -> opens METAR */
 function flightPill(cat, code){
   const c = (cat || "UNK").toUpperCase();
   let cls = "pill-unk";
@@ -360,7 +242,6 @@ function flightPill(cat, code){
   else if (c === "MVFR") cls = "pill-mvfr";
   else if (c === "IFR") cls = "pill-ifr";
   else if (c === "LIFR") cls = "pill-lifr";
-
   return `<span class="pill ${cls} metar-pill" role="button" tabindex="0" data-code="${esc(code)}" title="Click to view METAR">${esc(c)}</span>`;
 }
 
@@ -380,7 +261,6 @@ function flightRuleColor(cat){
   return "#95a5a6";
 }
 
-/* OVERALL BAR UPDATE */
 function updateOverallBar(airportsObj){
   const bar = document.getElementById("overallBar");
   const dot = document.getElementById("overallDot");
@@ -422,9 +302,7 @@ function updateOverallBar(airportsObj){
   countsEl.textContent = parts.join("  |  ");
 }
 
-// -----------------------------
-// Map setup
-// -----------------------------
+// ---- Map
 const map = L.map("map").setView([40.9, -77.7], 7);
 
 L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
@@ -432,7 +310,6 @@ L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
   attribution: "&copy; OpenStreetMap"
 }).addTo(map);
 
-// Overlays
 const clouds = L.tileLayer(
   "https://mesonet.agron.iastate.edu/cache/tile.py/1.0.0/sat/{z}/{x}/{y}.png",
   { maxZoom: 8, opacity: 0.55, attribution: "NOAA GOES-East (IEM)" }
@@ -445,10 +322,13 @@ const radar = L.tileLayer(
 
 const markers = L.layerGroup().addTo(map);
 
-// UI wiring
+// ---- UI
 const cloudToggle = document.getElementById("cloudToggle");
 const radarToggle = document.getElementById("radarToggle");
 const flightRulesToggle = document.getElementById("flightRulesToggle");
+
+const cloudOpacityGroup = document.getElementById("cloudOpacityGroup");
+const radarOpacityGroup = document.getElementById("radarOpacityGroup");
 
 const cloudOpacity = document.getElementById("cloudOpacity");
 const radarOpacity = document.getElementById("radarOpacity");
@@ -459,41 +339,44 @@ const refreshBtn = document.getElementById("refreshBtn");
 const meta = document.getElementById("meta");
 const frKey = document.getElementById("frKey");
 
-function applyCloudOpacity(){
-  const v = Math.max(0, Math.min(100, Number(cloudOpacity.value)));
-  cloudPct.textContent = v + "%";
-  clouds.setOpacity(v / 100);
-}
-function applyRadarOpacity(){
-  const v = Math.max(0, Math.min(100, Number(radarOpacity.value)));
-  radarPct.textContent = v + "%";
-  radar.setOpacity(v / 100);
-}
-
-cloudToggle.addEventListener("change", () => {
-  if (cloudToggle.checked) clouds.addTo(map);
-  else map.removeLayer(clouds);
-});
-
-radarToggle.addEventListener("change", () => {
-  if (radarToggle.checked) radar.addTo(map);
-  else map.removeLayer(radar);
-});
-
-cloudOpacity.addEventListener("input", applyCloudOpacity);
-radarOpacity.addEventListener("input", applyRadarOpacity);
-
-// Initialize displayed pct + layer opacity
-applyCloudOpacity();
-applyRadarOpacity();
-
 function syncFlightRulesKey(){
   frKey.style.display = flightRulesToggle.checked ? "flex" : "none";
 }
 
-// -----------------------------
-// METAR Modal
-// -----------------------------
+function setCloudUI(){
+  cloudOpacityGroup.style.display = cloudToggle.checked ? "flex" : "none";
+  if (cloudToggle.checked) clouds.addTo(map);
+  else map.removeLayer(clouds);
+}
+function setRadarUI(){
+  radarOpacityGroup.style.display = radarToggle.checked ? "flex" : "none";
+  if (radarToggle.checked) radar.addTo(map);
+  else map.removeLayer(radar);
+}
+
+cloudToggle.addEventListener("change", setCloudUI);
+radarToggle.addEventListener("change", setRadarUI);
+
+cloudOpacity.addEventListener("input", () => {
+  const v = Math.max(0, Math.min(100, Number(cloudOpacity.value)));
+  cloudPct.textContent = v + "%";
+  clouds.setOpacity(v / 100);
+});
+radarOpacity.addEventListener("input", () => {
+  const v = Math.max(0, Math.min(100, Number(radarOpacity.value)));
+  radarPct.textContent = v + "%";
+  radar.setOpacity(v / 100);
+});
+
+// initialize
+cloudPct.textContent = cloudOpacity.value + "%";
+radarPct.textContent = radarOpacity.value + "%";
+clouds.setOpacity(Number(cloudOpacity.value) / 100);
+radar.setOpacity(Number(radarOpacity.value) / 100);
+setCloudUI();
+setRadarUI();
+
+// ---- METAR Modal
 const metarOverlay = document.getElementById("metarOverlay");
 const metarCloseBtn = document.getElementById("metarCloseBtn");
 const metarTitle = document.getElementById("metarTitle");
@@ -505,57 +388,30 @@ function closeMetar(){
   metarOverlay.style.display = "none";
   metarOverlay.setAttribute("aria-hidden", "true");
 }
-
 metarCloseBtn.addEventListener("click", closeMetar);
-metarOverlay.addEventListener("click", (e) => {
-  if (e.target === metarOverlay) closeMetar();
-});
-document.addEventListener("keydown", (e) => {
-  if (e.key === "Escape" && metarOverlay.style.display === "flex") closeMetar();
-});
+metarOverlay.addEventListener("click", (e) => { if (e.target === metarOverlay) closeMetar(); });
+document.addEventListener("keydown", (e) => { if (e.key === "Escape" && metarOverlay.style.display === "flex") closeMetar(); });
 
 function stationFromCode(code){
   const c = (code || "").toUpperCase().trim();
-  // If your list is 3-letter (PIT), assume ICAO is KPIT.
-  // If it’s already 4 letters (KMDT), use as-is.
   if (c.length === 3) return "K" + c;
   return c;
 }
 
 function getEmbeddedMetarText(code){
   const st = (LAST_AIRPORTS || {})[code] || {};
-  return (
-    st.metar_raw ||
-    st.metar ||
-    st.raw_metar ||
-    st.metar_text ||
-    st.metar_utc ||
-    st.metar_string ||
-    ""
-  );
+  return (st.metar_raw || st.metar || st.raw_metar || st.metar_text || st.metar_utc || st.metar_string || "");
 }
 
-/*
-  LIVE METAR fetch:
-  Uses aviationweather.gov API which is the most likely to work from a browser.
-  If CORS is blocked in your environment, the modal will tell you to proxy it server-side.
-*/
-async function fetchLiveMetar(station){
-  const now = Date.now();
-  const cached = METAR_CACHE.get(station);
-  if (cached && (now - cached.ts) < METAR_CACHE_TTL_MS) return cached.text;
-
-  // Raw METAR string (most recent). Hours=2 gives a little buffer.
-  const url = `https://aviationweather.gov/api/data/metar?ids=${encodeURIComponent(station)}&format=raw&hours=2&taf=false`;
-
+async function fetchMetarViaProxy(station){
+  const url = `metar.php?station=${encodeURIComponent(station)}`;
   const resp = await fetch(url, { cache: "no-store" });
-  if (!resp.ok) throw new Error(`METAR fetch failed: HTTP ${resp.status}`);
-
-  const text = (await resp.text()).trim();
-  if (!text) throw new Error("No METAR returned.");
-
-  METAR_CACHE.set(station, { ts: now, text });
-  return text;
+  const j = await resp.json().catch(() => null);
+  if (!resp.ok || !j || !j.ok) {
+    const msg = (j && j.error) ? j.error : `HTTP ${resp.status}`;
+    throw new Error(msg);
+  }
+  return j.metar;
 }
 
 async function openMetar(code){
@@ -573,7 +429,6 @@ async function openMetar(code){
   metarOverlay.setAttribute("aria-hidden", "false");
   metarCloseBtn.focus();
 
-  // 1) Prefer embedded METAR in status.json (fastest, no internet calls)
   const embedded = getEmbeddedMetarText(code);
   if (embedded) {
     metarBody.textContent = embedded;
@@ -581,28 +436,24 @@ async function openMetar(code){
     return;
   }
 
-  // 2) Otherwise try live fetch
   const station = stationFromCode(code);
-
   try {
-    const live = await fetchLiveMetar(station);
-    metarBody.textContent = live;
-    metarHint.innerHTML =
-      `Source: <code>aviationweather.gov</code> • Station: <code>${esc(station)}</code>`;
+    const metar = await fetchMetarViaProxy(station);
+    metarBody.textContent = metar;
+    metarHint.innerHTML = `Source: <code>metar.php</code> • Station: <code>${esc(station)}</code>`;
   } catch (err) {
     metarBody.textContent =
-      `Could not load live METAR for ${station}.\n\n` +
+      `Could not load METAR for ${station}.\n\n` +
       `Reason: ${err && err.message ? err.message : "Unknown error"}\n\n` +
       `Fix options:\n` +
-      `1) Best: add a METAR field into status.json under airports["${code}"] (metar_raw recommended).\n` +
-      `2) Or: run a small server-side proxy endpoint (same origin) that fetches METAR and returns it with CORS allowed.`;
-
-    metarHint.innerHTML =
-      `If you see a CORS error in DevTools, that’s the browser blocking cross-site fetch.`;
+      `1) Confirm metar.php is in the same folder and accessible.\n` +
+      `2) Open metar.php?station=${station} in your browser and see what it returns.\n` +
+      `3) Best: add metar_raw into status.json under airports["${code}"].`;
+    metarHint.innerHTML = `Source attempted: <code>metar.php</code>`;
   }
 }
 
-// Event delegation: click or Enter/Space on flight pill
+// delegation for pills
 document.getElementById("grid").addEventListener("click", (e) => {
   const t = e.target.closest(".metar-pill");
   if (!t) return;
@@ -619,9 +470,7 @@ document.getElementById("grid").addEventListener("keydown", (e) => {
   }
 });
 
-// -----------------------------
-// Data load + render
-// -----------------------------
+// ---- Data render
 async function load(){
   const r = await fetch("status.json?ts=" + Date.now());
   if (!r.ok) throw new Error("Failed to load status.json: HTTP " + r.status);
@@ -631,29 +480,21 @@ async function load(){
 
   const regions = d.regions || {};
   const airports = d.airports || {};
-
-  // Cache for modal
   LAST_AIRPORTS = airports;
   LAST_NAME_BY_CODE = {};
 
   updateOverallBar(airports);
-
-  // Map markers
   markers.clearLayers();
 
   const showFRColors = !!flightRulesToggle.checked;
 
-  // Build region tables
   let html = "";
-
   for (const regionName of Object.keys(regions)) {
     let rows = "";
-
     for (const a of (regions[regionName] || [])) {
       const st = airports[a.code] || {};
       LAST_NAME_BY_CODE[a.code] = a.name || "";
 
-      // Marker color: status normally, flight rules when toggle is ON
       const col = showFRColors ? flightRuleColor(st.flight_category) : markerColor(st.status);
 
       L.circleMarker([a.lat, a.lon], {
@@ -691,16 +532,12 @@ async function load(){
   }
 
   document.getElementById("grid").innerHTML = html;
-
   syncFlightRulesKey();
 }
 
 async function refresh(){
-  try {
-    await load();
-  } catch (e) {
-    meta.textContent = "Error: " + (e && e.message ? e.message : "Unknown error");
-  }
+  try { await load(); }
+  catch(e){ meta.textContent = "Error: " + (e && e.message ? e.message : "Unknown error"); }
 }
 
 refreshBtn.addEventListener("click", refresh);
