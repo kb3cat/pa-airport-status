@@ -4,8 +4,10 @@ import os
 import re
 import sys
 from datetime import datetime, timezone
-
 import requests
+import gzip
+import io
+import xml.etree.ElementTree as ET
 
 
 # -----------------------------
@@ -70,40 +72,29 @@ def build_regions():
 # FAA NAS Status parsing
 # -----------------------------
 def fetch_airport_status_information():
-    """
-    Returns:
-      closures: {"ABE": "<reason string>"}
-      impacts:  {"ABE": "<reason string>"}   # delays/ground stops/other active airport events
-    """
-    import xml.etree.ElementTree as ET
-
-    def strip_ns(tag: str) -> str:
-        return tag.split("}", 1)[-1] if "}" in tag else tag
-
     closures = {}
     impacts = {}
 
     r = requests.get(FAA_AIRPORT_STATUS_XML, timeout=30)
     r.raise_for_status()
 
-    text = r.text.strip()
-    text = re.sub(r"^\ufeff", "", text)
-
+    text = re.sub(r"^\ufeff", "", r.text.strip())
     root = ET.fromstring(text)
-    # strip namespaces in-place
-    for el in root.iter():
-        el.tag = strip_ns(el.tag)
 
-    # Scan any "*_List" nodes that contain Airport children with ARPT codes.
+    # strip namespaces
+    for el in root.iter():
+        if "}" in el.tag:
+            el.tag = el.tag.split("}", 1)[1]
+
     for list_el in root.iter():
         tag = list_el.tag or ""
         if not tag.endswith("_List"):
             continue
 
-        is_closure_list = ("Closure" in tag) or ("Closures" in tag)
+        is_closure_list = ("Closure" in tag)
 
         for ap in list_el.findall(".//Airport"):
-            arpt = ap.findtext("ARPT") or ap.findtext("Airport") or ap.findtext("ARPT_ID")
+            arpt = ap.findtext("ARPT")
             if not arpt:
                 continue
 
@@ -111,9 +102,8 @@ def fetch_airport_status_information():
             if arpt not in PA_SET:
                 continue
 
-            reason = (ap.findtext("Reason") or ap.findtext("REASON") or "").strip()
+            reason = (ap.findtext("Reason") or "").strip()
             if not reason:
-                # fallback: flatten airport node
                 reason = " ".join((ap.itertext() or [])).strip()
                 reason = re.sub(r"\s+", " ", reason)
 
@@ -126,62 +116,33 @@ def fetch_airport_status_information():
 
 
 # -----------------------------
-# METAR Flight Category (JSON)
+# METAR Flight Category (CACHE)
 # -----------------------------
 def fetch_flight_categories(metar_ids):
     """
-    Returns dict like {"KABE":"VFR","KAVP":"IFR",...}
-
-    Uses AviationWeather.gov AWC Data API JSON to avoid XML parsing issues and
-    handles 204 'no data' cleanly. Also sets a custom User-Agent (recommended for
-    automated clients / helps reduce filtering).
+    Pulls full METAR cache (~once/min updates), filters locally.
+    This is FAR more reliable than per-station API calls.
     """
     if not metar_ids:
         return {}
 
-    ids_param = ",".join(metar_ids)
+    url = "https://aviationweather.gov/data/cache/metars.cache.json.gz"
+    headers = {"User-Agent": "PA-Airport-StatusBoard/1.0 (GitHub Actions)"}
 
-    # hours= makes "no data" much less likely during quiet periods
-    url = f"https://aviationweather.gov/api/data/metar?format=json&hours=6&ids={ids_param}"
-
-    headers = {
-        "User-Agent": "PA-Airport-StatusBoard/1.0 (GitHub Actions)"
-    }
-
-    r = requests.get(url, headers=headers, timeout=30)
-
-    # 204 = valid request, no METAR returned
-    if r.status_code == 204:
-        print("[INFO] METAR API returned 204 (no data).", file=sys.stderr)
-        return {}
-
-    # Helpful diagnostics if something goes sideways
-    if r.status_code >= 400:
-        body = (r.text or "")[:500].replace("\n", " ")
-        print(f"[WARN] METAR API HTTP {r.status_code}. Body (first 500): {body}", file=sys.stderr)
-
+    r = requests.get(url, headers=headers, timeout=60)
     r.raise_for_status()
 
-    data = r.json()
-    # Data is expected to be a list of METAR objects
+    with gzip.GzipFile(fileobj=io.BytesIO(r.content)) as gz:
+        data = json.loads(gz.read().decode("utf-8", errors="replace"))
+
+    want = set(x.upper() for x in metar_ids)
     cats = {}
 
-    if isinstance(data, dict):
-        # Occasionally APIs wrap results; try to be resilient
-        data = data.get("data") or data.get("metar") or data.get("METAR") or []
-
-    if not isinstance(data, list):
-        print("[WARN] METAR JSON unexpected shape; expected list.", file=sys.stderr)
-        return {}
-
     for m in data:
-        if not isinstance(m, dict):
+        sid = (m.get("stationId") or m.get("station_id") or "").strip().upper()
+        if sid not in want:
             continue
-
-        sid = (m.get("stationId") or m.get("station_id") or m.get("station") or "").strip().upper()
-        # Newer JSON uses fltCat; some variants use flight_category
-        fc = (m.get("fltCat") or m.get("flight_category") or m.get("flightCategory") or "").strip().upper()
-
+        fc = (m.get("fltCat") or m.get("flight_category") or "").strip().upper()
         if sid and fc:
             cats[sid] = fc
 
@@ -194,7 +155,6 @@ def fetch_flight_categories(metar_ids):
 def main():
     generated_utc = utc_now_str()
 
-    # Default status objects
     airports_status = {
         code: {
             "code": code,
@@ -206,13 +166,13 @@ def main():
         for code in PA_CODES
     }
 
-    # FAA closures/impacts
+    # FAA closures / impacts
     try:
         closures, impacts = fetch_airport_status_information()
-        print(f"[INFO] FAA closures: {len(closures)}; impacts: {len(impacts)}", file=sys.stderr)
+        print(f"[INFO] FAA closures: {len(closures)}, impacts: {len(impacts)}", file=sys.stderr)
     except Exception as e:
         closures, impacts = {}, {}
-        print(f"[WARN] FAA airport-status-information fetch failed: {e}", file=sys.stderr)
+        print(f"[WARN] FAA fetch failed: {e}", file=sys.stderr)
 
     for code, reason in closures.items():
         st = airports_status[code]
@@ -222,31 +182,31 @@ def main():
 
     for code, reason in impacts.items():
         st = airports_status[code]
-        if st.get("closed"):
+        if st["closed"]:
             continue
         st["status"] = "IMPACT"
         st["events"] = [{"type": "Impact", "reason": reason}]
 
-    # METAR flight categories
+    # METAR flight categories (cache-based)
     metar_ids = [a["metar"].upper() for a in AIRPORTS if a.get("metar")]
     try:
         fc_map = fetch_flight_categories(metar_ids)
-        print(f"[INFO] METAR flight categories fetched: {len(fc_map)} of {len(metar_ids)}", file=sys.stderr)
+        print(f"[INFO] METAR flight categories: {len(fc_map)} of {len(metar_ids)}", file=sys.stderr)
     except Exception as e:
         fc_map = {}
         print(f"[WARN] METAR fetch failed: {e}", file=sys.stderr)
 
     for a in AIRPORTS:
         code = a["code"]
-        metar = (a.get("metar") or "").upper()
+        metar = a["metar"].upper()
         airports_status[code]["flight_category"] = fc_map.get(metar, "UNK")
 
     out = {
         "generated_utc": generated_utc,
         "regions": build_regions(),
         "airports": airports_status,
-        "source": "nasstatus.faa.gov/api/airport-status-information + aviationweather.gov METAR (JSON flight category)",
-        "note": "Temporary closures/impacts from FAA NAS Status; flight categories from METAR (VFR/MVFR/IFR/LIFR).",
+        "source": "nasstatus.faa.gov + aviationweather.gov METAR cache",
+        "note": "Temporary closures from FAA NAS Status; flight categories from NOAA METAR cache.",
     }
 
     os.makedirs("docs", exist_ok=True)
