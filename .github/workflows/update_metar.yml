@@ -1,9 +1,9 @@
-name: Update METAR in status.json
+name: Update METAR fields in status.json
 
 on:
   workflow_dispatch:
   schedule:
-    - cron: "*/5 * * * *"   # every 5 minutes (GitHub schedules are best-effort)
+    - cron: "*/10 * * * *"   # every 10 min (more reliable than 5)
 
 permissions:
   contents: write
@@ -15,7 +15,6 @@ concurrency:
 jobs:
   update:
     runs-on: ubuntu-latest
-
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -25,11 +24,11 @@ jobs:
         with:
           python-version: "3.x"
 
-      - name: Update METAR fields in status.json
+      - name: Update METAR + impact fields in docs/status.json
         run: python3 scripts/update_metar.py
         env:
-          STATUS_JSON_PATH: status.json
-          OUTPUT_JSON_PATH: status.json
+          STATUS_JSON_PATH: docs/status.json
+          OUTPUT_JSON_PATH: docs/status.json
           SLEEP_BETWEEN_REQUESTS_MS: "150"
 
       - name: Commit and push if changed
@@ -42,6 +41,6 @@ jobs:
             exit 0
           fi
 
-          git add status.json
-          git commit -m "Update METAR in status.json"
+          git add docs/status.json
+          git commit -m "Update METAR + impact fields"
           git push
