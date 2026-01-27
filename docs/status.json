@@ -1,5 +1,5 @@
 {
-  "generated_utc": "2026-01-27 05:04:29Z",
+  "generated_utc": "2026-01-27 05:41:38Z",
   "regions": {
     "Western": [
       {
@@ -147,7 +147,7 @@
       "closed": false,
       "closure_reason": "",
       "events": [],
-      "flight_category": "IFR"
+      "flight_category": "MVFR"
     },
     "DUJ": {
       "code": "DUJ",
@@ -203,7 +203,7 @@
       "closed": false,
       "closure_reason": "",
       "events": [],
-      "flight_category": "MVFR"
+      "flight_category": "VFR"
     },
     "PHL": {
       "code": "PHL",
@@ -262,6 +262,6 @@
       "flight_category": "UNK"
     }
   },
-  "source": "nasstatus.faa.gov + aviationweather.gov Data API",
-  "note": "Closures from FAA NAS Status; flight categories from NOAA ADDS METAR feed."
+  "source": "nasstatus.faa.gov + aviationweather.gov Data API (metar)",
+  "note": "Closures from FAA NAS Status; flight categories from AWC METAR feed."
 }
