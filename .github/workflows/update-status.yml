@@ -1,61 +1,399 @@
-name: Update PA Airport Status (docs/status.json)
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>PA Airport Status</title>
 
-on:
-  workflow_dispatch:
-  schedule:
-    - cron: "*/5 * * * *"
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 
-permissions:
-  contents: write
+  <style>
+    body { font-family: system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif; margin: 16px; color:#111; }
+    header { display:flex; flex-wrap:wrap; align-items:baseline; gap: 10px; margin-bottom: 10px; }
+    h1 { font-size: 1.25rem; margin: 0; }
+    .meta { font-size: 0.9rem; color:#333; }
+    .btn { padding: 6px 10px; border-radius: 10px; border:1px solid #333; background:#fff; cursor:pointer; }
 
-concurrency:
-  group: pa-airport-status
-  cancel-in-progress: true
+    #overallBar{
+      border:1px solid #333; border-radius:12px; padding:10px; margin:10px 0 12px 0;
+      background:#fff; display:flex; flex-wrap:wrap; gap:10px 14px; align-items:center;
+    }
+    #overallBar .big{ font-weight:900; font-size:1.05rem; margin-right:8px; }
+    .chip{
+      display:inline-flex; align-items:center; gap:8px; border:1px solid #333; border-radius:999px;
+      padding:4px 10px; font-weight:900; font-size:0.9rem; white-space:nowrap; background:#f6f6f6;
+    }
+    .dot{ width:10px; height:10px; border-radius:999px; display:inline-block; border:1px solid #333; }
+    .dot-ok{ background:#2ecc71; }
+    .dot-impact{ background:#f1c40f; }
+    .dot-closed{ background:#e74c3c; }
+    .dot-ifr{ background:#e74c3c; }
 
-jobs:
-  update:
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v4
+    #map { height: 360px; border: 1px solid #333; border-radius: 12px; overflow:hidden; background:#fafafa; }
 
-      - name: Show repo tree (debug)
-        run: |
-          echo "ROOT:"
-          ls -la
-          echo ""
-          echo "DOCS:"
-          ls -la docs || true
-          echo ""
-          echo "SCRIPTS:"
-          ls -la scripts || true
+    .legend { display:flex; gap: 12px; align-items:center; margin-top: 8px; font-size: 0.9rem; color:#222; flex-wrap:wrap; }
 
-      - name: Set up Python
-        uses: actions/setup-python@v5
-        with:
-          python-version: "3.11"
+    .ctlRow { margin-top:10px; display:flex; gap:14px; flex-wrap:wrap; align-items:center; font-size:0.95rem; }
 
-      - name: Install nothing (pure stdlib)
-        run: python3 -V
+    .switch { display:inline-flex; align-items:center; gap:10px; border:1px solid #333; border-radius:999px; padding:6px 10px; background:#fff; user-select:none; }
+    .switch input{ display:none; }
+    .pillSwitch{ width:44px; height:24px; border-radius:999px; border:1px solid #333; background:#ddd; position:relative; flex:0 0 auto; }
+    .pillSwitch::after{ content:""; position:absolute; top:2px; left:2px; width:18px; height:18px; border-radius:999px; background:#fff; border:1px solid #333; transition:transform 140ms ease; }
+    .switch input:checked + .pillSwitch{ background:#cfe9ff; }
+    .switch input:checked + .pillSwitch::after{ transform:translateX(20px); }
+    .switch span.labelTxt{ font-weight:900; }
 
-      - name: Update docs/status.json
-        run: python3 scripts/update_status.py
+    .sliderWrap{ display:flex; align-items:center; gap:10px; border:1px solid #333; border-radius:999px; padding:6px 10px; background:#fff; }
+    .sliderWrap label{ font-weight:900; }
+    input[type="range"]{ width:180px; }
+    .pct{ font-variant-numeric:tabular-nums; font-weight:900; }
 
-      - name: Show first lines of docs/status.json (debug)
-        run: |
-          echo "---- docs/status.json head ----"
-          head -n 20 docs/status.json || true
+    #flightKey{ margin-top:8px; display:none; border:1px solid #333; border-radius:12px; padding:8px 10px; background:#fff; font-size:0.9rem; flex-wrap:wrap; gap:12px; align-items:center; }
+    .dot-vfr{ background:#2ecc71; }
+    .dot-mvfr{ background:#f1c40f; }
+    .dot-lifr{ background:#7d3cff; }
+    .dot-unk{ background:#999; }
 
-      - name: Commit and push if changed
-        run: |
-          git config user.name "github-actions[bot]"
-          git config user.email "github-actions[bot]@users.noreply.github.com"
+    .grid { display:grid; grid-template-columns: repeat(auto-fit, minmax(440px, 1fr)); gap: 12px; margin-top: 12px; }
+    .card { border:1px solid #333; border-radius: 12px; padding: 10px; background:#fff; }
+    .card h2 { margin: 0 0 8px 0; font-size: 1.05rem; }
 
-          if git diff --quiet; then
-            echo "No changes to commit."
-            exit 0
-          fi
+    table { width:100%; border-collapse: collapse; }
+    th, td { text-align:left; vertical-align: top; padding: 6px; border-top: 1px solid #ddd; }
+    th { font-weight: 800; }
 
-          git add docs/status.json
-          git commit -m "Update docs/status.json"
-          git push
+    .pill{ display:inline-block; padding:2px 10px; border-radius:999px; border:1px solid #333; font-size:0.85rem; font-weight:900; line-height:1.4; white-space:nowrap; cursor:default; }
+    .pill.ok{ background:#d4edda; }
+    .pill.impact{ background:#fff3cd; }
+    .pill.closed{ background:#f8d7da; }
+
+    .pill.flight{ cursor:pointer; }
+    .pill.vfr{ background:#d4edda; }
+    .pill.mvfr{ background:#fff3cd; }
+    .pill.ifr{ background:#f8d7da; }
+    .pill.lifr{ background:#e6d6ff; }
+    .pill.unk{ background:#eee; }
+
+    .muted{ color:#666; }
+    .small{ font-size:0.9rem; color:#444; }
+
+    #modalBackdrop{ position:fixed; inset:0; background:rgba(0,0,0,0.45); display:none; align-items:center; justify-content:center; padding:16px; z-index:9999; }
+    #modalBox{ width:min(860px, 96vw); background:#fff; border-radius:14px; border:1px solid #333; box-shadow:0 12px 40px rgba(0,0,0,0.25); overflow:hidden; }
+    #modalHead{ display:flex; align-items:center; justify-content:space-between; padding:10px 12px; border-bottom:1px solid #ddd; gap:12px; }
+    #modalTitle{ font-weight:900; }
+    #modalClose{ border:1px solid #333; background:#fff; border-radius:10px; padding:6px 10px; cursor:pointer; font-weight:900; }
+    #modalBody{ padding:12px; }
+    #metarText{ white-space:pre-wrap; font-family:ui-monospace, SFMono-Regular, Menlo, Consolas, "Liberation Mono", monospace; font-size:0.95rem; margin:0; padding:10px; border:1px solid #ddd; border-radius:12px; background:#fafafa; }
+  </style>
+</head>
+
+<body>
+<header>
+  <h1>PA Airport Status</h1>
+  <button class="btn" id="refreshBtn">Refresh</button>
+  <div class="meta" id="meta">Loading…</div>
+</header>
+
+<div id="overallBar">
+  <span class="big">Overall:</span>
+  <span class="chip"><span class="dot dot-ok"></span> OK: <span id="cntOk">–</span></span>
+  <span class="chip"><span class="dot dot-impact"></span> IMPACT: <span id="cntImpact">–</span></span>
+  <span class="chip"><span class="dot dot-closed"></span> CLOSED: <span id="cntClosed">–</span></span>
+  <span class="chip"><span class="dot dot-ifr"></span> IFR/LIFR: <span id="cntIFR">–</span></span>
+</div>
+
+<div id="map"></div>
+
+<div class="legend">
+  <span><span class="dot dot-closed"></span> CLOSED</span>
+  <span><span class="dot dot-impact"></span> IMPACT</span>
+  <span><span class="dot dot-ok"></span> OK</span>
+</div>
+
+<div class="ctlRow">
+  <label class="switch"><input type="checkbox" id="cloudToggle"><span class="pillSwitch"></span><span class="labelTxt">Clouds</span></label>
+  <div class="sliderWrap" id="cloudOpacityWrap" style="display:none">
+    <label for="cloudOpacity">Cloud opacity</label>
+    <input id="cloudOpacity" type="range" min="0" max="100" value="55" />
+    <span class="pct" id="cloudPct">55%</span>
+  </div>
+
+  <label class="switch"><input type="checkbox" id="radarToggle"><span class="pillSwitch"></span><span class="labelTxt">Radar</span></label>
+  <div class="sliderWrap" id="radarOpacityWrap" style="display:none">
+    <label for="radarOpacity">Radar opacity</label>
+    <input id="radarOpacity" type="range" min="0" max="100" value="55" />
+    <span class="pct" id="radarPct">55%</span>
+  </div>
+
+  <label class="switch"><input type="checkbox" id="flightToggle"><span class="pillSwitch"></span><span class="labelTxt">Flight rules on map</span></label>
+</div>
+
+<div id="flightKey" class="legend">
+  <span><span class="dot dot-vfr"></span> VFR</span>
+  <span><span class="dot dot-mvfr"></span> MVFR</span>
+  <span><span class="dot dot-ifr"></span> IFR</span>
+  <span><span class="dot dot-lifr"></span> LIFR</span>
+  <span><span class="dot dot-unk"></span> UNK</span>
+</div>
+
+<div class="grid" id="grid"></div>
+
+<div id="modalBackdrop" role="dialog" aria-modal="true">
+  <div id="modalBox">
+    <div id="modalHead">
+      <div id="modalTitle">METAR</div>
+      <button id="modalClose">Close</button>
+    </div>
+    <div id="modalBody">
+      <pre id="metarText">Loading…</pre>
+    </div>
+  </div>
+</div>
+
+<script>
+const REFRESH_MS = 5 * 60 * 1000;
+
+function esc(s){
+  return (s ?? "").toString().replace(/[&<>"']/g, c => ({
+    "&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"
+  }[c]));
+}
+function normStatus(s){
+  const v = (s || "OK").toUpperCase();
+  if (v === "CLOSED") return "CLOSED";
+  if (v === "IMPACT") return "IMPACT";
+  return "OK";
+}
+function normFlight(c){
+  const v = (c || "UNK").toUpperCase();
+  if (["VFR","MVFR","IFR","LIFR"].includes(v)) return v;
+  return "UNK";
+}
+function colorByStatus(status){
+  const s = normStatus(status);
+  if (s === "CLOSED") return "#e74c3c";
+  if (s === "IMPACT") return "#f1c40f";
+  return "#2ecc71";
+}
+function colorByFlight(cat){
+  const c = normFlight(cat);
+  if (c === "VFR") return "#2ecc71";
+  if (c === "MVFR") return "#f1c40f";
+  if (c === "IFR") return "#e74c3c";
+  if (c === "LIFR") return "#7d3cff";
+  return "#999";
+}
+function statusPill(status){
+  const s = normStatus(status);
+  if (s === "CLOSED") return '<span class="pill closed">CLOSED</span>';
+  if (s === "IMPACT") return '<span class="pill impact">IMPACT</span>';
+  return '<span class="pill ok">OK</span>';
+}
+function flightPill(cat, code){
+  const c = normFlight(cat);
+  const cls = (c==="VFR")?"vfr":(c==="MVFR")?"mvfr":(c==="IFR")?"ifr":(c==="LIFR")?"lifr":"unk";
+  return `<span class="pill flight ${cls}" data-code="${esc(code)}" title="Click for METAR">${esc(c)}</span>`;
+}
+
+const map = L.map("map").setView([40.9, -77.7], 7);
+const base = L.tileLayer("https://{s}.basemaps.cartocdn.com/light_nolabels/{z}/{x}/{y}{r}.png", {
+  maxZoom: 19,
+  attribution: "&copy; OpenStreetMap &copy; CARTO"
+}).addTo(map);
+
+map.createPane("dotsPane");
+map.getPane("dotsPane").style.zIndex = 650;
+
+const clouds = L.tileLayer("https://mesonet.agron.iastate.edu/cache/tile.py/1.0.0/sat/{z}/{x}/{y}.png", {
+  maxZoom: 8, opacity: 0.55, attribution: "NOAA GOES-East"
+});
+const radar = L.tileLayer("https://mesonet.agron.iastate.edu/cache/tile.py/1.0.0/nexrad-n0q-900913/{z}/{x}/{y}.png", {
+  maxZoom: 12, opacity: 0.55, attribution: "IEM NEXRAD"
+});
+const markers = L.layerGroup().addTo(map);
+
+const refreshBtn = document.getElementById("refreshBtn");
+const meta = document.getElementById("meta");
+
+const cloudToggle = document.getElementById("cloudToggle");
+const cloudOpacityWrap = document.getElementById("cloudOpacityWrap");
+const cloudOpacity = document.getElementById("cloudOpacity");
+const cloudPct = document.getElementById("cloudPct");
+
+const radarToggle = document.getElementById("radarToggle");
+const radarOpacityWrap = document.getElementById("radarOpacityWrap");
+const radarOpacity = document.getElementById("radarOpacity");
+const radarPct = document.getElementById("radarPct");
+
+const flightToggle = document.getElementById("flightToggle");
+const flightKey = document.getElementById("flightKey");
+
+const cntOk = document.getElementById("cntOk");
+const cntImpact = document.getElementById("cntImpact");
+const cntClosed = document.getElementById("cntClosed");
+const cntIFR = document.getElementById("cntIFR");
+
+const modalBackdrop = document.getElementById("modalBackdrop");
+const modalTitle = document.getElementById("modalTitle");
+const metarText = document.getElementById("metarText");
+const modalClose = document.getElementById("modalClose");
+
+function showModal(title, body){
+  modalTitle.textContent = title;
+  metarText.textContent = body;
+  modalBackdrop.style.display = "flex";
+}
+function hideModal(){ modalBackdrop.style.display = "none"; }
+modalClose.addEventListener("click", hideModal);
+modalBackdrop.addEventListener("click", (e)=>{ if(e.target===modalBackdrop) hideModal(); });
+document.addEventListener("keydown", (e)=>{ if(e.key==="Escape") hideModal(); });
+
+function setCloudUI(on){
+  cloudOpacityWrap.style.display = on ? "flex" : "none";
+  if (on) clouds.addTo(map); else map.removeLayer(clouds);
+}
+function setRadarUI(on){
+  radarOpacityWrap.style.display = on ? "flex" : "none";
+  if (on) radar.addTo(map); else map.removeLayer(radar);
+}
+function applyCloudOpacity(){
+  const v = Math.max(0, Math.min(100, Number(cloudOpacity.value)));
+  cloudPct.textContent = v + "%";
+  clouds.setOpacity(v/100);
+}
+function applyRadarOpacity(){
+  const v = Math.max(0, Math.min(100, Number(radarOpacity.value)));
+  radarPct.textContent = v + "%";
+  radar.setOpacity(v/100);
+}
+cloudToggle.addEventListener("change", ()=>setCloudUI(cloudToggle.checked));
+radarToggle.addEventListener("change", ()=>setRadarUI(radarToggle.checked));
+cloudOpacity.addEventListener("input", applyCloudOpacity);
+radarOpacity.addEventListener("input", applyRadarOpacity);
+
+let lastData = null;
+flightToggle.addEventListener("change", ()=>{
+  flightKey.style.display = flightToggle.checked ? "flex" : "none";
+  renderMarkers(lastData);
+});
+
+applyCloudOpacity();
+applyRadarOpacity();
+
+async function fetchMetarRaw(station){
+  const url = "https://aviationweather.gov/api/data/metar?ids=" + encodeURIComponent(station) + "&format=raw&hours=2&taf=false";
+  const r = await fetch(url, { cache: "no-store" });
+  if (!r.ok) throw new Error("METAR fetch failed HTTP " + r.status);
+  const t = (await r.text()).trim();
+  if (!t) throw new Error("No METAR returned.");
+  return t;
+}
+function attachMetarClicks(){
+  document.querySelectorAll(".pill.flight[data-code]").forEach(el=>{
+    el.addEventListener("click", async ()=>{
+      const code = el.getAttribute("data-code");
+      try{
+        showModal("METAR – " + code, "Loading…");
+        const t = await fetchMetarRaw(code);
+        showModal("METAR – " + code, t);
+      }catch(e){
+        showModal("METAR – " + code, "Error: " + (e?.message || "Unknown"));
+      }
+    });
+  });
+}
+
+function renderOverall(d){
+  const airports = d?.airports || {};
+  let ok=0, impact=0, closed=0, ifr=0;
+  for (const code of Object.keys(airports)){
+    const st = airports[code] || {};
+    const s = normStatus(st.status);
+    const fc = normFlight(st.flight_category);
+    if (s==="OK") ok++; else if (s==="IMPACT") impact++; else closed++;
+    if (fc==="IFR" || fc==="LIFR") ifr++;
+  }
+  cntOk.textContent = ok;
+  cntImpact.textContent = impact;
+  cntClosed.textContent = closed;
+  cntIFR.textContent = ifr;
+}
+
+function renderMarkers(d){
+  if (!d) return;
+  const regions = d.regions || {};
+  const airports = d.airports || {};
+  markers.clearLayers();
+  const colorModeFlight = !!flightToggle.checked;
+
+  for (const regionName of Object.keys(regions)){
+    for (const a of (regions[regionName] || [])){
+      const st = airports[a.code] || {};
+      const col = colorModeFlight ? colorByFlight(st.flight_category) : colorByStatus(st.status);
+      const popupHtml =
+        `<b>${esc(a.code)}</b><br>${esc(a.name)}<br>` +
+        `Region: ${esc(regionName)}<br>` +
+        `Status: ${esc(normStatus(st.status))}` + (st.impact_reason ? ` <span class="small muted">(${esc(st.impact_reason)})</span>` : ``) + `<br>` +
+        `Flight: ${esc(normFlight(st.flight_category))}`;
+      L.circleMarker([a.lat, a.lon], {
+        pane:"dotsPane", radius:9, weight:2, color:"#000", fillColor:col, fillOpacity:0.92
+      }).bindPopup(popupHtml).addTo(markers);
+    }
+  }
+}
+
+function renderTables(d){
+  const regions = d.regions || {};
+  const airports = d.airports || {};
+  let html = "";
+  for (const regionName of Object.keys(regions)){
+    let rows = "";
+    for (const a of (regions[regionName] || [])){
+      const st = airports[a.code] || {};
+      rows += `
+        <tr>
+          <td><b>${esc(a.code)}</b><br><span class="small muted">${esc(a.name)}</span></td>
+          <td>${statusPill(st.status || "OK")}${st.impact_reason ? `<div class="small muted">${esc(st.impact_reason)}</div>` : ""}</td>
+          <td>${flightPill(st.flight_category || "UNK", a.code)}</td>
+        </tr>
+      `;
+    }
+    html += `
+      <div class="card">
+        <h2>${esc(regionName)}</h2>
+        <table>
+          <tr><th>Airport</th><th>Status</th><th>Flight Rules</th></tr>
+          ${rows}
+        </table>
+      </div>
+    `;
+  }
+  document.getElementById("grid").innerHTML = html;
+  attachMetarClicks();
+}
+
+async function load(){
+  const r = await fetch("status.json?ts=" + Date.now(), { cache: "no-store" });
+  if (!r.ok) throw new Error("Failed to load status.json: HTTP " + r.status);
+  const d = await r.json();
+  lastData = d;
+
+  // THIS is the line that matters:
+  meta.textContent = `Last update: ${d.generated_utc || "unknown"} UTC`;
+
+  renderOverall(d);
+  renderMarkers(d);
+  renderTables(d);
+}
+
+async function refresh(){
+  try { await load(); }
+  catch(e){ meta.textContent = "Error: " + (e?.message || "Unknown error"); }
+}
+refreshBtn.addEventListener("click", refresh);
+refresh();
+setInterval(refresh, REFRESH_MS);
+</script>
+</body>
+</html>
