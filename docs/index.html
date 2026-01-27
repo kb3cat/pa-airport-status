@@ -1,122 +1,256 @@
 <!doctype html>
 <html lang="en">
 <head>
-<meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
-<title>PA Airport Status</title>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>PA Airport Status</title>
 
-<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
-<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+  <!-- Leaflet -->
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 
-<style>
-body { font-family: system-ui,Segoe UI,Roboto,Arial,sans-serif; margin:16px; }
-h1 { font-size:1.3rem; margin:0 0 6px 0; }
+  <style>
+    body { font-family: system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif; margin: 16px; color:#111; }
+    header { display:flex; flex-wrap:wrap; align-items:baseline; gap: 10px; margin-bottom: 10px; }
+    h1 { font-size: 1.25rem; margin: 0; }
+    .meta { font-size: 0.9rem; color:#333; }
+    .btn { padding: 6px 10px; border-radius: 10px; border:1px solid #333; background:#fff; cursor:pointer; }
 
-#map { height:320px; border:1px solid #333; border-radius:12px; }
+    #map { height: 360px; border: 1px solid #333; border-radius: 12px; overflow:hidden; background:#fafafa; }
 
-.grid { display:grid; grid-template-columns:repeat(auto-fit,minmax(420px,1fr)); gap:12px; }
+    .legend { display:flex; gap: 12px; align-items:center; margin-top: 8px; font-size: 0.9rem; color:#222; flex-wrap:wrap; }
+    .dot { width: 10px; height: 10px; border-radius: 999px; display:inline-block; border:1px solid #333; }
+    .dot-ok { background:#2ecc71; }
+    .dot-impact { background:#f1c40f; }
+    .dot-closed { background:#e74c3c; }
 
-.card { border:1px solid #333; border-radius:12px; padding:10px; }
-.card h2 { margin:0 0 8px 0; font-size:1.1rem; }
+    /* Cloud overlay control */
+    #satCtl {
+      margin-top: 8px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      flex-wrap: wrap;
+      font-size: 0.95rem;
+    }
+    #satCtl label { font-weight: 800; }
+    #satOpacity { width: 220px; }
+    #satPct { font-variant-numeric: tabular-nums; font-weight: 800; }
 
-table { width:100%; border-collapse:collapse; }
-th,td { padding:6px; border-top:1px solid #ddd; text-align:left; }
+    .grid { display:grid; grid-template-columns: repeat(auto-fit, minmax(440px, 1fr)); gap: 12px; margin-top: 12px; }
+    .card { border:1px solid #333; border-radius: 12px; padding: 10px; }
+    .card h2 { margin: 0 0 8px 0; font-size: 1.05rem; }
 
-.pill { padding:3px 10px; border-radius:999px; border:1px solid #333; font-weight:800; font-size:.85rem; }
-.ok { background:#d4edda; }
-.impact { background:#fff3cd; }
-.closed { background:#f8d7da; }
+    table { width:100%; border-collapse: collapse; }
+    th, td { text-align:left; vertical-align: top; padding: 6px; border-top: 1px solid #ddd; }
+    th { font-weight: 800; }
 
-#satCtl { margin-top:8px; display:flex; gap:12px; align-items:center; }
-</style>
+    .pill {
+      display:inline-block;
+      padding: 2px 10px;
+      border-radius: 999px;
+      border:1px solid #333;
+      font-size: 0.85rem;
+      font-weight: 900;
+      line-height: 1.4;
+      white-space: nowrap;
+    }
+    .pill-ok { background: #d4edda; }
+    .pill-impact { background: #fff3cd; }
+    .pill-closed { background: #f8d7da; }
+
+    .pill-vfr { background:#d4edda; }
+    .pill-mvfr { background:#fff3cd; }
+    .pill-ifr { background:#f8d7da; }
+    .pill-lifr { background:#e6d6ff; }
+    .pill-unk { background:#eee; }
+
+    .muted { color:#666; }
+    .small { font-size: 0.9rem; color:#444; }
+  </style>
 </head>
 
 <body>
-
-<h1>PA Airport Status</h1>
-<div id="meta">Loading…</div>
+<header>
+  <h1>PA Airport Status</h1>
+  <button class="btn" id="refreshBtn">Refresh</button>
+  <div class="meta" id="meta">Loading…</div>
+</header>
 
 <div id="map"></div>
 
-<div id="satCtl">
-  <label><input type="checkbox" id="satToggle"> Satellite</label>
-  <label>Opacity</label>
-  <input type="range" id="satOpacity" min="0" max="100" value="55">
-  <span id="satPct">55%</span>
+<div class="legend">
+  <span><span class="dot dot-closed"></span> CLOSED</span>
+  <span><span class="dot dot-impact"></span> IMPACT</span>
+  <span><span class="dot dot-ok"></span> OK</span>
 </div>
 
-<br>
+<div id="satCtl">
+  <label><input type="checkbox" id="cloudToggle" /> Cloud satellite overlay</label>
+  <label for="satOpacity">Opacity</label>
+  <input id="satOpacity" type="range" min="0" max="100" value="55" />
+  <span id="satPct">55%</span>
+</div>
 
 <div class="grid" id="grid"></div>
 
 <script>
-let map = L.map("map").setView([40.9,-77.7],7);
+const REFRESH_MS = 5 * 60 * 1000;
 
-let base = L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png",{maxZoom:19}).addTo(map);
-
-let sat = L.tileLayer(
-  "https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}",
-  {maxZoom:19,opacity:0.55}
-);
-
-let markers = L.layerGroup().addTo(map);
-
-document.getElementById("satToggle").onchange = e=>{
-  e.target.checked ? sat.addTo(map) : map.removeLayer(sat);
-};
-document.getElementById("satOpacity").oninput = e=>{
-  let v=e.target.value;
-  document.getElementById("satPct").textContent=v+"%";
-  sat.setOpacity(v/100);
-};
-
-async function load(){
-  const r = await fetch("status.json?"+Date.now());
-  const d = await r.json();
-
-  document.getElementById("meta").textContent =
-    "Last update: "+d.generated_utc+" UTC";
-
-  markers.clearLayers();
-  let grid="";
-
-  for(const [region,aps] of Object.entries(d.regions)){
-    let rows="";
-    for(const a of aps){
-      const st=d.airports[a.code];
-      let cls="ok";
-      if(st.status==="IMPACT") cls="impact";
-      if(st.status==="CLOSED") cls="closed";
-
-      rows+=`<tr>
-        <td><b>${a.code}</b><br>${a.name}</td>
-        <td><span class="pill ${cls}">${st.status}</span></td>
-        <td>${st.flight_category||""}</td>
-      </tr>`;
-
-      let col = st.status==="CLOSED"?"red":st.status==="IMPACT"?"orange":"green";
-
-      L.circleMarker([a.lat,a.lon],{
-        radius:7,weight:2,color:"#000",fillColor:col,fillOpacity:0.8
-      }).bindPopup(`<b>${a.code}</b><br>${a.name}<br>Status: ${st.status}<br>Flight: ${st.flight_category}`)
-      .addTo(markers);
-    }
-
-    grid+=`
-    <div class="card">
-      <h2>${region}</h2>
-      <table>
-        <tr><th>Airport</th><th>Status</th><th>Flight</th></tr>
-        ${rows}
-      </table>
-    </div>`;
-  }
-
-  document.getElementById("grid").innerHTML = grid;
+function esc(s){
+  return (s ?? "").toString().replace(/[&<>"']/g, c => ({
+    "&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"
+  }[c]));
 }
 
-load();
-setInterval(load,300000);
+function statusPill(status){
+  const s = (status || "OK").toUpperCase();
+  if (s === "CLOSED") return '<span class="pill pill-closed">CLOSED</span>';
+  if (s === "IMPACT") return '<span class="pill pill-impact">IMPACT</span>';
+  return '<span class="pill pill-ok">OK</span>';
+}
+
+function flightPill(cat){
+  const c = (cat || "UNK").toUpperCase();
+  if (c === "VFR") return '<span class="pill pill-vfr">VFR</span>';
+  if (c === "MVFR") return '<span class="pill pill-mvfr">MVFR</span>';
+  if (c === "IFR") return '<span class="pill pill-ifr">IFR</span>';
+  if (c === "LIFR") return '<span class="pill pill-lifr">LIFR</span>';
+  return '<span class="pill pill-unk">UNK</span>';
+}
+
+function markerColor(status){
+  const s = (status || "OK").toUpperCase();
+  if (s === "CLOSED") return "red";
+  if (s === "IMPACT") return "orange";
+  return "green";
+}
+
+// -----------------------------
+// Map setup
+// -----------------------------
+const map = L.map("map").setView([40.9, -77.7], 7);
+
+// Base map (always on)
+const base = L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
+  maxZoom: 19,
+  attribution: "&copy; OpenStreetMap"
+}).addTo(map);
+
+// Cloud satellite overlay (toggle + opacity)
+// (NO ground imagery layer)
+const clouds = L.tileLayer(
+  "https://mesonet.agron.iastate.edu/cache/tile.py/1.0.0/sat/{z}/{x}/{y}.png",
+  {
+    maxZoom: 8,
+    opacity: 0.55,
+    attribution: "NOAA GOES-East"
+  }
+);
+
+const markers = L.layerGroup().addTo(map);
+
+// UI wiring
+const cloudToggle = document.getElementById("cloudToggle");
+const satOpacity = document.getElementById("satOpacity");
+const satPct = document.getElementById("satPct");
+const refreshBtn = document.getElementById("refreshBtn");
+const meta = document.getElementById("meta");
+
+function applyOpacity(){
+  const v = Math.max(0, Math.min(100, Number(satOpacity.value)));
+  satPct.textContent = v + "%";
+  clouds.setOpacity(v / 100);
+}
+
+cloudToggle.addEventListener("change", () => {
+  if (cloudToggle.checked) clouds.addTo(map);
+  else map.removeLayer(clouds);
+});
+
+satOpacity.addEventListener("input", applyOpacity);
+applyOpacity();
+
+// -----------------------------
+// Data load + render
+// -----------------------------
+async function load(){
+  const r = await fetch("status.json?ts=" + Date.now());
+  if (!r.ok) throw new Error("Failed to load status.json: HTTP " + r.status);
+  const d = await r.json();
+
+  meta.textContent = `Last update: ${d.generated_utc} UTC`;
+
+  // Map markers
+  markers.clearLayers();
+
+  // Cards by region
+  const regions = d.regions || {};
+  const airports = d.airports || {};
+
+  // Add markers first so popups work even if a region is missing
+  for (const regionName of Object.keys(regions)) {
+    for (const a of (regions[regionName] || [])) {
+      const st = airports[a.code] || {};
+      const col = markerColor(st.status);
+
+      L.circleMarker([a.lat, a.lon], {
+        radius: 7,
+        weight: 2,
+        color: "#000",
+        fillColor: col,
+        fillOpacity: 0.85
+      })
+      .bindPopup(
+        `<b>${esc(a.code)}</b><br>${esc(a.name)}<br>` +
+        `Status: ${esc(st.status || "OK")}<br>` +
+        `Flight: ${esc(st.flight_category || "UNK")}`
+      )
+      .addTo(markers);
+    }
+  }
+
+  // Build region tables
+  let html = "";
+  for (const regionName of Object.keys(regions)) {
+    let rows = "";
+    for (const a of (regions[regionName] || [])) {
+      const st = airports[a.code] || {};
+      rows += `
+        <tr>
+          <td><b>${esc(a.code)}</b><br><span class="small muted">${esc(a.name)}</span></td>
+          <td>${statusPill(st.status || "OK")}</td>
+          <td>${flightPill(st.flight_category || "UNK")}</td>
+        </tr>
+      `;
+    }
+
+    html += `
+      <div class="card">
+        <h2>${esc(regionName)}</h2>
+        <table>
+          <tr><th>Airport</th><th>Status</th><th>Flight Rules</th></tr>
+          ${rows}
+        </table>
+      </div>
+    `;
+  }
+
+  document.getElementById("grid").innerHTML = html;
+}
+
+async function refresh(){
+  try {
+    await load();
+  } catch (e) {
+    meta.textContent = "Error: " + (e && e.message ? e.message : "Unknown error");
+  }
+}
+
+refreshBtn.addEventListener("click", refresh);
+
+refresh();
+setInterval(refresh, REFRESH_MS);
 </script>
 
 </body>
