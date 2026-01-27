@@ -108,6 +108,28 @@
     #overlayOpacity { width: 240px; }
     #overlayPct { font-variant-numeric: tabular-nums; font-weight: 900; }
 
+    /* Flight Rules Key (only shown when toggle on) */
+    #frKey {
+      display: none;
+      margin-top: 8px;
+      border: 1px solid #333;
+      border-radius: 12px;
+      padding: 8px 10px;
+      background: #fff;
+      font-size: 0.95rem;
+      align-items: center;
+      gap: 14px;
+      flex-wrap: wrap;
+    }
+    #frKey .title { font-weight: 900; margin-right: 6px; }
+    .keyItem { display:flex; align-items:center; gap:8px; }
+    .keyDot { width: 12px; height: 12px; border-radius: 999px; border:1px solid #333; display:inline-block; }
+    .k-vfr { background:#2ecc71; }
+    .k-mvfr { background:#f1c40f; }
+    .k-ifr { background:#e74c3c; }
+    .k-lifr { background:#9b59b6; }
+    .k-unk { background:#95a5a6; }
+
     .grid { display:grid; grid-template-columns: repeat(auto-fit, minmax(440px, 1fr)); gap: 12px; margin-top: 12px; }
     .card { border:1px solid #333; border-radius: 12px; padding: 10px; }
     .card h2 { margin: 0 0 8px 0; font-size: 1.05rem; }
@@ -138,21 +160,6 @@
 
     .muted { color:#666; }
     .small { font-size: 0.9rem; color:#444; }
-
-    /* Flight rules map label */
-    .fr-label {
-      font-weight: 900;
-      font-size: 0.85rem;
-      border: 1px solid #333;
-      border-radius: 10px;
-      padding: 2px 6px;
-      background: rgba(255,255,255,0.95);
-      color:#111;
-      box-shadow: 0 1px 0 rgba(0,0,0,0.10);
-      user-select: none;
-      pointer-events: none;
-      white-space: nowrap;
-    }
   </style>
 </head>
 
@@ -200,12 +207,22 @@
   </div>
 
   <div class="toggle">
-    <span class="label">Flight rules on map</span>
-    <label class="switch" title="Show VFR/MVFR/IFR labels and color dots by flight category">
+    <span class="label">Flight rules colors</span>
+    <label class="switch" title="Color dots by flight rules (no map labels)">
       <input type="checkbox" id="flightRulesToggle">
       <span class="slider"></span>
     </label>
   </div>
+</div>
+
+<!-- Flight rules key: appears only when flight rules toggle is ON -->
+<div id="frKey">
+  <span class="title">Flight Rules Key:</span>
+  <span class="keyItem"><span class="keyDot k-vfr"></span> VFR</span>
+  <span class="keyItem"><span class="keyDot k-mvfr"></span> MVFR</span>
+  <span class="keyItem"><span class="keyDot k-ifr"></span> IFR</span>
+  <span class="keyItem"><span class="keyDot k-lifr"></span> LIFR</span>
+  <span class="keyItem"><span class="keyDot k-unk"></span> UNK</span>
 </div>
 
 <div class="opacityCtl">
@@ -330,6 +347,7 @@ const overlayOpacity = document.getElementById("overlayOpacity");
 const overlayPct = document.getElementById("overlayPct");
 const refreshBtn = document.getElementById("refreshBtn");
 const meta = document.getElementById("meta");
+const frKey = document.getElementById("frKey");
 
 function applyOpacity(){
   const v = Math.max(0, Math.min(100, Number(overlayOpacity.value)));
@@ -352,6 +370,10 @@ radarToggle.addEventListener("change", () => {
 overlayOpacity.addEventListener("input", applyOpacity);
 applyOpacity();
 
+function syncFlightRulesKey(){
+  frKey.style.display = flightRulesToggle.checked ? "flex" : "none";
+}
+
 // -----------------------------
 // Data load + render
 // -----------------------------
@@ -370,7 +392,7 @@ async function load(){
   // Map markers
   markers.clearLayers();
 
-  const showFR = !!flightRulesToggle.checked;
+  const showFRColors = !!flightRulesToggle.checked;
 
   // Build region tables
   let html = "";
@@ -380,14 +402,13 @@ async function load(){
 
     for (const a of (regions[regionName] || [])) {
       const st = airports[a.code] || {};
-      const fr = (st.flight_category || "UNK").toUpperCase();
 
       // Marker color: status normally, flight rules when toggle is ON
-      const col = showFR ? flightRuleColor(st.flight_category) : markerColor(st.status);
+      const col = showFRColors ? flightRuleColor(st.flight_category) : markerColor(st.status);
 
-      const m = L.circleMarker([a.lat, a.lon], {
-        radius: 8,         // bigger so it stays visible
-        weight: 3,         // thicker outline
+      L.circleMarker([a.lat, a.lon], {
+        radius: 8,
+        weight: 3,
         color: "#000",
         fillColor: col,
         fillOpacity: 0.95
@@ -398,17 +419,6 @@ async function load(){
         `Flight: ${esc(st.flight_category || "UNK")}`
       )
       .addTo(markers);
-
-      // Flight rules labels (toggle)
-      if (showFR) {
-        m.bindTooltip(fr, {
-          permanent: true,
-          direction: "right",
-          offset: [16, 0],   // push label away so dot stays visible
-          opacity: 0.95,
-          className: "fr-label"
-        });
-      }
 
       // Table rows
       rows += `
@@ -432,6 +442,9 @@ async function load(){
   }
 
   document.getElementById("grid").innerHTML = html;
+
+  // Show/hide key after render
+  syncFlightRulesKey();
 }
 
 async function refresh(){
@@ -443,6 +456,8 @@ async function refresh(){
 }
 
 refreshBtn.addEventListener("click", refresh);
+
+// Toggle: show/hide key + repaint markers via refresh
 flightRulesToggle.addEventListener("change", refresh);
 
 refresh();
