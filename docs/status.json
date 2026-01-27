@@ -1,5 +1,5 @@
 {
-  "generated_utc": "2026-01-26 12:58:43Z",
+  "generated_utc": "2026-01-27 03:46:01Z",
   "regions": {
     "Western": [
       {
@@ -117,133 +117,151 @@
     ]
   },
   "airports": {
-    "ABE": {
-      "code": "ABE",
+    "PIT": {
+      "code": "PIT",
       "status": "OK",
       "closed": false,
       "closure_reason": "",
-      "events": []
-    },
-    "ABP": {
-      "code": "ABP",
-      "status": "OK",
-      "closed": false,
-      "closure_reason": "",
-      "events": []
-    },
-    "AOO": {
-      "code": "AOO",
-      "status": "OK",
-      "closed": false,
-      "closure_reason": "",
-      "events": []
-    },
-    "AVP": {
-      "code": "AVP",
-      "status": "OK",
-      "closed": false,
-      "closure_reason": "",
-      "events": []
-    },
-    "BFD": {
-      "code": "BFD",
-      "status": "OK",
-      "closed": false,
-      "closure_reason": "",
-      "events": []
-    },
-    "CXY": {
-      "code": "CXY",
-      "status": "OK",
-      "closed": false,
-      "closure_reason": "",
-      "events": []
-    },
-    "DUJ": {
-      "code": "DUJ",
-      "status": "OK",
-      "closed": false,
-      "closure_reason": "",
-      "events": []
+      "events": [],
+      "flight_category": "UNK"
     },
     "ERI": {
       "code": "ERI",
       "status": "OK",
       "closed": false,
       "closure_reason": "",
-      "events": []
-    },
-    "IPT": {
-      "code": "IPT",
-      "status": "OK",
-      "closed": false,
-      "closure_reason": "",
-      "events": []
-    },
-    "JST": {
-      "code": "JST",
-      "status": "OK",
-      "closed": false,
-      "closure_reason": "",
-      "events": []
+      "events": [],
+      "flight_category": "UNK"
     },
     "LBE": {
       "code": "LBE",
       "status": "OK",
       "closed": false,
       "closure_reason": "",
-      "events": []
+      "events": [],
+      "flight_category": "UNK"
     },
-    "LNS": {
-      "code": "LNS",
+    "JST": {
+      "code": "JST",
       "status": "OK",
       "closed": false,
       "closure_reason": "",
-      "events": []
+      "events": [],
+      "flight_category": "UNK"
+    },
+    "DUJ": {
+      "code": "DUJ",
+      "status": "OK",
+      "closed": false,
+      "closure_reason": "",
+      "events": [],
+      "flight_category": "UNK"
     },
     "MDT": {
       "code": "MDT",
       "status": "OK",
       "closed": false,
       "closure_reason": "",
-      "events": []
+      "events": [],
+      "flight_category": "UNK"
     },
-    "MPO": {
-      "code": "MPO",
+    "CXY": {
+      "code": "CXY",
       "status": "OK",
       "closed": false,
       "closure_reason": "",
-      "events": []
-    },
-    "PHL": {
-      "code": "PHL",
-      "status": "OK",
-      "closed": false,
-      "closure_reason": "",
-      "events": []
-    },
-    "PIT": {
-      "code": "PIT",
-      "status": "OK",
-      "closed": false,
-      "closure_reason": "",
-      "events": []
-    },
-    "RDG": {
-      "code": "RDG",
-      "status": "OK",
-      "closed": false,
-      "closure_reason": "",
-      "events": []
+      "events": [],
+      "flight_category": "UNK"
     },
     "SCE": {
       "code": "SCE",
       "status": "OK",
       "closed": false,
       "closure_reason": "",
-      "events": []
+      "events": [],
+      "flight_category": "UNK"
+    },
+    "IPT": {
+      "code": "IPT",
+      "status": "OK",
+      "closed": false,
+      "closure_reason": "",
+      "events": [],
+      "flight_category": "UNK"
+    },
+    "AOO": {
+      "code": "AOO",
+      "status": "OK",
+      "closed": false,
+      "closure_reason": "",
+      "events": [],
+      "flight_category": "UNK"
+    },
+    "BFD": {
+      "code": "BFD",
+      "status": "OK",
+      "closed": false,
+      "closure_reason": "",
+      "events": [],
+      "flight_category": "UNK"
+    },
+    "PHL": {
+      "code": "PHL",
+      "status": "OK",
+      "closed": false,
+      "closure_reason": "",
+      "events": [],
+      "flight_category": "UNK"
+    },
+    "ABP": {
+      "code": "ABP",
+      "status": "OK",
+      "closed": false,
+      "closure_reason": "",
+      "events": [],
+      "flight_category": "UNK"
+    },
+    "ABE": {
+      "code": "ABE",
+      "status": "OK",
+      "closed": false,
+      "closure_reason": "",
+      "events": [],
+      "flight_category": "UNK"
+    },
+    "AVP": {
+      "code": "AVP",
+      "status": "OK",
+      "closed": false,
+      "closure_reason": "",
+      "events": [],
+      "flight_category": "UNK"
+    },
+    "RDG": {
+      "code": "RDG",
+      "status": "OK",
+      "closed": false,
+      "closure_reason": "",
+      "events": [],
+      "flight_category": "UNK"
+    },
+    "LNS": {
+      "code": "LNS",
+      "status": "OK",
+      "closed": false,
+      "closure_reason": "",
+      "events": [],
+      "flight_category": "UNK"
+    },
+    "MPO": {
+      "code": "MPO",
+      "status": "OK",
+      "closed": false,
+      "closure_reason": "",
+      "events": [],
+      "flight_category": "UNK"
     }
   },
-  "source": "nasstatus.faa.gov/list + airport-status-information",
-  "note": "Temporary closures sourced from NAS Status list page first, with XML as fallback. Regions include lat/lon for map markers."
+  "source": "nasstatus.faa.gov + aviationweather.gov METAR cache",
+  "note": "Temporary closures from FAA NAS Status; flight categories from NOAA METAR cache."
 }
