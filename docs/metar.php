@@ -1,64 +1,75 @@
 <?php
-// metar.php - simple same-origin METAR proxy (no CORS issues)
+// metar.php - same-origin METAR proxy (no CORS issues)
+// Usage: metar.php?station=KPIT
 //
-// Usage: metar.php?station=KMDT
-//
-// Notes:
-// - Caches for 60 seconds to reduce load
-// - Returns JSON: { ok: true, station: "...", metar: "..." } or { ok:false, error:"..." }
+// Returns JSON:
+//   { "ok": true, "station": "KPIT", "metar": "KPIT ...", "cached": false }
+//   { "ok": false, "error": "..." }
+
+// HARDEN: prevent PHP warnings/notices from corrupting JSON output
+error_reporting(0);
+ini_set('display_errors', '0');
 
 header("Content-Type: application/json; charset=utf-8");
-header("Access-Control-Allow-Origin: *"); // safe because same-origin is intended; harmless otherwise.
+// Keep/omit this as you like; same-origin pages won't need it
+header("Access-Control-Allow-Origin: *");
 
-$station = isset($_GET["station"]) ? strtoupper(trim($_GET["station"])) : "";
-if ($station === "" || !preg_match("/^[A-Z0-9]{4}$/", $station)) {
-  http_response_code(400);
-  echo json_encode(["ok" => false, "error" => "Invalid station. Use 4-letter ICAO like KMDT."]);
+function respond($code, $payload) {
+  http_response_code($code);
+  echo json_encode($payload, JSON_UNESCAPED_SLASHES);
   exit;
 }
 
+$station = isset($_GET["station"]) ? strtoupper(trim($_GET["station"])) : "";
+if ($station === "" || !preg_match("/^[A-Z0-9]{4}$/", $station)) {
+  respond(400, ["ok" => false, "error" => "Invalid station. Use 4-letter ICAO like KPIT."]);
+}
+
 $cacheDir = __DIR__ . "/cache";
-if (!is_dir($cacheDir)) @mkdir($cacheDir, 0755, true);
+if (!is_dir($cacheDir)) {
+  @mkdir($cacheDir, 0755, true);
+}
 
 $cacheFile = $cacheDir . "/metar_" . $station . ".json";
-$ttl = 60; // seconds
+$ttl = 60;
 
 // Serve cache if fresh
 if (is_file($cacheFile)) {
-  $raw = file_get_contents($cacheFile);
-  $j = json_decode($raw, true);
-  if (is_array($j) && isset($j["ts"]) && (time() - intval($j["ts"]) <= $ttl)) {
-    echo json_encode(["ok" => true, "station" => $station, "metar" => $j["metar"], "cached" => true]);
-    exit;
+  $raw = @file_get_contents($cacheFile);
+  $j = @json_decode($raw, true);
+  if (is_array($j) && isset($j["ts"]) && isset($j["metar"])) {
+    if ((time() - intval($j["ts"])) <= $ttl) {
+      respond(200, ["ok" => true, "station" => $station, "metar" => $j["metar"], "cached" => true]);
+    }
   }
 }
 
-// Fetch from AviationWeather API
+// Fetch from AviationWeather API (raw METAR)
 $url = "https://aviationweather.gov/api/data/metar?ids=" . urlencode($station) . "&format=raw&hours=2&taf=false";
 
 $ctx = stream_context_create([
   "http" => [
     "method" => "GET",
     "timeout" => 8,
-    "header" => "User-Agent: PA-Airport-Status/1.0\r\n"
+    "header" =>
+      "User-Agent: PA-Airport-Status/1.0\r\n" .
+      "Accept: text/plain\r\n"
   ]
 ]);
 
 $data = @file_get_contents($url, false, $ctx);
 if ($data === false) {
-  http_response_code(502);
-  echo json_encode(["ok" => false, "error" => "Upstream fetch failed."]);
-  exit;
+  respond(502, ["ok" => false, "error" => "Upstream fetch failed (aviationweather.gov)."]);
 }
 
 $metar = trim($data);
-if ($metar === "") {
-  http_response_code(404);
-  echo json_encode(["ok" => false, "error" => "No METAR returned for station."]);
-  exit;
+
+// If upstream returns HTML (rare, but happens during errors), reject it cleanly
+if ($metar === "" || stripos($metar, "<html") !== false || stripos($metar, "<!doctype") !== false) {
+  respond(502, ["ok" => false, "error" => "Upstream returned non-METAR content."]);
 }
 
-// Write cache
-@file_put_contents($cacheFile, json_encode(["ts" => time(), "metar" => $metar]));
+// Cache write (best-effort)
+@file_put_contents($cacheFile, json_encode(["ts" => time(), "metar" => $metar], JSON_UNESCAPED_SLASHES));
 
-echo json_encode(["ok" => true, "station" => $station, "metar" => $metar, "cached" => false]);
+respond(200, ["ok" => true, "station" => $station, "metar" => $metar, "cached" => false]);
