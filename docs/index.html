@@ -105,7 +105,7 @@
       font-size: 0.95rem;
     }
     .opacityGroup{
-      display:none; /* toggled by JS */
+      display:none;
       align-items:center;
       gap: 10px;
       border: 1px solid #333;
@@ -168,8 +168,7 @@
     .pill-lifr { background:#e6d6ff; }
     .pill-unk { background:#eee; }
 
-    /* clickable flight pill */
-    .metar-pill { cursor: pointer; }
+    .metar-pill { cursor:pointer; }
     .metar-pill:focus { outline: 2px solid #000; outline-offset: 2px; }
 
     .muted { color:#666; }
@@ -241,7 +240,6 @@
   <div class="meta" id="meta">Loading…</div>
 </header>
 
-<!-- OVERALL STATUS BAR -->
 <div id="overallBar" class="overall overall-ok" role="status" aria-live="polite">
   <div class="overall-left">
     <span id="overallDot" class="overall-dot dot-ok" aria-hidden="true"></span>
@@ -259,34 +257,23 @@
   <span><span class="dot dot-ok"></span> OK</span>
 </div>
 
-<!-- Toggles -->
 <div class="toggles">
   <div class="toggle">
     <span class="label">Cloud overlay</span>
-    <label class="switch" title="Toggle cloud satellite overlay">
-      <input type="checkbox" id="cloudToggle">
-      <span class="slider"></span>
-    </label>
+    <label class="switch"><input type="checkbox" id="cloudToggle"><span class="slider"></span></label>
   </div>
 
   <div class="toggle">
     <span class="label">Radar overlay</span>
-    <label class="switch" title="Toggle radar overlay">
-      <input type="checkbox" id="radarToggle">
-      <span class="slider"></span>
-    </label>
+    <label class="switch"><input type="checkbox" id="radarToggle"><span class="slider"></span></label>
   </div>
 
   <div class="toggle">
     <span class="label">Flight rules colors</span>
-    <label class="switch" title="Color dots by flight rules (click flight pill for METAR)">
-      <input type="checkbox" id="flightRulesToggle">
-      <span class="slider"></span>
-    </label>
+    <label class="switch"><input type="checkbox" id="flightRulesToggle"><span class="slider"></span></label>
   </div>
 </div>
 
-<!-- Flight rules key: appears only when flight rules toggle is ON -->
 <div id="frKey">
   <span class="title">Flight Rules Key:</span>
   <span class="keyItem"><span class="keyDot k-vfr"></span> VFR</span>
@@ -296,7 +283,6 @@
   <span class="keyItem"><span class="keyDot k-unk"></span> UNK</span>
 </div>
 
-<!-- Opacity (only shows per-toggle) -->
 <div class="opacityCtl">
   <div class="opacityGroup" id="cloudOpacityGroup">
     <label for="cloudOpacity">Cloud opacity</label>
@@ -313,7 +299,6 @@
 
 <div class="grid" id="grid"></div>
 
-<!-- METAR Modal -->
 <div id="metarOverlay" aria-hidden="true">
   <div id="metarModal" role="dialog" aria-modal="true" aria-labelledby="metarTitle">
     <div class="modalHdr">
@@ -331,11 +316,9 @@
 <script>
 const REFRESH_MS = 5 * 60 * 1000;
 
-// Cache for modal + names
 let LAST_AIRPORTS = {};
 let LAST_NAME_BY_CODE = {};
 
-// Basic helpers
 function esc(s){
   return (s ?? "").toString().replace(/[&<>"']/g, c => ({
     "&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"
@@ -439,7 +422,7 @@ const radar = L.tileLayer(
 
 const markers = L.layerGroup().addTo(map);
 
-// UI elements
+// UI
 const cloudToggle = document.getElementById("cloudToggle");
 const radarToggle = document.getElementById("radarToggle");
 const flightRulesToggle = document.getElementById("flightRulesToggle");
@@ -484,11 +467,8 @@ radarToggle.addEventListener("change", setRadarUI);
 cloudOpacity.addEventListener("input", applyCloudOpacity);
 radarOpacity.addEventListener("input", applyRadarOpacity);
 
-// initialize opacity labels & opacities
 applyCloudOpacity();
 applyRadarOpacity();
-
-// start with both overlays OFF (sliders hidden)
 setCloudUI();
 setRadarUI();
 
@@ -498,7 +478,7 @@ function syncFlightRulesKey(){
 syncFlightRulesKey();
 
 // -----------------------------
-// METAR modal
+// METAR modal (STATIC only)
 // -----------------------------
 const metarOverlay = document.getElementById("metarOverlay");
 const metarCloseBtn = document.getElementById("metarCloseBtn");
@@ -517,65 +497,15 @@ document.addEventListener("keydown", (e) => {
   if (e.key === "Escape" && metarOverlay.style.display === "flex") closeMetar();
 });
 
-function stationFromCode(code){
-  const c = (code || "").toUpperCase().trim();
-  // Your airport codes appear to be 3-letter; METAR stations are typically Kxxx
-  if (c.length === 3) return "K" + c;
-  return c;
-}
-
-// Prefer embedded METAR in status.json if you add it later
 function getEmbeddedMetarText(code){
   const st = (LAST_AIRPORTS || {})[code] || {};
   return (
-    st.metar_raw ||
-    st.metar ||
+    st.metar_raw ||     // recommended
     st.raw_metar ||
     st.metar_text ||
-    st.metar_utc ||
-    st.metar_string ||
+    st.metar ||
     ""
   );
-}
-
-/*
-  Proxy fetch (metar.php) but hardened so "gibberish" never shows.
-  Accepts:
-    - JSON: {"ok":true,"metar":"..."}
-    - Plain text: "KMDT 270451Z ..."
-  Rejects:
-    - HTML/PHP source/other junk (shows a clean error instead)
-*/
-async function fetchMetarViaProxy(station){
-  const url = `metar.php?station=${encodeURIComponent(station)}`;
-  const resp = await fetch(url, { cache: "no-store" });
-  const body = await resp.text();
-
-  if (!resp.ok) throw new Error(`HTTP ${resp.status}`);
-
-  const trimmed = (body || "").trim();
-  if (!trimmed) throw new Error("Empty response from metar.php");
-
-  // Try JSON if it looks like JSON
-  if (trimmed.startsWith("{") || trimmed.startsWith("[")) {
-    let j;
-    try { j = JSON.parse(trimmed); }
-    catch { throw new Error("metar.php returned invalid JSON"); }
-
-    if (j && j.ok === true && typeof j.metar === "string" && j.metar.trim()) {
-      return j.metar.trim();
-    }
-    throw new Error((j && j.error) ? j.error : "metar.php JSON missing metar");
-  }
-
-  // If it looks like HTML or PHP source, reject (prevents gibberish)
-  const looksLikeHtmlOrPhp = /<!doctype|<html|<head|<body|<\/|<\?php|function\s+\w+\s*\(|\$\w+\s*=|<br\s*\/?>/i.test(trimmed);
-  if (looksLikeHtmlOrPhp) {
-    throw new Error("metar.php is not returning METAR (looks like HTML/PHP output)");
-  }
-
-  // Otherwise treat it as raw METAR text
-  return trimmed;
 }
 
 async function openMetar(code){
@@ -593,7 +523,6 @@ async function openMetar(code){
   metarOverlay.setAttribute("aria-hidden", "false");
   metarCloseBtn.focus();
 
-  // 1) Embedded in status.json?
   const embedded = getEmbeddedMetarText(code);
   if (embedded) {
     metarBody.textContent = embedded;
@@ -601,24 +530,16 @@ async function openMetar(code){
     return;
   }
 
-  // 2) Proxy call (same-origin)
-  const station = stationFromCode(code);
-  try {
-    const metar = await fetchMetarViaProxy(station);
-    metarBody.textContent = metar;
-    metarHint.innerHTML = `Source: <code>metar.php</code> • Station: <code>${esc(station)}</code>`;
-  } catch (err) {
-    metarBody.textContent =
-      `METAR unavailable.\n\n` +
-      `Station: ${station}\n` +
-      `Reason: ${err && err.message ? err.message : "Unknown error"}\n\n` +
-      `Quick test: open metar.php?station=${station} in your browser.\n` +
-      `If you’re on a static host (GitHub Pages), PHP won’t run — add metar_raw into status.json instead.`;
-    metarHint.innerHTML = `Source attempted: <code>metar.php</code>`;
-  }
+  metarBody.textContent =
+    `No METAR text found in status.json for this airport.\n\n` +
+    `Add one of these fields under airports["${code}"]:\n` +
+    `  metar_raw  (recommended)\n` +
+    `  raw_metar\n` +
+    `  metar_text\n` +
+    `  metar\n`;
+  metarHint.innerHTML = `Static site: add METAR fields into <code>status.json</code>`;
 }
 
-// Event delegation: click or Enter/Space on flight pill
 document.getElementById("grid").addEventListener("click", (e) => {
   const t = e.target.closest(".metar-pill");
   if (!t) return;
@@ -652,12 +573,10 @@ async function load(){
   LAST_NAME_BY_CODE = {};
 
   updateOverallBar(airports);
-
   markers.clearLayers();
 
   const showFRColors = !!flightRulesToggle.checked;
 
-  // Add markers + build cards
   let html = "";
   for (const regionName of Object.keys(regions)) {
     let rows = "";
@@ -702,16 +621,12 @@ async function load(){
   }
 
   document.getElementById("grid").innerHTML = html;
-
   syncFlightRulesKey();
 }
 
 async function refresh(){
-  try {
-    await load();
-  } catch (e) {
-    meta.textContent = "Error: " + (e && e.message ? e.message : "Unknown error");
-  }
+  try { await load(); }
+  catch (e) { meta.textContent = "Error: " + (e && e.message ? e.message : "Unknown error"); }
 }
 
 refreshBtn.addEventListener("click", refresh);
