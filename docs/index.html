@@ -95,18 +95,28 @@
     .switch input:checked + .slider { background: #d4edda; }
     .switch input:checked + .slider:before { transform: translateX(19px); }
 
-    /* Overlay opacity control */
+    /* Opacity controls */
     .opacityCtl {
       display:flex;
       align-items:center;
-      gap: 10px;
+      gap: 14px 18px;
       flex-wrap: wrap;
       margin-top: 8px;
       font-size: 0.95rem;
     }
-    .opacityCtl label { font-weight: 800; }
-    #overlayOpacity { width: 240px; }
-    #overlayPct { font-variant-numeric: tabular-nums; font-weight: 900; }
+    .opacityGroup{
+      display:flex;
+      align-items:center;
+      gap: 10px;
+      border: 1px solid #333;
+      border-radius: 12px;
+      padding: 8px 10px;
+      background:#fff;
+      flex-wrap: wrap;
+    }
+    .opacityGroup label { font-weight: 900; }
+    .opacityGroup input[type="range"] { width: 220px; }
+    .pct { font-variant-numeric: tabular-nums; font-weight: 900; min-width: 46px; }
 
     /* Flight Rules Key (only shown when toggle on) */
     #frKey {
@@ -158,8 +168,62 @@
     .pill-lifr { background:#e6d6ff; }
     .pill-unk { background:#eee; }
 
+    /* clickable flight pill */
+    .metar-pill { cursor: pointer; }
+    .metar-pill:focus { outline: 2px solid #000; outline-offset: 2px; }
+
     .muted { color:#666; }
     .small { font-size: 0.9rem; color:#444; }
+
+    /* METAR MODAL */
+    #metarOverlay {
+      position: fixed;
+      inset: 0;
+      background: rgba(0,0,0,0.35);
+      display: none;
+      align-items: center;
+      justify-content: center;
+      padding: 18px;
+      z-index: 5000;
+    }
+    #metarModal {
+      width: min(820px, 100%);
+      background: #fff;
+      border: 2px solid #111;
+      border-radius: 14px;
+      padding: 12px;
+      box-shadow: 0 10px 30px rgba(0,0,0,0.25);
+    }
+    .modalHdr {
+      display:flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      gap: 12px;
+      margin-bottom: 10px;
+    }
+    .modalTitle { font-size: 1.05rem; font-weight: 900; margin: 0; }
+    .modalSub { font-size: 0.9rem; color:#333; margin-top: 2px; }
+    .modalClose {
+      border: 1px solid #111;
+      background:#fff;
+      border-radius: 10px;
+      padding: 6px 10px;
+      cursor: pointer;
+      font-weight: 800;
+      white-space: nowrap;
+    }
+    pre.metarBox {
+      margin: 0;
+      border: 1px solid #333;
+      border-radius: 12px;
+      padding: 10px;
+      background: #fafafa;
+      overflow: auto;
+      white-space: pre-wrap;
+      word-break: break-word;
+      font-size: 0.95rem;
+      line-height: 1.35;
+    }
   </style>
 </head>
 
@@ -208,7 +272,7 @@
 
   <div class="toggle">
     <span class="label">Flight rules colors</span>
-    <label class="switch" title="Color dots by flight rules (no map labels)">
+    <label class="switch" title="Color dots by flight rules (click flight pill for METAR)">
       <input type="checkbox" id="flightRulesToggle">
       <span class="slider"></span>
     </label>
@@ -225,16 +289,43 @@
   <span class="keyItem"><span class="keyDot k-unk"></span> UNK</span>
 </div>
 
+<!-- Separate opacity controls -->
 <div class="opacityCtl">
-  <label for="overlayOpacity">Overlay opacity</label>
-  <input id="overlayOpacity" type="range" min="0" max="100" value="55" />
-  <span id="overlayPct">55%</span>
+  <div class="opacityGroup">
+    <label for="cloudOpacity">Cloud opacity</label>
+    <input id="cloudOpacity" type="range" min="0" max="100" value="55" />
+    <span class="pct" id="cloudPct">55%</span>
+  </div>
+
+  <div class="opacityGroup">
+    <label for="radarOpacity">Radar opacity</label>
+    <input id="radarOpacity" type="range" min="0" max="100" value="55" />
+    <span class="pct" id="radarPct">55%</span>
+  </div>
 </div>
 
 <div class="grid" id="grid"></div>
 
+<!-- METAR Modal -->
+<div id="metarOverlay" aria-hidden="true">
+  <div id="metarModal" role="dialog" aria-modal="true" aria-labelledby="metarTitle">
+    <div class="modalHdr">
+      <div>
+        <div id="metarTitle" class="modalTitle">METAR</div>
+        <div id="metarSub" class="modalSub"></div>
+      </div>
+      <button class="modalClose" id="metarCloseBtn" type="button">Close</button>
+    </div>
+    <pre class="metarBox" id="metarBody">Loading…</pre>
+  </div>
+</div>
+
 <script>
 const REFRESH_MS = 5 * 60 * 1000;
+
+// latest data cache (for METAR modal)
+let LAST_AIRPORTS = {};
+let LAST_NAME_BY_CODE = {};
 
 function esc(s){
   return (s ?? "").toString().replace(/[&<>"']/g, c => ({
@@ -249,13 +340,16 @@ function statusPill(status){
   return '<span class="pill pill-ok">OK</span>';
 }
 
-function flightPill(cat){
+/* CLICKABLE flight pill -> opens METAR */
+function flightPill(cat, code){
   const c = (cat || "UNK").toUpperCase();
-  if (c === "VFR") return '<span class="pill pill-vfr">VFR</span>';
-  if (c === "MVFR") return '<span class="pill pill-mvfr">MVFR</span>';
-  if (c === "IFR") return '<span class="pill pill-ifr">IFR</span>';
-  if (c === "LIFR") return '<span class="pill pill-lifr">LIFR</span>';
-  return '<span class="pill pill-unk">UNK</span>';
+  let cls = "pill-unk";
+  if (c === "VFR") cls = "pill-vfr";
+  else if (c === "MVFR") cls = "pill-mvfr";
+  else if (c === "IFR") cls = "pill-ifr";
+  else if (c === "LIFR") cls = "pill-lifr";
+
+  return `<span class="pill ${cls} metar-pill" role="button" tabindex="0" data-code="${esc(code)}" title="Click to view METAR">${esc(c)}</span>`;
 }
 
 function markerColor(status){
@@ -343,18 +437,25 @@ const markers = L.layerGroup().addTo(map);
 const cloudToggle = document.getElementById("cloudToggle");
 const radarToggle = document.getElementById("radarToggle");
 const flightRulesToggle = document.getElementById("flightRulesToggle");
-const overlayOpacity = document.getElementById("overlayOpacity");
-const overlayPct = document.getElementById("overlayPct");
+
+const cloudOpacity = document.getElementById("cloudOpacity");
+const radarOpacity = document.getElementById("radarOpacity");
+const cloudPct = document.getElementById("cloudPct");
+const radarPct = document.getElementById("radarPct");
+
 const refreshBtn = document.getElementById("refreshBtn");
 const meta = document.getElementById("meta");
 const frKey = document.getElementById("frKey");
 
-function applyOpacity(){
-  const v = Math.max(0, Math.min(100, Number(overlayOpacity.value)));
-  overlayPct.textContent = v + "%";
-  const op = v / 100;
-  clouds.setOpacity(op);
-  radar.setOpacity(op);
+function applyCloudOpacity(){
+  const v = Math.max(0, Math.min(100, Number(cloudOpacity.value)));
+  cloudPct.textContent = v + "%";
+  clouds.setOpacity(v / 100);
+}
+function applyRadarOpacity(){
+  const v = Math.max(0, Math.min(100, Number(radarOpacity.value)));
+  radarPct.textContent = v + "%";
+  radar.setOpacity(v / 100);
 }
 
 cloudToggle.addEventListener("change", () => {
@@ -367,12 +468,95 @@ radarToggle.addEventListener("change", () => {
   else map.removeLayer(radar);
 });
 
-overlayOpacity.addEventListener("input", applyOpacity);
-applyOpacity();
+cloudOpacity.addEventListener("input", applyCloudOpacity);
+radarOpacity.addEventListener("input", applyRadarOpacity);
+
+// Initialize displayed pct + layer opacity
+applyCloudOpacity();
+applyRadarOpacity();
 
 function syncFlightRulesKey(){
   frKey.style.display = flightRulesToggle.checked ? "flex" : "none";
 }
+
+// -----------------------------
+// METAR Modal
+// -----------------------------
+const metarOverlay = document.getElementById("metarOverlay");
+const metarCloseBtn = document.getElementById("metarCloseBtn");
+const metarTitle = document.getElementById("metarTitle");
+const metarSub = document.getElementById("metarSub");
+const metarBody = document.getElementById("metarBody");
+
+function getMetarTextForAirport(code){
+  const st = (LAST_AIRPORTS || {})[code] || {};
+  return (
+    st.metar_raw ||
+    st.metar ||
+    st.raw_metar ||
+    st.metar_text ||
+    st.metar_utc ||
+    st.metar_string ||
+    ""
+  );
+}
+
+function openMetar(code){
+  const name = LAST_NAME_BY_CODE[code] || "";
+  const st = (LAST_AIRPORTS || {})[code] || {};
+  const fc = ((st.flight_category || "UNK") + "").toUpperCase();
+  const status = ((st.status || "OK") + "").toUpperCase();
+
+  metarTitle.textContent = `METAR – ${code}`;
+  metarSub.textContent = `${name ? name + " • " : ""}Status: ${status} • Flight: ${fc}`;
+
+  const metar = getMetarTextForAirport(code);
+  if (metar) {
+    metarBody.textContent = metar;
+  } else {
+    metarBody.textContent =
+      "No METAR text found in status.json for this airport.\n\n" +
+      "Add one of these fields under airports[CODE]:\n" +
+      "  metar_raw (recommended)\n" +
+      "  metar\n" +
+      "  metar_text\n" +
+      "  raw_metar";
+  }
+
+  metarOverlay.style.display = "flex";
+  metarOverlay.setAttribute("aria-hidden", "false");
+  metarCloseBtn.focus();
+}
+
+function closeMetar(){
+  metarOverlay.style.display = "none";
+  metarOverlay.setAttribute("aria-hidden", "true");
+}
+
+metarCloseBtn.addEventListener("click", closeMetar);
+metarOverlay.addEventListener("click", (e) => {
+  if (e.target === metarOverlay) closeMetar();
+});
+document.addEventListener("keydown", (e) => {
+  if (e.key === "Escape" && metarOverlay.style.display === "flex") closeMetar();
+});
+
+// Event delegation: click or Enter/Space on flight pill
+document.getElementById("grid").addEventListener("click", (e) => {
+  const t = e.target.closest(".metar-pill");
+  if (!t) return;
+  const code = t.getAttribute("data-code");
+  if (code) openMetar(code);
+});
+document.getElementById("grid").addEventListener("keydown", (e) => {
+  const t = e.target.closest(".metar-pill");
+  if (!t) return;
+  if (e.key === "Enter" || e.key === " ") {
+    e.preventDefault();
+    const code = t.getAttribute("data-code");
+    if (code) openMetar(code);
+  }
+});
 
 // -----------------------------
 // Data load + render
@@ -386,6 +570,10 @@ async function load(){
 
   const regions = d.regions || {};
   const airports = d.airports || {};
+
+  // Cache for modal
+  LAST_AIRPORTS = airports;
+  LAST_NAME_BY_CODE = {};
 
   updateOverallBar(airports);
 
@@ -402,6 +590,7 @@ async function load(){
 
     for (const a of (regions[regionName] || [])) {
       const st = airports[a.code] || {};
+      LAST_NAME_BY_CODE[a.code] = a.name || "";
 
       // Marker color: status normally, flight rules when toggle is ON
       const col = showFRColors ? flightRuleColor(st.flight_category) : markerColor(st.status);
@@ -425,7 +614,7 @@ async function load(){
         <tr>
           <td><b>${esc(a.code)}</b><br><span class="small muted">${esc(a.name)}</span></td>
           <td>${statusPill(st.status || "OK")}</td>
-          <td>${flightPill(st.flight_category || "UNK")}</td>
+          <td>${flightPill(st.flight_category || "UNK", a.code)}</td>
         </tr>
       `;
     }
@@ -443,7 +632,6 @@ async function load(){
 
   document.getElementById("grid").innerHTML = html;
 
-  // Show/hide key after render
   syncFlightRulesKey();
 }
 
@@ -456,8 +644,6 @@ async function refresh(){
 }
 
 refreshBtn.addEventListener("click", refresh);
-
-// Toggle: show/hide key + repaint markers via refresh
 flightRulesToggle.addEventListener("change", refresh);
 
 refresh();
