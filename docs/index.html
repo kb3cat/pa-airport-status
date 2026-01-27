@@ -248,6 +248,16 @@ function markerColor(status){
   return "green";
 }
 
+/* NEW: Flight rules marker colors (when flight rules toggle is ON) */
+function flightRuleColor(cat){
+  const c = (cat || "UNK").toUpperCase();
+  if (c === "VFR") return "#2ecc71";   // green
+  if (c === "MVFR") return "#f1c40f";  // yellow
+  if (c === "IFR") return "#e74c3c";   // red
+  if (c === "LIFR") return "#9b59b6";  // purple
+  return "#95a5a6";                    // gray
+}
+
 /* OVERALL BAR UPDATE (fast: computed from airports object) */
 function updateOverallBar(airportsObj){
   const bar = document.getElementById("overallBar");
@@ -368,8 +378,12 @@ async function load(){
   for (const regionName of Object.keys(regions)) {
     for (const a of (regions[regionName] || [])) {
       const st = airports[a.code] || {};
-      const col = markerColor(st.status);
       const fr = (st.flight_category || "UNK").toUpperCase();
+
+      // NEW: Marker color changes when flight rules toggle is ON
+      const col = showFR
+        ? flightRuleColor(st.flight_category)
+        : markerColor(st.status);
 
       const m = L.circleMarker([a.lat, a.lon], {
         radius: 7,
@@ -395,7 +409,6 @@ async function load(){
           className: "fr-label"
         });
       } else {
-        // Ensure no stale tooltips if toggled off between refreshes
         m.unbindTooltip();
       }
     }
