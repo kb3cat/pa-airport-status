@@ -96,15 +96,21 @@ def main():
 
     updated_utc = now_utc_iso_z()
 
-    for code in sorted(airports.keys()):
-        url = f"https://aviationweather.gov/api/data/metar?ids={code}&format=raw&hours=2&taf=false"
+    for code3 in sorted(airports.keys()):
+        stobj = airports.get(code3) or {}
+        icao = (stobj.get("icao") or "").strip().upper()
+        if not icao:
+            # Fallback: assume K + 3-letter
+            icao = "K" + code3.upper()
+
+        url = f"https://aviationweather.gov/api/data/metar?ids={icao}&format=raw&hours=2&taf=false"
         try:
             raw = fetch_text(url).strip()
             lines = [ln.strip() for ln in raw.splitlines() if ln.strip()]
             metar = lines[0] if lines else ""
 
             if not metar:
-                airports[code].update({
+                airports[code3].update({
                     "status": "CLOSED",
                     "flight_category": "UNK",
                     "impact_reason": "No METAR returned",
@@ -115,14 +121,15 @@ def main():
                 continue
 
             fc, fc_reason = flight_category_from_metar(metar)
-            st = status_from_flight_cat(fc)
+            status = status_from_flight_cat(fc)
 
             impact_reason = ""
-            if st == "IMPACT":
-                impact_reason = f"{fc}: {fc_reason}" if fc_reason else f"{fc}"
+            if status == "IMPACT":
+                impact_reason = f"{fc}: {fc_reason}" if fc_reason else fc
 
-            airports[code].update({
-                "status": st,
+            airports[code3].update({
+                "icao": icao,
+                "status": status,
                 "flight_category": fc,
                 "impact_reason": impact_reason,
                 "metar_raw": metar,
@@ -130,8 +137,9 @@ def main():
                 "updated_utc": updated_utc
             })
 
-        except (HTTPError, URLError) as e:
-            airports[code].update({
+        except (HTTPError, URLError):
+            airports[code3].update({
+                "icao": icao,
                 "status": "CLOSED",
                 "flight_category": "UNK",
                 "impact_reason": "METAR fetch error",
