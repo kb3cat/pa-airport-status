@@ -10,7 +10,6 @@ STATUS_PATH = "docs/status.json"
 UA = "PA-Airport-Status-GitHub/1.0"
 
 def now_utc_iso_z() -> str:
-    # Example: 2026-01-27T05:12:34Z
     return datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ")
 
 def fetch_text(url: str, timeout: int = 12) -> str:
@@ -19,7 +18,6 @@ def fetch_text(url: str, timeout: int = 12) -> str:
         return resp.read().decode("utf-8", errors="replace")
 
 def parse_metar_time_utc(metar: str) -> str:
-    # METAR group like 270551Z -> return "27 05:51Z"
     m = re.search(r"\b(\d{2})(\d{2})(\d{2})Z\b", metar)
     if not m:
         return ""
@@ -27,22 +25,18 @@ def parse_metar_time_utc(metar: str) -> str:
     return f"{dd} {hh}:{mm}Z"
 
 def parse_visibility_sm(metar: str):
-    # "2 1/2SM"
     m = re.search(r"\b(\d+)\s+(\d+)/(\d+)SM\b", metar)
     if m:
         return float(m.group(1)) + float(m.group(2)) / float(m.group(3))
-    # "1/2SM"
     m = re.search(r"\b(\d+)/(\d+)SM\b", metar)
     if m:
         return float(m.group(1)) / float(m.group(2))
-    # "10SM"
     m = re.search(r"\b(\d+)SM\b", metar)
     if m:
         return float(m.group(1))
     return None
 
 def parse_ceiling_ft_agl(metar: str):
-    # lowest BKN/OVC/VV layer base in feet AGL
     layers = re.findall(r"\b(VV|BKN|OVC)(\d{3})\b", metar)
     vals = []
     for _, h in layers:
@@ -59,21 +53,18 @@ def flight_category_from_metar(metar: str):
     if vis is None and ceil is None:
         return ("UNK", "")
 
-    # LIFR
     if (ceil is not None and ceil < 500) or (vis is not None and vis < 1.0):
         parts = []
         if ceil is not None: parts.append(f"ceiling {ceil}ft")
         if vis is not None: parts.append(f"vis {vis:g}SM")
         return ("LIFR", ", ".join(parts))
 
-    # IFR
     if (ceil is not None and 500 <= ceil < 1000) or (vis is not None and 1.0 <= vis < 3.0):
         parts = []
         if ceil is not None: parts.append(f"ceiling {ceil}ft")
         if vis is not None: parts.append(f"vis {vis:g}SM")
         return ("IFR", ", ".join(parts))
 
-    # MVFR
     if (ceil is not None and 1000 <= ceil < 3000) or (vis is not None and 3.0 <= vis <= 5.0):
         parts = []
         if ceil is not None: parts.append(f"ceiling {ceil}ft")
