@@ -1,5 +1,5 @@
 {
-  "generated_utc": "2026-01-28 20:01:24Z",
+  "generated_utc": "2026-01-28 20:46:20Z",
   "regions": {
     "Western": [
       {
@@ -155,7 +155,7 @@
       "closed": false,
       "closure_reason": "",
       "events": [],
-      "flight_category": "IFR"
+      "flight_category": "MVFR"
     },
     "MDT": {
       "code": "MDT",
