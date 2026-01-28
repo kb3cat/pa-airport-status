@@ -1,5 +1,5 @@
 {
-  "generated_utc": "2026-01-28 10:51:37Z",
+  "generated_utc": "2026-01-28 11:16:56Z",
   "regions": {
     "Western": [
       {
@@ -147,7 +147,7 @@
       "closed": false,
       "closure_reason": "",
       "events": [],
-      "flight_category": "IFR"
+      "flight_category": "MVFR"
     },
     "DUJ": {
       "code": "DUJ",
@@ -179,7 +179,7 @@
       "closed": false,
       "closure_reason": "",
       "events": [],
-      "flight_category": "MVFR"
+      "flight_category": "VFR"
     },
     "IPT": {
       "code": "IPT",
