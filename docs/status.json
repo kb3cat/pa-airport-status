@@ -1,5 +1,5 @@
 {
-  "generated_utc": "2026-01-29 08:30:34Z",
+  "generated_utc": "2026-01-29 09:09:09Z",
   "regions": {
     "Western": [
       {
@@ -131,7 +131,7 @@
       "closed": false,
       "closure_reason": "",
       "events": [],
-      "flight_category": "MVFR"
+      "flight_category": "VFR"
     },
     "LBE": {
       "code": "LBE",
@@ -195,7 +195,7 @@
       "closed": false,
       "closure_reason": "",
       "events": [],
-      "flight_category": "VFR"
+      "flight_category": "MVFR"
     },
     "BFD": {
       "code": "BFD",
