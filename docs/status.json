@@ -1,5 +1,5 @@
 {
-  "generated_utc": "2026-01-29 14:27:34Z",
+  "generated_utc": "2026-01-29 15:06:56Z",
   "regions": {
     "Western": [
       {
@@ -131,7 +131,7 @@
       "closed": false,
       "closure_reason": "",
       "events": [],
-      "flight_category": "VFR"
+      "flight_category": "MVFR"
     },
     "LBE": {
       "code": "LBE",
@@ -179,7 +179,7 @@
       "closed": false,
       "closure_reason": "",
       "events": [],
-      "flight_category": "VFR"
+      "flight_category": "MVFR"
     },
     "IPT": {
       "code": "IPT",
@@ -187,7 +187,7 @@
       "closed": false,
       "closure_reason": "",
       "events": [],
-      "flight_category": "MVFR"
+      "flight_category": "VFR"
     },
     "AOO": {
       "code": "AOO",
@@ -195,7 +195,7 @@
       "closed": false,
       "closure_reason": "",
       "events": [],
-      "flight_category": "MVFR"
+      "flight_category": "VFR"
     },
     "BFD": {
       "code": "BFD",
@@ -203,7 +203,7 @@
       "closed": false,
       "closure_reason": "",
       "events": [],
-      "flight_category": "IFR"
+      "flight_category": "MVFR"
     },
     "PHL": {
       "code": "PHL",
