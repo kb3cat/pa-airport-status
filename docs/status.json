@@ -1,5 +1,5 @@
 {
-  "generated_utc": "2026-01-30 11:59:08Z",
+  "generated_utc": "2026-01-30 13:16:02Z",
   "regions": {
     "Western": [
       {
@@ -259,7 +259,7 @@
       "closed": false,
       "closure_reason": "",
       "events": [],
-      "flight_category": "MVFR"
+      "flight_category": "IFR"
     }
   },
   "source": "nasstatus.faa.gov + aviationweather.gov Data API (metar)",
