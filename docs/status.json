@@ -1,5 +1,5 @@
 {
-  "generated_utc": "2026-01-30 06:08:17Z",
+  "generated_utc": "2026-01-30 07:07:26Z",
   "regions": {
     "Western": [
       {
@@ -131,7 +131,7 @@
       "closed": false,
       "closure_reason": "",
       "events": [],
-      "flight_category": "VFR"
+      "flight_category": "MVFR"
     },
     "LBE": {
       "code": "LBE",
@@ -147,7 +147,7 @@
       "closed": false,
       "closure_reason": "",
       "events": [],
-      "flight_category": "IFR"
+      "flight_category": "MVFR"
     },
     "DUJ": {
       "code": "DUJ",
@@ -195,7 +195,7 @@
       "closed": false,
       "closure_reason": "",
       "events": [],
-      "flight_category": "VFR"
+      "flight_category": "MVFR"
     },
     "BFD": {
       "code": "BFD",
@@ -259,7 +259,7 @@
       "closed": false,
       "closure_reason": "",
       "events": [],
-      "flight_category": "IFR"
+      "flight_category": "MVFR"
     }
   },
   "source": "nasstatus.faa.gov + aviationweather.gov Data API (metar)",
