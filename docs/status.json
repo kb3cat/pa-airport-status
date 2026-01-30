@@ -1,5 +1,5 @@
 {
-  "generated_utc": "2026-01-30 13:16:02Z",
+  "generated_utc": "2026-01-30 14:04:28Z",
   "regions": {
     "Western": [
       {
@@ -131,7 +131,7 @@
       "closed": false,
       "closure_reason": "",
       "events": [],
-      "flight_category": "VFR"
+      "flight_category": "MVFR"
     },
     "LBE": {
       "code": "LBE",
@@ -203,7 +203,7 @@
       "closed": false,
       "closure_reason": "",
       "events": [],
-      "flight_category": "VFR"
+      "flight_category": "MVFR"
     },
     "PHL": {
       "code": "PHL",
@@ -259,7 +259,7 @@
       "closed": false,
       "closure_reason": "",
       "events": [],
-      "flight_category": "IFR"
+      "flight_category": "MVFR"
     }
   },
   "source": "nasstatus.faa.gov + aviationweather.gov Data API (metar)",
